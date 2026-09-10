@@ -1,0 +1,1213 @@
+{
+  "adaptive": {
+    "adaptive_dendritic": true,
+    "adaptive_learning_rule": {},
+    "additive_hidden_no_representation": false,
+    "comparison": {},
+    "fixed_random_dendritic": false,
+    "frozen": false,
+    "heldout_cubic": {
+      "0": {},
+      "1": {},
+      "2": {},
+      "3": {},
+      "4": {},
+      "5": {}
+    },
+    "no_actor": false,
+    "protocol": {
+      "linear_proof": {
+        "coefficients": {},
+        "feature_target_projections": {},
+        "optimal_affine_skill": {}
+      },
+      "phase_lengths_by_seed": {}
+    },
+    "raw_linear_modules": false
+  },
+  "compositional": {
+    "additive_hidden": false,
+    "causal_ablation_by_seed": {
+      "0": {
+        "ablated_edges_after": {
+          "synapse-00000069": {},
+          "synapse-00000114": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000069": {},
+          "synapse-00000114": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "1": {
+        "ablated_edges_after": {
+          "synapse-00000066": {},
+          "synapse-00000100": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000066": {},
+          "synapse-00000100": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "10": {
+        "ablated_edges_after": {
+          "synapse-00000075": {},
+          "synapse-00000120": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000075": {},
+          "synapse-00000120": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "11": {
+        "ablated_edges_after": {
+          "synapse-00000074": {},
+          "synapse-00000119": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000074": {},
+          "synapse-00000119": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "12": {
+        "ablated_edges_after": {
+          "synapse-00000069": {},
+          "synapse-00000115": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000069": {},
+          "synapse-00000115": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "13": {
+        "ablated_edges_after": {
+          "synapse-00000071": {},
+          "synapse-00000108": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000071": {},
+          "synapse-00000108": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "14": {
+        "ablated_edges_after": {
+          "synapse-00000077": {},
+          "synapse-00000122": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000077": {},
+          "synapse-00000122": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "15": {
+        "ablated_edges_after": {
+          "synapse-00000069": {},
+          "synapse-00000115": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000069": {},
+          "synapse-00000115": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "16": {
+        "ablated_edges_after": {
+          "synapse-00000064": {},
+          "synapse-00000111": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000064": {},
+          "synapse-00000111": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "17": {
+        "ablated_edges_after": {
+          "synapse-00000073": {},
+          "synapse-00000107": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000073": {},
+          "synapse-00000107": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "18": {
+        "ablated_edges_after": {
+          "synapse-00000073": {},
+          "synapse-00000119": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000073": {},
+          "synapse-00000119": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "19": {
+        "ablated_edges_after": {
+          "synapse-00000076": {},
+          "synapse-00000110": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000076": {},
+          "synapse-00000110": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "2": {
+        "ablated_edges_after": {
+          "synapse-00000069": {},
+          "synapse-00000114": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000069": {},
+          "synapse-00000114": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "20": {
+        "ablated_edges_after": {
+          "synapse-00000069": {},
+          "synapse-00000114": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000069": {},
+          "synapse-00000114": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "21": {
+        "ablated_edges_after": {
+          "synapse-00000076": {},
+          "synapse-00000121": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000076": {},
+          "synapse-00000121": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "22": {
+        "ablated_edges_after": {
+          "synapse-00000082": {},
+          "synapse-00000127": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000082": {},
+          "synapse-00000127": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "23": {
+        "ablated_edges_after": {
+          "synapse-00000069": {},
+          "synapse-00000115": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000069": {},
+          "synapse-00000115": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "3": {
+        "ablated_edges_after": {
+          "synapse-00000069": {},
+          "synapse-00000115": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000069": {},
+          "synapse-00000115": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "4": {
+        "ablated_edges_after": {
+          "synapse-00000071": {},
+          "synapse-00000118": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000071": {},
+          "synapse-00000118": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "5": {
+        "ablated_edges_after": {
+          "synapse-00000062": {},
+          "synapse-00000096": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000062": {},
+          "synapse-00000096": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "6": {
+        "ablated_edges_after": {
+          "synapse-00000068": {},
+          "synapse-00000114": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000068": {},
+          "synapse-00000114": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "7": {
+        "ablated_edges_after": {
+          "synapse-00000076": {},
+          "synapse-00000110": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000076": {},
+          "synapse-00000110": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "8": {
+        "ablated_edges_after": {
+          "synapse-00000076": {},
+          "synapse-00000121": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000076": {},
+          "synapse-00000121": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      },
+      "9": {
+        "ablated_edges_after": {
+          "synapse-00000067": {},
+          "synapse-00000124": {}
+        },
+        "ablated_edges_before": {
+          "synapse-00000067": {},
+          "synapse-00000124": {}
+        },
+        "direct": {
+          "C0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "C1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P0": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P1": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P2": {
+            "ablated": {},
+            "intact": {}
+          },
+          "P3": {
+            "ablated": {},
+            "intact": {}
+          }
+        },
+        "q0": {
+          "ablated": {},
+          "intact": {}
+        },
+        "q1": {
+          "ablated": {},
+          "intact": {}
+        }
+      }
+    },
+    "comparison": {},
+    "composition_disabled_v10": false,
+    "compositional": true,
+    "frozen": false,
+    "no_actor": false,
+    "protocol": {
+      "composition_seeds": {},
+      "phase_lengths_by_seed": {},
+      "representation_seeds": {},
+      "stream_seeds": {
+        "0": {},
+        "1": {},
+        "10": {},
+        "11": {},
+        "12": {},
+        "13": {},
+        "14": {},
+        "15": {},
+        "16": {},
+        "17": {},
+        "18": {},
+        "19": {},
+        "2": {},
+        "20": {},
+        "21": {},
+        "22": {},
+        "23": {},
+        "3": {},
+        "4": {},
+        "5": {},
+        "6": {},
+        "7": {},
+        "8": {},
+        "9": {}
+      },
+      "walsh_proof": {
+        "other_quartic_projection": {},
+        "own_quartic_basis": {},
+        "own_quartic_projection": {},
+        "quartic_vs_degree_le3": {}
+      }
+    },
+    "raw_linear_modules": false,
+    "red_report_gates": {},
+    "runs": {}
+  },
+  "continuous": {
+    "continuous_lifetime": true,
+    "protocol": {},
+    "runs": {}
+  },
+  "general_structural": {
+    "general_structural": true,
+    "protocol": {},
+    "runs": {}
+  },
+  "multicontext": {
+    "comparison": {},
+    "context_actor": true,
+    "heldout_policy_orders": {
+      "ACBCA": true,
+      "BACBC": true
+    },
+    "no_actor_context": false,
+    "no_context_single_engram": false,
+    "protocol": {
+      "phase_lengths_by_seed": {}
+    }
+  },
+  "nonlinear": {
+    "comparison": {},
+    "dendritic_representation": true,
+    "frozen": false,
+    "heldout_diagnostics": {
+      "continuous_product": {},
+      "sensor_pair_permutation": {}
+    },
+    "hidden_no_actor": false,
+    "hidden_no_node_perturbation": false,
+    "hidden_node_perturbation": false,
+    "no_actor": false,
+    "protocol": {
+      "future_main_gates": {},
+      "linear_proof": {
+        "coefficients": {},
+        "feature_target_projections": {},
+        "optimal_affine_skill": {},
+        "policies": {}
+      },
+      "phase_lengths_by_seed": {},
+      "policies": {},
+      "representation_seeds": {}
+    },
+    "raw_linear_modules": false
+  },
+  "streaming": {
+    "comparison": {
+      "main_Q_return_tail_skill_minus_composition_disabled_v10": {},
+      "main_Q_return_tail_skill_minus_raw": {}
+    },
+    "protocol": {},
+    "runs": {},
+    "streaming_compositional": true
+  },
+  "variable_order": {
+    "additive_hidden": false,
+    "comparison": {},
+    "fixed_random_order_bank": false,
+    "frozen": false,
+    "no_actor": false,
+    "protocol": {
+      "parity_proof": {
+        "cubic_vs_degree2_projections": {},
+        "pair_degree2_own_basis": {},
+        "pair_vs_affine_projections": {},
+        "pair_vs_degree2_projections": {}
+      },
+      "phase_lengths_by_seed": {},
+      "representation_seeds": {}
+    },
+    "raw_linear_modules": false,
+    "red_report_gates": {},
+    "runs": {},
+    "variable_order": true
+  }
+}

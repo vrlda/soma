@@ -1,0 +1,6 @@
+seed=0 off_mean=0.0127 on_mean=0.0127 identical_off=True modules_off=1 modules_on=1 react_off=0 react_on=0 evrecall_on=0 deferred_on=0 shadow_on=474
+seed=1 off_mean=0.0099 on_mean=0.0099 identical_off=True modules_off=1 modules_on=1 react_off=0 react_on=0 evrecall_on=0 deferred_on=0 shadow_on=482
+seed=2 off_mean=0.0224 on_mean=0.0137 identical_off=True modules_off=2 modules_on=1 react_off=1 react_on=0 evrecall_on=0 deferred_on=1 shadow_on=481
+seed=3 off_mean=0.0103 on_mean=0.0103 identical_off=True modules_off=1 modules_on=1 react_off=0 react_on=0 evrecall_on=0 deferred_on=0 shadow_on=495
+seed=4 off_mean=0.0146 on_mean=0.0146 identical_off=True modules_off=1 modules_on=1 react_off=0 react_on=0 evrecall_on=0 deferred_on=0 shadow_on=466
+seed=5 off_mean=0.0291 on_mean=0.0128 identical_off=True modules_off=2 modules_on=1 react_off=1 react_on=0 evrecall_on=0 deferred_on=1 shadow_on=483

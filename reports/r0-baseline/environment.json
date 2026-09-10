@@ -1,0 +1,11 @@
+{
+  "ci_pins": [
+    "3.10",
+    "3.11",
+    "3.12"
+  ],
+  "dependencies": "stdlib-only",
+  "organism_version": 12,
+  "python": "3.14.7",
+  "tests": 229
+}
