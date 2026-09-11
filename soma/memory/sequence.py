@@ -37,6 +37,8 @@ class SequenceCircuitMemory(object):
         self.events_seen = 0
         self.circuits_created = 1
         self.circuits_reclaimed = 0
+        self.chunks = {}
+        self.chunks_promoted = 0
 
     def _new_circuit(self, step):
         return {
@@ -119,8 +121,62 @@ class SequenceCircuitMemory(object):
                 circuit["reuse"] += 1
         self.history.append(symbol)
         if len(self.history) > self.max_order:
-            del self.history[:-self.max_order]
+            if self.max_order <= 0:
+                del self.history[:]
+            else:
+                del self.history[:-self.max_order]
         self.events_seen += 1
+
+    def promote_chunks(self, min_order=8, min_reuse=10, min_concentration=0.9,
+                       max_chunks=4096, max_merged_reuse=None):
+        """Merge extension families into promoted chunk circuits.
+
+        A circuit with a long, often-reused, concentrated context becomes a
+        chunk: descendant extension circuits fold their counts into it and
+        are removed. Prediction code is untouched; backoff simply finds
+        richer aggregated counts. Returns the number of chunks promoted.
+        """
+        if min_order < 1 or min_reuse < 1 or max_chunks < 1:
+            raise ValueError("chunk promotion bounds must be positive")
+        if not 0.0 < float(min_concentration) <= 1.0:
+            raise ValueError("chunk concentration must be in (0, 1]")
+        candidates = []
+        for context, circuit in self.circuits.items():
+            if len(context) < min_order or context in self.chunks:
+                continue
+            total = sum(circuit["counts"])
+            if circuit["reuse"] < min_reuse or total <= 0:
+                continue
+            concentration = max(circuit["counts"]) / total
+            if concentration < float(min_concentration):
+                continue
+            candidates.append((circuit["reuse"], concentration, context))
+        candidates.sort(key=lambda item: (-item[0], -item[1], repr(item[2])))
+        promoted = 0
+        for _, _, context in candidates:
+            if len(self.chunks) >= max_chunks or context not in self.circuits:
+                continue
+            chunk = self.circuits[context]
+            merged = 0
+            for other in [c for c in self.circuits if len(c) > len(context) and c[-len(context):] == context]:
+                if other in self.chunks:
+                    continue
+                if max_merged_reuse is not None and self.circuits[other]["reuse"] > max_merged_reuse:
+                    continue
+                descendant = self.circuits.pop(other)
+                chunk["counts"] = [a + b for a, b in zip(chunk["counts"], descendant["counts"])]
+                chunk["reuse"] += descendant["reuse"]
+                chunk["last_used"] = max(chunk["last_used"], descendant["last_used"])
+                merged += 1
+            total = sum(chunk["counts"])
+            self.chunks[context] = {
+                "merged": merged,
+                "reuse": chunk["reuse"],
+                "concentration": (max(chunk["counts"]) / total) if total > 0 else 0.0,
+            }
+            self.chunks_promoted += 1
+            promoted += 1
+        return promoted
 
     def validate(self):
         if len(self.circuits) > self.max_circuits or () not in self.circuits:
@@ -130,6 +186,11 @@ class SequenceCircuitMemory(object):
         for symbol in self.history:
             if symbol not in self.symbol_index:
                 raise AssertionError("sequence history contains unknown symbol")
+        if not isinstance(self.chunks, dict) or not isinstance(self.chunks_promoted, int):
+            raise AssertionError("sequence chunk state is invalid")
+        for context in self.chunks:
+            if context not in self.circuits:
+                raise AssertionError("sequence chunk has no circuit")
         for context, circuit in self.circuits.items():
             if len(context) > self.max_order or any(symbol not in self.symbol_index for symbol in context):
                 raise AssertionError("sequence circuit context is invalid")
@@ -158,6 +219,14 @@ class SequenceCircuitMemory(object):
             "events_seen": self.events_seen,
             "circuits_created": self.circuits_created,
             "circuits_reclaimed": self.circuits_reclaimed,
+            "chunks_promoted": self.chunks_promoted,
+            "chunks": [
+                {"context": list(context),
+                 "merged": chunk["merged"],
+                 "reuse": chunk["reuse"],
+                 "concentration": chunk["concentration"]}
+                for context, chunk in sorted(self.chunks.items(), key=lambda item: repr(item[0]))
+            ],
             "circuits": [
                 {
                     "context": list(context),
@@ -180,6 +249,17 @@ class SequenceCircuitMemory(object):
         memory.events_seen = int(payload["events_seen"])
         memory.circuits_created = int(payload["circuits_created"])
         memory.circuits_reclaimed = int(payload["circuits_reclaimed"])
+        memory.chunks_promoted = int(payload.get("chunks_promoted", 0))
+        memory.chunks = {}
+        for item in payload.get("chunks", []):
+            context = tuple(item["context"])
+            if context in memory.chunks:
+                raise ValueError("duplicate sequence chunk context")
+            memory.chunks[context] = {
+                "merged": int(item["merged"]),
+                "reuse": int(item["reuse"]),
+                "concentration": float(item["concentration"]),
+            }
         memory.circuits = {}
         for item in payload["circuits"]:
             context = tuple(item["context"])

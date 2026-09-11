@@ -59,6 +59,39 @@ class SequenceCircuitMemoryTests(unittest.TestCase):
         self.assertGreater(memory.circuits_reclaimed, 0)
         memory.validate()
 
+    def test_chunks_merge_and_round_trip(self):
+        memory = SequenceCircuitMemory((0, 1), max_order=8, max_circuits=4096)
+        stream = [0, 0, 1, 1, 0, 1, 0, 0] * 40
+        for symbol in stream:
+            memory.observe(symbol)
+        before = len(memory.circuits)
+        promoted = memory.promote_chunks(min_order=4, min_reuse=5, min_concentration=0.6)
+        self.assertGreater(promoted, 0)
+        self.assertLess(len(memory.circuits), before)
+        memory.validate()
+        restored = SequenceCircuitMemory.from_state_dict(memory.state_dict())
+        self.assertEqual(restored.state_dict(), memory.state_dict())
+        self.assertEqual(restored.distribution(), memory.distribution())
+
+    def test_chunks_reject_bad_bounds(self):
+        memory = SequenceCircuitMemory((0, 1))
+        with self.assertRaises(ValueError):
+            memory.promote_chunks(min_order=0)
+        with self.assertRaises(ValueError):
+            memory.promote_chunks(min_concentration=1.5)
+
+    def test_selective_merge_keeps_proven_circuits(self):
+        memory = SequenceCircuitMemory((0, 1), max_order=8, max_circuits=4096)
+        for symbol in [0, 0, 1, 1] * 60 + [0, 1] * 4:
+            memory.observe(symbol)
+        full = SequenceCircuitMemory.from_state_dict(memory.state_dict())
+        full.promote_chunks(min_order=4, min_reuse=5, min_concentration=0.6)
+        selective = SequenceCircuitMemory.from_state_dict(memory.state_dict())
+        selective.promote_chunks(min_order=4, min_reuse=5, min_concentration=0.6,
+                                 max_merged_reuse=2)
+        self.assertGreaterEqual(len(selective.circuits), len(full.circuits))
+        selective.validate()
+
     def test_rejects_corrupt_state(self):
         memory = SequenceCircuitMemory((0, 1), max_order=3, max_circuits=32)
         for symbol in (0, 1, 0, 1):

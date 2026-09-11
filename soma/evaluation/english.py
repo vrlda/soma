@@ -284,6 +284,51 @@ def run_english_continued(partitions, seed, mode="learn", adapter_name="raw"):
     return reports, organism, bridge
 
 
+def run_english_brain_memory(partitions, seed=0, max_order=16, max_circuits=131072,
+                             min_support=2, prior=0.5, lesion=False):
+    """Same protocol as run_english_sequence_memory, state owned by a brain.
+
+    The SequenceCircuitMemory lives inside an Organism checkpoint: identical
+    predictions to the standalone runner, plus lifecycle persistence, exact
+    save/load resume, and validation. The lesion path is identical too.
+    """
+    from ..organism import Organism
+    organism = Organism.create_default(input_size=2, hidden_size=2, output_size=1, seed=seed)
+    organism.enable_sequence_memory((0, 1), max_order=max_order, max_circuits=max_circuits,
+                                    min_support=min_support, prior=prior)
+    reports = []
+    for partition_index, data in enumerate(partitions):
+        bits, ends = bit_stream(data)
+        organism.reset_sequence_history()
+        predictions, targets, conditions, orders = [], [], [], []
+        learn = partition_index == 0
+        for step in range(max(0, len(bits) - 1)):
+            organism.observe_sequence_event(bits[step], learn=learn)
+            distribution, order = organism.sequence_distribution()
+            prediction = 0.5 if lesion else distribution[1]
+            predictions.append(prediction)
+            targets.append(bits[step + 1])
+            conditions.append(ends[step])
+            orders.append(order)
+        rewards = [1.0 - abs(prediction - target)
+                   for prediction, target in zip(predictions, targets)]
+        report = _summarize(
+            seed, "brain_memory_lesion" if lesion else "brain_memory",
+            predictions, targets, rewards, conditions)
+        report.update({
+            "partition": partition_index,
+            "learning": learn,
+            "max_order": max_order,
+            "mean_selected_order": sum(orders) / max(1, len(orders)),
+            "circuits": len(organism.sequence_memory.circuits),
+            "circuits_created": organism.sequence_memory.circuits_created,
+            "circuits_reclaimed": organism.sequence_memory.circuits_reclaimed,
+        })
+        reports.append(report)
+    organism.validate()
+    return reports, organism
+
+
 def run_english_sequence_memory(partitions, max_order=16, max_circuits=131072,
                                 lesion=False):
     """Run the generic bounded sequence-circuit memory over byte-bit events.

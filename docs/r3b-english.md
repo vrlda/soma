@@ -49,6 +49,38 @@ lifecycle, exact compound checkpointing is demonstrated, repeated suffixes can
 be promoted into reusable hierarchical circuits, and the next locked English
 gate distinguishes compositional transfer from context-table memorization.
 
+## Integration into the brain lifecycle (done)
+
+- `Organism.enable_sequence_memory` owns a `SequenceCircuitMemory`: observe,
+  predict, reset-history, validate, checkpoint save/load, legacy migration.
+- `run_english_brain_memory` reproduces the standalone numbers exactly and
+  resumes byte-identically from saved brain checkpoints (tested).
+- Fixed an order-0 history-trim bug found by the ablation below.
+
+## Order ablation: where byte structure lives (E0 slice)
+
+Held-out bits/bit by maximum order: 0: 0.991, 1: 0.991, 2: 0.981, 4: 0.955,
+8: 0.691, 16: 0.418. Orders below 8 cannot touch the bar; byte structure
+lives at order 8+. Novelty split on held-out data: order>=12 predictions
+0.374, backed-off predictions 0.93-1.35. Frequent patterns transfer;
+unseen patterns collapse. That is table behavior with backoff, honestly
+measured, and it scopes the composition problem precisely.
+
+## Hierarchical chunk promotion (done, lossy-optional)
+
+`promote_chunks` merges extension families into promoted chunk circuits with
+aggregated counts; prediction code untouched. On full E0:
+
+- merge all: 37,134 -> 11,950 circuits (3x), held-out 0.375 -> 0.439.
+- merge one-shot children only: 37,134 -> 33,964 circuits, held-out 0.3752
+  (identical). Principled forgetting: disposable memorization compresses
+  losslessly; load-bearing circuits stay.
+
+Chunks compress memory; they do not yet improve novel-context transfer.
+Compositional transfer (novel arrangements of familiar parts outperforming
+backoff) remains the defined next gate, alongside brain-action fusion
+(memory driving organism decisions, currently harness-driven).
+
 ## Breakthrough since the E0 stop
 
 The stop was revisited mechanism by mechanism. Results on Alice E0:

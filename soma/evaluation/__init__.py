@@ -10,6 +10,7 @@ from .english import (
     load_corpus,
     partition_documents,
     run_english,
+    run_english_brain_memory,
     run_english_continued,
     split_chapters,
 )
@@ -39,6 +40,7 @@ __all__ = [
     "partition_documents",
     "read_lineage",
     "run_english",
+    "run_english_brain_memory",
     "run_english_continued",
     "run_event_context",
     "run_event_context_benchmark",

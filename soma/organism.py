@@ -127,6 +127,11 @@ class Organism:
         # R3B: installed product cells feeding input-afferent motor modules.
         # Empty in every legacy regime; consulted only for input-kind owners.
         self.variable_order_extra_sources: Dict[str, List[str]] = {}
+        # Sequence-circuit memory: domain-neutral ordered-event prediction
+        # owned by the brain lifecycle. None until explicitly enabled; the
+        # harness declares the symbol set (brain never sees task meaning).
+        self.sequence_memory = None
+        self.sequence_memory_symbols: Optional[tuple] = None
         # v11 compositional substrate.  It is inert until explicitly enabled
         # and owns a dedicated RNG so v10 routing/action streams are stable.
         self.compositional_substrate_enabled = False
@@ -553,6 +558,42 @@ class Organism:
         self.composition_fingerprint_pending = None
         self.composition_direct_route_pending = False
         self.validate()
+
+    def enable_sequence_memory(self, symbols, max_order=16, max_circuits=131072,
+                               min_support=2, prior=0.5) -> None:
+        """Enable brain-owned ordered-event prediction over declared symbols.
+
+        Symbols are opaque labels declared by the harness (transducer domain);
+        the brain learns their sequential structure and nothing else.  Inert
+        until enabled: legacy regimes never carry sequence state.
+        """
+        from .memory.sequence import SequenceCircuitMemory
+        if self.sequence_memory is not None:
+            raise ValueError("sequence memory is already enabled")
+        memory = SequenceCircuitMemory(tuple(symbols), max_order=max_order,
+                                       max_circuits=max_circuits,
+                                       min_support=min_support, prior=prior)
+        self.sequence_memory = memory
+        self.sequence_memory_symbols = tuple(symbols)
+        self.validate()
+
+    def observe_sequence_event(self, symbol, learn=True):
+        """Record one ordered event in brain-owned sequence memory."""
+        if self.sequence_memory is None:
+            raise ValueError("sequence memory is not enabled")
+        self.sequence_memory.observe(symbol, learn=bool(learn))
+
+    def sequence_distribution(self):
+        """Predictive distribution from brain-owned sequence memory."""
+        if self.sequence_memory is None:
+            raise ValueError("sequence memory is not enabled")
+        return self.sequence_memory.distribution()
+
+    def reset_sequence_history(self):
+        """Start a new stream; acquired circuits persist (long-term memory)."""
+        if self.sequence_memory is None:
+            raise ValueError("sequence memory is not enabled")
+        self.sequence_memory.reset_history()
 
     def enable_composition_signal_normalization(self, gain: float) -> None:
         """Compensate bounded activation loss across a composed path."""
@@ -4624,6 +4665,15 @@ class Organism:
                 raise AssertionError("evidence pending growth edge is invalid")
             if int(pending_growth.get("edge_n", -1)) < 0:
                 raise AssertionError("evidence pending growth edge count is invalid")
+        if (self.sequence_memory is None) != (self.sequence_memory_symbols is None):
+            raise AssertionError("sequence memory and symbols must be set together")
+        if self.sequence_memory is not None:
+            if tuple(self.sequence_memory.symbols) != tuple(self.sequence_memory_symbols):
+                raise AssertionError("sequence memory symbols disagree with memory state")
+            try:
+                self.sequence_memory.validate()
+            except AssertionError as error:
+                raise AssertionError("sequence memory is invalid: %s" % error)
         if any(key != "__novelty__" and key not in self.motor_modules for key in self.variable_order_owner_posterior):
             raise AssertionError("variable-order owner posterior has an unknown owner")
         if any(not math.isfinite(value) or value < 0.0 or value > 1.0 for value in self.variable_order_owner_posterior.values()):
@@ -5384,6 +5434,8 @@ class Organism:
             "evidence_recent_count": self.evidence_recent_count,
             "evidence_recent_decay": self.evidence_recent_decay,
             "evidence_pending_growth": copy.deepcopy(self.evidence_pending_growth),
+            "sequence_memory": None if self.sequence_memory is None else self.sequence_memory.state_dict(),
+            "sequence_memory_symbols": None if self.sequence_memory_symbols is None else list(self.sequence_memory_symbols),
         }
 
     def save(self, path: str) -> None:
@@ -5750,6 +5802,17 @@ class Organism:
         organism.evidence_recent_decay = float(state.get("evidence_recent_decay", 0.95))
         pending_growth = state.get("evidence_pending_growth")
         organism.evidence_pending_growth = None if pending_growth is None else dict(pending_growth)
+        sequence_payload = state.get("sequence_memory")
+        if sequence_payload is None:
+            organism.sequence_memory = None
+            organism.sequence_memory_symbols = None
+        else:
+            from .memory.sequence import SequenceCircuitMemory
+            organism.sequence_memory = SequenceCircuitMemory.from_state_dict(sequence_payload)
+            symbols = state.get("sequence_memory_symbols")
+            organism.sequence_memory_symbols = tuple(symbols) if symbols is not None else tuple(organism.sequence_memory.symbols)
+            if tuple(organism.sequence_memory.symbols) != tuple(organism.sequence_memory_symbols):
+                raise ValueError("sequence memory symbols disagree with memory state")
         organism.validate()
         return organism
 
