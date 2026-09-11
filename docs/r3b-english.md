@@ -23,10 +23,23 @@ variable-order profile (installs 3, worse than direct actor).
 ## E0 gate status: OPEN (bar 0.59 bits/bit, best held-out 0.99)
 
 Remaining gap is byte-identity memory: integrating ~8 bits into byte
-representations. Variable-order installs do not engage usefully on bit
-streams; the compositional-memory mechanism is the defined next work,
-alongside router noise tolerance and stochastic grammar (both RED with
-diagnosed causes below).
+representations.
+
+## Authorized VO surgery (branch r3b-vo-input-aff): complete, no gain
+
+Variable-order pair features can now be owned by input-afferent motor
+modules (extra-sources map, route recruits incumbent kind, gated validation,
+persisted + replay-tested, 6 new tests, full 310-test suite green).
+On E0-phase full acquisition (127 KB, 1M bits): 4 installs, 541 routes,
+train acc 0.638 / intra 0.597, held-out acc 0.633 / intra 0.595 — identical
+to no-VO within noise. Installs do not convert to accuracy on stationary
+bit streams. Context-free + phase is worse (0.605); hidden-aff variants are
+worse on accuracy. ~27 configurations measured; the wall is solid.
+
+## Carried (honest)
+
+Router noise tolerance, stochastic grammar, byte-compositional memory,
+multi-output discrete control. R3B stays unmarked until the E0 gate passes.
 
 ## Shipped
 

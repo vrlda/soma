@@ -1,0 +1,1 @@
+{"heldout": {"acc": 0.6329466357308585, "bpb": 1.0200775351374114, "installs": 4, "intra": 0.5951870271289509, "routes": 541}, "train": {"acc": 0.6376263433588274, "bpb": 1.005026717034238, "installs": 4, "intra": 0.5967246915134726, "modules": ["motor-module-000", "motor-module-001", "motor-module-002", "motor-module-003"], "routes": 541}}

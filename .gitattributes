@@ -9,3 +9,5 @@
 /reports/r1-evidence-on-final.json filter=lfs diff=lfs merge=lfs -text
 /reports/r1-evidence-on-streaming.json filter=lfs diff=lfs merge=lfs -text
 /reports/r1-evidence-on-variable_order.json filter=lfs diff=lfs merge=lfs -text
+/reports/r3b-e0-vo-ckpt.json filter=lfs diff=lfs merge=lfs -text
+/reports/r3b-e0-vo-train.json filter=lfs diff=lfs merge=lfs -text
