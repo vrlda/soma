@@ -59,6 +59,38 @@ class R3BEnglishTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 clone_brain(source, os.path.join(directory, "x.json"), "")
 
+    def test_utf8_prefix_walker_no_false_negatives(self):
+        import random
+        from soma.evaluation.generate import _is_valid_utf8_prefix
+        rng = random.Random(1234)
+        for _ in range(2000):
+            data = bytes(rng.randint(0, 255) for _ in range(rng.randint(0, 24)))
+            try:
+                data.decode("utf-8", errors="strict")
+            except UnicodeDecodeError:
+                continue
+            self.assertTrue(_is_valid_utf8_prefix(data))
+
+    def test_constrained_decoder_never_dead_ends(self):
+        import random
+        from soma.evaluation.generate import _bits_form_valid_prefix
+        rng = random.Random(99)
+        checked = 0
+        for _ in range(5000):
+            bits = [rng.randint(0, 1) for _ in range(rng.randint(0, 40))]
+            if _bits_form_valid_prefix(bits):
+                checked += 1
+                self.assertTrue(_bits_form_valid_prefix(bits + [0])
+                                or _bits_form_valid_prefix(bits + [1]))
+        self.assertGreater(checked, 1000)
+
+    def test_surrogate_ranges_rejected(self):
+        from soma.evaluation.generate import _is_valid_utf8_prefix
+        self.assertFalse(_is_valid_utf8_prefix(bytes([0xED, 0xBC])))
+        self.assertFalse(_is_valid_utf8_prefix(bytes([0xED, 0xA0, 0x80])))
+        self.assertTrue(_is_valid_utf8_prefix(bytes([0xED, 0x9F, 0xBF])))
+        self.assertFalse(_is_valid_utf8_prefix(bytes([0xC0, 0xAF])))
+
     def test_encode_precedes_stream(self):
         data = "Hi!".encode("utf-8")
         rows = encode_bytes(data)

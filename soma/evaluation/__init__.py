@@ -1,5 +1,14 @@
 """R2 evaluation: locked cross-domain fixtures over the event bridge."""
 
+from .generate import (
+    FIXED_PREFIXES,
+    continuation_nll,
+    generate,
+    generate_constrained,
+    horizon_sensitivity,
+    run_generation_suite,
+    temper,
+)
 from .english import (
     SHUFFLE_LAG,
     bit_bigram_bits,
@@ -38,7 +47,12 @@ __all__ = [
     "bits_per_bit",
     "byte_unigram_bits",
     "clone_brain",
+    "FIXED_PREFIXES",
     "composite_probe_bytes",
+    "continuation_nll",
+    "generate",
+    "generate_constrained",
+    "horizon_sensitivity",
     "load_corpus",
     "partition_documents",
     "read_lineage",
@@ -46,6 +60,8 @@ __all__ = [
     "run_english_brain_memory",
     "run_english_continued",
     "run_english_fused",
+    "run_generation_suite",
+    "temper",
     "run_event_context",
     "run_event_context_benchmark",
     "run_sequence",

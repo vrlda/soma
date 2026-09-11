@@ -97,6 +97,16 @@ The fusion pathway is plumbed and parity-proven; its full payoff belongs to
 generation (R3C), where motor actions must consult memory. R3B stays open
 pending generation and compositional transfer.
 
+## R3C generation (`r3c_generation_benchmark.py`, all gates pass)
+
+- Constrained emission (exact UTF-8 prefix-legality per bit, encoding law
+  only): 7/7 deterministic + 28/28 sampled outputs valid. Raw sampling is
+  0/7, documenting why the constraint exists. Two surrogate-range bugs
+  found by fuzzing and fixed (reason-string dispatch, inverted ED range).
+- History dependence scoped: within-horizon spread 0.081, beyond 0.0.
+- Lesion: 1.0 vs 0.413 intact. Self-emissions never train (counts frozen).
+- Fuzz-verified: 0 false negatives on 50k strings, 0 dead ends in 200k.
+
 ## Breakthrough since the E0 stop
 
 The stop was revisited mechanism by mechanism. Results on Alice E0:

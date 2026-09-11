@@ -1,0 +1,31 @@
+{
+  "all_passed": true,
+  "continuation_nll_intact": 0.41329055087717653,
+  "continuation_nll_lesioned": 1.0,
+  "corpus": "data/e0/alice.txt",
+  "gates": {
+    "history_dependence": true,
+    "lesion_degrades": true,
+    "no_self_training": true,
+    "validity": true
+  },
+  "manifest": {
+    "acquisition_bytes": 127072,
+    "documents": 13,
+    "license": "public-domain",
+    "test_bytes": 11782,
+    "test_sha256": "14005372aaf864d1aef667e5c13e3d8a666dfd900b90359a1d50da862b356e29",
+    "validation_bytes": 12122
+  },
+  "protocol": "r3c-generation-v1",
+  "self_training_silent": true,
+  "spread_beyond_horizon": 0.0,
+  "spread_within_horizon": 0.08053824265623477,
+  "suite": {
+    "deterministic_distinct": 3,
+    "deterministic_valid_rate": 1.0,
+    "prefixes": 7,
+    "sampled_distinct": 28,
+    "sampled_valid_rate": 1.0
+  }
+}
