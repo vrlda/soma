@@ -132,6 +132,13 @@ class Organism:
         # harness declares the symbol set (brain never sees task meaning).
         self.sequence_memory = None
         self.sequence_memory_symbols: Optional[tuple] = None
+        # Fusion trust: decayed log-evidence for memory vs motor forecasts.
+        # Fixed decay; no tuning per run. Transient pending forecast included
+        # so mid-stream checkpoints resume exactly.
+        self.fusion_ll_memory = 0.0
+        self.fusion_ll_motor = 0.0
+        self.fusion_decay = 0.99
+        self.fusion_last = None
         # v11 compositional substrate.  It is inert until explicitly enabled
         # and owns a dedicated RNG so v10 routing/action streams are stable.
         self.compositional_substrate_enabled = False
@@ -579,8 +586,17 @@ class Organism:
 
     def observe_sequence_event(self, symbol, learn=True):
         """Record one ordered event in brain-owned sequence memory."""
+        import math as _math
         if self.sequence_memory is None:
             raise ValueError("sequence memory is not enabled")
+        pending = self.fusion_last
+        if pending is not None:
+            memory_ll = _math.log(max(1e-6, min(1.0 - 1e-6, float(pending[0].get(symbol, 1e-6)))))
+            motor_p = max(1e-6, min(1.0 - 1e-6, float(pending[1])))
+            motor_ll = _math.log(motor_p if symbol == 1 else 1.0 - motor_p)
+            self.fusion_ll_memory = self.fusion_decay * self.fusion_ll_memory + memory_ll
+            self.fusion_ll_motor = self.fusion_decay * self.fusion_ll_motor + motor_ll
+            self.fusion_last = None
         self.sequence_memory.observe(symbol, learn=bool(learn))
 
     def sequence_distribution(self):
@@ -594,6 +610,33 @@ class Organism:
         if self.sequence_memory is None:
             raise ValueError("sequence memory is not enabled")
         self.sequence_memory.reset_history()
+
+    def fuse_with_memory(self, motor_probability, symbol=1):
+        """Uncertainty-gated mixture of sequence memory and a motor forecast.
+
+        Weight follows memory concentration: sharp memory dominates familiar
+        contexts; the motor fallback covers novel ones. Both inputs are
+        probabilities in [0, 1]; the head mapping stays transducer-side.
+        Deterministic. Requires enabled sequence memory.
+        """
+        import math as _math
+        if self.sequence_memory is None:
+            raise ValueError("sequence memory is not enabled")
+        if symbol not in self.sequence_memory.symbol_index:
+            raise ValueError("unknown sequence symbol")
+        motor_probability = float(motor_probability)
+        if not _math.isfinite(motor_probability) or not 0.0 <= motor_probability <= 1.0:
+            raise ValueError("motor probability must be in [0, 1]")
+        distribution, _ = self.sequence_memory.distribution()
+        memory_probability = float(distribution[symbol])
+        # Performance arbitration: trust follows decayed log-evidence.
+        # Cold start splits evenly; steady state favors the better predictor.
+        edge = self.fusion_ll_memory - self.fusion_ll_motor
+        edge = max(-50.0, min(50.0, edge))
+        import math as _math
+        weight = 1.0 / (1.0 + _math.exp(-edge))
+        self.fusion_last = (dict(distribution), motor_probability)
+        return weight * memory_probability + (1.0 - weight) * motor_probability
 
     def enable_composition_signal_normalization(self, gain: float) -> None:
         """Compensate bounded activation loss across a composed path."""
@@ -4667,6 +4710,15 @@ class Organism:
                 raise AssertionError("evidence pending growth edge count is invalid")
         if (self.sequence_memory is None) != (self.sequence_memory_symbols is None):
             raise AssertionError("sequence memory and symbols must be set together")
+        for name in ("fusion_ll_memory", "fusion_ll_motor"):
+            if not math.isfinite(float(getattr(self, name))):
+                raise AssertionError("fusion trust must be finite")
+        if not math.isfinite(float(self.fusion_decay)) or not 0.0 < float(self.fusion_decay) < 1.0:
+            raise AssertionError("fusion decay is invalid")
+        if self.fusion_last is not None:
+            if (not isinstance(self.fusion_last, (list, tuple)) or len(self.fusion_last) != 2
+                    or not isinstance(self.fusion_last[0], dict)):
+                raise AssertionError("fusion pending forecast is invalid")
         if self.sequence_memory is not None:
             if tuple(self.sequence_memory.symbols) != tuple(self.sequence_memory_symbols):
                 raise AssertionError("sequence memory symbols disagree with memory state")
@@ -5436,6 +5488,13 @@ class Organism:
             "evidence_pending_growth": copy.deepcopy(self.evidence_pending_growth),
             "sequence_memory": None if self.sequence_memory is None else self.sequence_memory.state_dict(),
             "sequence_memory_symbols": None if self.sequence_memory_symbols is None else list(self.sequence_memory_symbols),
+            "fusion_ll_memory": self.fusion_ll_memory,
+            "fusion_ll_motor": self.fusion_ll_motor,
+            "fusion_decay": self.fusion_decay,
+            "fusion_last": None if self.fusion_last is None else [
+                {str(key): value for key, value in self.fusion_last[0].items()},
+                self.fusion_last[1],
+            ],
         }
 
     def save(self, path: str) -> None:
@@ -5813,6 +5872,21 @@ class Organism:
             organism.sequence_memory_symbols = tuple(symbols) if symbols is not None else tuple(organism.sequence_memory.symbols)
             if tuple(organism.sequence_memory.symbols) != tuple(organism.sequence_memory_symbols):
                 raise ValueError("sequence memory symbols disagree with memory state")
+        organism.fusion_ll_memory = float(state.get("fusion_ll_memory", 0.0))
+        organism.fusion_ll_motor = float(state.get("fusion_ll_motor", 0.0))
+        organism.fusion_decay = float(state.get("fusion_decay", 0.99))
+        fusion_last = state.get("fusion_last")
+        if fusion_last is None:
+            organism.fusion_last = None
+        else:
+            distribution = {}
+            for key, value in dict(fusion_last[0]).items():
+                try:
+                    restored_key = int(key)
+                except (TypeError, ValueError):
+                    restored_key = key
+                distribution[restored_key] = float(value)
+            organism.fusion_last = (distribution, float(fusion_last[1]))
         organism.validate()
         return organism
 

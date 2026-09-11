@@ -57,6 +57,57 @@ class BrainMemoryTests(unittest.TestCase):
         self.assertIsNone(restored.sequence_memory)
         restored.validate()
 
+    def test_fuse_guards(self):
+        organism = Organism.create_default(input_size=2, hidden_size=2, output_size=1, seed=6)
+        with self.assertRaises(ValueError):
+            organism.fuse_with_memory(0.5, 1)
+        organism.enable_sequence_memory((0, 1))
+        with self.assertRaises(ValueError):
+            organism.fuse_with_memory(2.0, 1)
+        with self.assertRaises(ValueError):
+            organism.fuse_with_memory(0.5, 7)
+
+    def test_fuse_trust_follows_evidence(self):
+        organism = Organism.create_default(input_size=2, hidden_size=2, output_size=1, seed=7)
+        organism.enable_sequence_memory((0, 1), max_order=4, max_circuits=128)
+        for symbol in [1, 1, 1, 1] * 20:
+            organism.observe_sequence_event(symbol)
+        distribution, _ = organism.sequence_distribution()
+        memory_probability = distribution[1]
+        fused = organism.fuse_with_memory(0.0, 1)
+        # Blend stays between its inputs at cold-start trust.
+        self.assertGreaterEqual(fused, 0.0)
+        self.assertLessEqual(fused, memory_probability)
+        before = organism.fusion_ll_memory - organism.fusion_ll_motor
+        organism.observe_sequence_event(1)
+        after = organism.fusion_ll_memory - organism.fusion_ll_motor
+        self.assertGreater(after, before)
+        # Earned trust pulls later fusions toward memory.
+        later = organism.fuse_with_memory(0.0, 1)
+        self.assertGreater(later, fused)
+
+    def test_fuse_checkpoint_resume_exact(self):
+        import tempfile
+        import os
+        organism = Organism.create_default(input_size=2, hidden_size=2, output_size=1, seed=8)
+        organism.enable_sequence_memory((0, 1), max_order=4, max_circuits=128)
+        stream = [0, 1, 1, 0, 1, 0, 0, 1] * 10
+        for symbol in stream[:40]:
+            organism.observe_sequence_event(symbol)
+            organism.fuse_with_memory(0.4, 1)
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "brain.json")
+            organism.save(path)
+            restored = Organism.load(path)
+            self.assertEqual(restored.state_dict(), organism.state_dict())
+        for symbol in stream[40:]:
+            organism.observe_sequence_event(symbol)
+            left = organism.fuse_with_memory(0.4, 1)
+            restored.observe_sequence_event(symbol)
+            right = restored.fuse_with_memory(0.4, 1)
+            self.assertEqual(left, right)
+        self.assertEqual(restored.state_dict(), organism.state_dict())
+
     def test_reset_keeps_circuits(self):
         organism = Organism.create_default(input_size=2, hidden_size=2, output_size=1, seed=5)
         organism.enable_sequence_memory((0, 1), max_order=4, max_circuits=128)

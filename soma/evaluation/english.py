@@ -284,6 +284,82 @@ def run_english_continued(partitions, seed, mode="learn", adapter_name="raw"):
     return reports, organism, bridge
 
 
+def composite_probe_bytes(seed, n_bytes=12000):
+    """Novel arrangements of familiar bytes: random lowercase words.
+
+    Every byte is frequent in English training; almost no multi-byte
+    sequence was ever observed. Memory backs off here while the motor
+    framing rule still fires: the division-of-labor probe.
+    """
+    rng = random.Random(seed)
+    alphabet = "abcdefghijklmnopqrstuvwxyz "
+    out = bytearray()
+    while len(out) < n_bytes:
+        word = "".join(rng.choice(alphabet) for _ in range(rng.randint(3, 9)))
+        out.extend((word + " ").encode("utf-8"))
+    return bytes(out[:n_bytes])
+
+
+def run_english_fused(partitions, seed=0, adapter_name="phase", lesion_memory=False):
+    """One brain, two learners: actor motor path plus owned sequence memory.
+
+    The actor trains on its own motor error (independent fallback); memory
+    learns by observation; readout fuses by memory concentration. With
+    lesion_memory the memory leaves the decision path (motor-only control).
+    """
+    if adapter_name not in ADAPTERS:
+        raise ValueError("unknown English adapter: %s" % adapter_name)
+    from ..organism import Organism
+    adapter = ADAPTERS[adapter_name]()
+    organism = make_english_organism(seed, input_size=adapter.input_size)
+    organism.enable_sequence_memory((0, 1), max_order=16, max_circuits=131072,
+                                    min_support=2, prior=0.5)
+    bridge = EventBridge(organism, adapter, novelty=0.10, exploration=0.20)
+    total_bits = sum(len(bit_stream(data)[0]) for data in partitions)
+    tape = random.Random((seed + 1) * 1000033 + 3571)
+    organism.set_exploration_tape(tuple(tape.uniform(-1.0, 1.0) for _ in range(total_bits)))
+    counters = {key: 0 for key in _counter_keys(adapter_name)}
+    clock_offset = 0
+    reports = []
+    for partition_index, data in enumerate(partitions):
+        bits, ends = bit_stream(data)
+        organism.reset_sequence_history()
+        predictions, targets, conditions, motor_only = [], [], [], []
+        learn = partition_index == 0
+        for step in range(max(0, len(bits) - 1)):
+            clock = clock_offset + step
+            action = bridge.ingest(_step_envelopes(
+                adapter_name, bits, ends, step, clock, counters))
+            motor_probability = action["proposal"]["value"]
+            organism.observe_sequence_event(bits[step], learn=learn)
+            if lesion_memory:
+                prediction = motor_probability
+            else:
+                prediction = organism.fuse_with_memory(motor_probability, 1)
+            predictions.append(prediction)
+            targets.append(bits[step + 1])
+            conditions.append(ends[step])
+            motor_only.append(motor_probability)
+            bridge.outcome(OutcomeEvent(
+                action["correlation_id"], clock,
+                1.0 - abs(motor_probability - bits[step + 1]), "corpus").to_dict())
+        clock_offset += len(predictions)
+        report = _summarize(seed, "fused_lesion" if lesion_memory else "fused",
+                            predictions, targets,
+                            [1.0 - abs(p - t) for p, t in zip(predictions, targets)],
+                            conditions)
+        report["partition"] = partition_index
+        report["learning"] = learn
+        report["circuits"] = len(organism.sequence_memory.circuits)
+        subset = [(p, t) for p, t, c in zip(predictions, targets, conditions) if c == 1]
+        report["msb_bits_per_bit"] = bits_per_bit(
+            [p for p, _ in subset], [t for _, t in subset]) if subset else None
+        reports.append(report)
+    organism.validate()
+    bridge.close()
+    return reports, organism
+
+
 def run_english_brain_memory(partitions, seed=0, max_order=16, max_circuits=131072,
                              min_support=2, prior=0.5, lesion=False):
     """Same protocol as run_english_sequence_memory, state owned by a brain.
@@ -324,6 +400,9 @@ def run_english_brain_memory(partitions, seed=0, max_order=16, max_circuits=1310
             "circuits_created": organism.sequence_memory.circuits_created,
             "circuits_reclaimed": organism.sequence_memory.circuits_reclaimed,
         })
+        subset = [(p, t) for p, t, c in zip(predictions, targets, conditions) if c == 1]
+        report["msb_bits_per_bit"] = bits_per_bit(
+            [p for p, _ in subset], [t for _, t in subset]) if subset else None
         reports.append(report)
     organism.validate()
     return reports, organism

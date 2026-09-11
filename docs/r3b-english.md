@@ -81,6 +81,22 @@ Compositional transfer (novel arrangements of familiar parts outperforming
 backoff) remains the defined next gate, alongside brain-action fusion
 (memory driving organism decisions, currently harness-driven).
 
+## Brain-action fusion (done, `r3b_fusion_benchmark.py`)
+
+`Organism.fuse_with_memory` mixes owned sequence memory with the actor motor
+forecast by decayed log-evidence trust (fixed decay, no per-run tuning).
+Full E0 gates, all passing:
+
+- parity: fused 0.37509 vs memory-alone 0.37509 (no regression);
+- fallback: composite-probe msb bits fused 0.2116 vs memory-alone 0.3317,
+  novel lowercase arrangements of familiar bytes where memory backs off
+  and the motor framing rule still fires;
+- causal: memory lesion degrades fused to motor level (0.994).
+
+The fusion pathway is plumbed and parity-proven; its full payoff belongs to
+generation (R3C), where motor actions must consult memory. R3B stays open
+pending generation and compositional transfer.
+
 ## Breakthrough since the E0 stop
 
 The stop was revisited mechanism by mechanism. Results on Alice E0:
