@@ -124,6 +124,9 @@ class Organism:
         self.variable_order_enabled = False
         self.max_dendritic_order = 2
         self.variable_order_feature_owners: Dict[str, str] = {}
+        # R3B: installed product cells feeding input-afferent motor modules.
+        # Empty in every legacy regime; consulted only for input-kind owners.
+        self.variable_order_extra_sources: Dict[str, List[str]] = {}
         # v11 compositional substrate.  It is inert until explicitly enabled
         # and owns a dedicated RNG so v10 routing/action streams are stable.
         self.compositional_substrate_enabled = False
@@ -2335,7 +2338,10 @@ class Organism:
             elif len(self.motor_modules) < self.context_max_modules:
                 checkpoint = copy.deepcopy(self.__dict__)
                 try:
-                    owner = self._recruit_motor_module(afferent_kind="hidden")
+                    incumbent_module = self.motor_modules.get(incumbent_id)
+                    owner = self._recruit_motor_module(
+                        afferent_kind=incumbent_module.afferent_kind
+                        if incumbent_module is not None else "hidden")
                     if owner.id in self.variable_order_module_features:
                         raise RuntimeError("variable-order module already owns a feature")
                     self._variable_order_internal_transition = True
@@ -2548,8 +2554,8 @@ class Organism:
         if key in self.variable_order_feature_owners:
             raise ValueError("dendritic feature is already owned")
         owner = self.motor_modules.get(str(owner_module_id))
-        if owner is None or owner.afferent_kind != "hidden" or owner.cell_id not in self.cells or self.cells[owner.cell_id].kind != "motor_module":
-            raise ValueError("feature owner must be an existing hidden-afferent motor module")
+        if owner is None or owner.afferent_kind not in ("input", "hidden") or owner.cell_id not in self.cells or self.cells[owner.cell_id].kind != "motor_module":
+            raise ValueError("feature owner must be an existing motor module")
         candidate_ids = [str(cell_id)] if cell_id is not None else sorted(
             identifier for identifier, cell in self.cells.items() if cell.kind == "hidden" and cell.activation_type == "additive"
         )
@@ -2593,6 +2599,7 @@ class Organism:
         resource_snapshot = self.resources.to_dict()
         rng_snapshot = self.rng.getstate()
         owners_snapshot = dict(self.variable_order_feature_owners)
+        extra_snapshot = {key: list(value) for key, value in self.variable_order_extra_sources.items()}
         try:
             for payload in old_incoming:
                 self.graph.remove(str(payload["source"]), str(payload["destination"]))
@@ -2619,6 +2626,10 @@ class Organism:
             else:
                 owner_edge.strength = product_strength
                 owner_edge.plasticity = 0.0
+            if owner.afferent_kind == "input":
+                extra = self.variable_order_extra_sources.setdefault(owner.id, [])
+                if nursery_id not in extra:
+                    extra.append(nursery_id)
             for source in self.input_ids:
                 reachable = {source}
                 pending = [source]
@@ -2666,6 +2677,7 @@ class Organism:
                     setattr(self.resources, name, value)
             self.rng.setstate(rng_snapshot)
             self.variable_order_feature_owners = owners_snapshot
+            self.variable_order_extra_sources = extra_snapshot
             raise
 
     install_dendritic_product_n = install_dendritic_feature
@@ -3035,9 +3047,14 @@ class Organism:
             })
 
     def _module_synapses(self, module: MotorModule) -> List[Synapse]:
-        sources = self.input_ids if module.afferent_kind == "input" else [
-            identifier for identifier, cell in sorted(self.cells.items()) if cell.kind == "hidden"
-        ]
+        if module.afferent_kind == "input":
+            extra = self.variable_order_extra_sources.get(module.id)
+            sources = self.input_ids if not extra else list(self.input_ids) + [
+                source for source in extra if source not in self.input_ids]
+        else:
+            sources = [
+                identifier for identifier, cell in sorted(self.cells.items()) if cell.kind == "hidden"
+            ]
         return [
             synapse for synapse in self.graph.iter_synapses()
             if synapse.destination == module.cell_id and synapse.source in sources
@@ -4908,8 +4925,8 @@ class Organism:
             if owner_id not in self.motor_modules:
                 raise AssertionError("variable-order feature owner is unknown")
             owner = self.motor_modules[owner_id]
-            if owner.afferent_kind != "hidden":
-                raise AssertionError("variable-order feature owner must use hidden afferents")
+            if owner.afferent_kind not in ("input", "hidden"):
+                raise AssertionError("variable-order feature owner has invalid afferents")
             product_ids = product_cells_by_feature.get(feature, [])
             if len(product_ids) != 1 or self.graph.get(product_ids[0], owner.cell_id) is None:
                 raise AssertionError("variable-order feature owner lacks unique product motor edge")
@@ -5112,8 +5129,22 @@ class Organism:
                 if module.id != identifier or module.cell_id not in self.cells or self.cells[module.cell_id].kind != "motor_module":
                     raise AssertionError("motor module identity mismatch")
                 allowed_sources = set(self._module_source_ids(module.afferent_kind))
+                allowed_sources.update(self.variable_order_extra_sources.get(identifier, ()))
                 if any(synapse.source not in allowed_sources for synapse in self.graph.iter_synapses() if synapse.destination == module.cell_id):
                     raise AssertionError("motor module has invalid afferent source")
+        if not isinstance(self.variable_order_extra_sources, dict):
+            raise AssertionError("variable-order extra sources must be a mapping")
+        for module_id, cell_ids in self.variable_order_extra_sources.items():
+            if module_id not in self.motor_modules:
+                raise AssertionError("variable-order extra sources reference an unknown module")
+            if not isinstance(cell_ids, list) or not cell_ids:
+                raise AssertionError("variable-order extra sources must be nonempty lists")
+            for cell_id in cell_ids:
+                cell = self.cells.get(cell_id)
+                if cell is None or cell.activation_type not in ("dendritic_product", "dendritic_product_n"):
+                    raise AssertionError("variable-order extra source is not a product cell")
+                if self.graph.get(cell_id, self.motor_modules[module_id].cell_id) is None:
+                    raise AssertionError("variable-order extra source has no owner edge")
                 for name in ("baseline", "reward_mean", "reward_variance", "surprise_evidence", "confidence", "negative_surprise", "total_reward", "detector_mean", "detector_variance", "detector_cusum"):
                     if not math.isfinite(float(getattr(module, name))):
                         raise AssertionError("motor module state must be finite: %s" % name)
@@ -5164,6 +5195,9 @@ class Organism:
             "variable_order_enabled": self.variable_order_enabled,
             "max_dendritic_order": self.max_dendritic_order,
             "variable_order_feature_owners": dict(sorted(self.variable_order_feature_owners.items())),
+            "variable_order_extra_sources": {
+                key: list(value) for key, value in sorted(self.variable_order_extra_sources.items())
+            },
             "variable_order_learning_enabled": self.variable_order_learning_enabled,
             "variable_order_representation_seed": self.variable_order_representation_seed,
             "variable_order_rng_state": self.variable_order_rng.getstate(),
@@ -5438,6 +5472,10 @@ class Organism:
         organism.max_dendritic_order = int(state.get("max_dendritic_order", 2))
         organism.variable_order_feature_owners = {
             str(key): str(value) for key, value in dict(state.get("variable_order_feature_owners", {})).items()
+        }
+        organism.variable_order_extra_sources = {
+            str(key): [str(cell_id) for cell_id in value]
+            for key, value in dict(state.get("variable_order_extra_sources", {})).items()
         }
         organism.variable_order_learning_enabled = bool(state.get("variable_order_learning_enabled", False))
         representation_seed = state.get("variable_order_representation_seed")
