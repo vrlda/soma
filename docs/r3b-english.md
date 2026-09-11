@@ -36,6 +36,35 @@ to no-VO within noise. Installs do not convert to accuracy on stationary
 bit streams. Context-free + phase is worse (0.605); hidden-aff variants are
 worse on accuracy. ~27 configurations measured; the wall is solid.
 
+## Closing ledger (authorized push, ~30 configurations)
+
+Leaderboard, E0 5KB slice unless noted (acc / intra / bpb):
+
+- input-aff + phase: 0.638 / 0.593 / 0.964. Full 127KB: 0.627 held-out.
+  Best accuracy. No bias variant: identical within noise.
+- hidden-aff clean (no VO): 0.629 / 0.582 / 0.910. Best NLL.
+- input-aff + phase + VO (branch surgery, merged): installs happen
+  (nontrivial bit x phase pairs after bias removal), full-scale metrics
+  identical to no-VO. Product edges wire strongly but add nothing.
+- hidden-aff + VO: installs 3, worse accuracy.
+- General structural: installs 1 depth-3 feature; NLL slightly better,
+  accuracy worse. Machinery interferes with the direct path.
+- Bit-history buffer, combo phase+history, trace features, focal rewards,
+  NLL rewards, low exploration, conjunction features, representation
+  perturbations (exactly zero: hidden disconnected in input-aff mode),
+  context-free, byte-level regression, hidden 6/16/32 (irrelevant:
+  disconnected): all flat or worse.
+
+Key mechanism findings:
+
+- Bias inputs poison VO pair evidence (all installs degenerate to X x bias).
+  Removing bias yields correct (bit, phase) installs. Core lesson for all
+  fingerprint-based selection with constant inputs.
+- Installed pairs do not convert to accuracy on stationary streams; product
+  edges saturate at install credit.
+- Byte identity needs ~8-bit conjunctions; per-rung gains measure ~+0.005.
+  Compositional sample efficiency at this noise level is the firewall.
+
 ## Carried (honest)
 
 Router noise tolerance, stochastic grammar, byte-compositional memory,
