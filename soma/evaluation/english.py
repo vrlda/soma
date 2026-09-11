@@ -11,6 +11,7 @@ import random
 
 from ..events import Event, EventBridge
 from ..events.envelope import OutcomeEvent
+from ..memory import SequenceCircuitMemory
 from ..organism import Organism
 from ..synapses import Synapse
 from ..transducers.text_bytes import (
@@ -281,3 +282,49 @@ def run_english_continued(partitions, seed, mode="learn", adapter_name="raw"):
         reports.append(_summarize(seed, mode, predictions, targets, rewards, conditions))
     bridge.close()
     return reports, organism, bridge
+
+
+def run_english_sequence_memory(partitions, max_order=16, max_circuits=131072,
+                                lesion=False):
+    """Run the generic bounded sequence-circuit memory over byte-bit events.
+
+    The first partition is acquisition. Later partitions are read-only tests:
+    working history advances, while acquired circuit counts remain frozen.
+    ``lesion`` disables circuit predictions but preserves the identical stream.
+    """
+    if not isinstance(partitions, (list, tuple)) or not partitions:
+        raise ValueError("sequence-memory run requires at least one partition")
+    memory = SequenceCircuitMemory(
+        (0, 1), max_order=max_order, max_circuits=max_circuits,
+        min_support=2, prior=0.5)
+    reports = []
+    for partition_index, data in enumerate(partitions):
+        bits, ends = bit_stream(data)
+        memory.reset_history()
+        predictions, targets, conditions, orders = [], [], [], []
+        learn = partition_index == 0
+        for step in range(max(0, len(bits) - 1)):
+            memory.observe(bits[step], learn=learn)
+            distribution, order = memory.distribution()
+            prediction = 0.5 if lesion else distribution[1]
+            predictions.append(prediction)
+            targets.append(bits[step + 1])
+            conditions.append(ends[step])
+            orders.append(order)
+        rewards = [1.0 - abs(prediction - target)
+                   for prediction, target in zip(predictions, targets)]
+        report = _summarize(
+            0, "sequence_memory_lesion" if lesion else "sequence_memory",
+            predictions, targets, rewards, conditions)
+        report.update({
+            "partition": partition_index,
+            "learning": learn,
+            "max_order": max_order,
+            "mean_selected_order": sum(orders) / max(1, len(orders)),
+            "circuits": len(memory.circuits),
+            "circuits_created": memory.circuits_created,
+            "circuits_reclaimed": memory.circuits_reclaimed,
+        })
+        reports.append(report)
+    memory.validate()
+    return reports, memory

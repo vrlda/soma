@@ -1,4 +1,53 @@
-# R3B English Developmental Acquisition — Staged Progress (E0 Gate Open)
+# R3B English Developmental Acquisition — E0 Sequence-Memory Breakthrough
+
+## 2026-09-11 result: the E0 byte-identity wall is crossed
+
+The earlier conclusion that eight-bit composition was an unresolved firewall
+was too broad. It was a real limitation of the scalar motor/product path, but
+not of bounded local online memory in general.
+
+Added `SequenceCircuitMemory`, a domain-neutral structural prediction memory.
+Each acquired circuit represents an observed ordered suffix and retains only
+local successor counts, reuse, and recency. Prediction backs off to the longest
+supported circuit. Circuits grow online, obey a hard count budget, reclaim weak
+old structures deterministically under pressure, and serialize exactly. It has
+no byte, UTF-8, English, phase, or corpus knowledge.
+
+On the complete existing Alice E0 acquisition/validation split with maximum
+order 16 and a 131,072-circuit ceiling:
+
+- acquisition: 127,072 bytes / 1,016,575 scored bits;
+- validation: 12,122 bytes / 96,975 scored bits;
+- byte-unigram bar: 0.592718 bits/bit;
+- acquired sequence memory: **0.375095 bits/bit**, accuracy **0.877185**;
+- intra-byte accuracy: **0.863141**;
+- causal uniform-prediction lesion: 1.0 bits/bit and therefore fails the bar;
+- acquired circuits: 37,134, with no reclamation required;
+- measured full acquisition plus validation time: approximately 6.8 seconds
+  on the development M3 Pro in the initial direct run.
+
+Reproduce the locked mechanism run with:
+
+```bash
+python3 r3b_sequence_memory_benchmark.py
+```
+
+The complete regression suite is **316/316 green** after the addition.
+
+### Interpretation boundary
+
+This solves the specific E0 byte-identity bottleneck and proves that explicit
+ordered event state was the missing primitive. It does not prove semantic
+language acquisition, learned chunking, scalable long-term composition, or an
+advantage over a matched high-order statistical context model. The mechanism
+is deliberately close to a bounded variable-order context predictor. It is a
+new SOMA memory substrate and a causal scaffold for the next experiment, not a
+claim that lookup-style context growth is sufficient for language.
+
+R3B remains open until this memory is integrated through the universal brain
+lifecycle, exact compound checkpointing is demonstrated, repeated suffixes can
+be promoted into reusable hierarchical circuits, and the next locked English
+gate distinguishes compositional transfer from context-table memorization.
 
 ## Breakthrough since the E0 stop
 
