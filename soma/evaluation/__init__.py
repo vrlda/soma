@@ -15,8 +15,10 @@ from .english import (
     bit_marginal_bits,
     bit_stream,
     bits_per_bit,
+    build_book_manifest,
     byte_unigram_bits,
     composite_probe_bytes,
+    load_book_corpus,
     load_corpus,
     partition_documents,
     run_english,
@@ -24,6 +26,7 @@ from .english import (
     run_english_continued,
     run_english_fused,
     split_chapters,
+    strip_gutenberg_boilerplate,
 )
 from .lineage import clone_brain, read_lineage, verify_clone
 from .sequence import (
@@ -45,11 +48,13 @@ __all__ = [
     "bit_marginal_bits",
     "bit_stream",
     "bits_per_bit",
+    "build_book_manifest",
     "byte_unigram_bits",
     "clone_brain",
     "FIXED_PREFIXES",
     "composite_probe_bytes",
     "continuation_nll",
+    "load_book_corpus",
     "generate",
     "generate_constrained",
     "horizon_sensitivity",
@@ -67,5 +72,6 @@ __all__ = [
     "run_sequence",
     "run_sequence_benchmark",
     "split_chapters",
+    "strip_gutenberg_boilerplate",
     "verify_clone",
 ]

@@ -48,6 +48,85 @@ def load_corpus(path, strip_boilerplate=True):
     return data
 
 
+def strip_gutenberg_boilerplate(data):
+    """Remove Project Gutenberg header/footer by marker lines.
+
+    Returns (stripped_bytes, stripped_bool). Never fails: unknown layouts
+    keep the full bytes and report stripped=False for the manifest.
+    """
+    try:
+        text = data.decode("utf-8", errors="strict")
+    except UnicodeDecodeError:
+        return data, False
+    lines = text.splitlines(keepends=True)
+    start, end = 0, len(lines)
+    found_start = found_end = False
+    for index, line in enumerate(lines):
+        upper = line.upper()
+        if "START OF" in upper and "PROJECT GUTENBERG" in upper:
+            start = index + 1
+            found_start = True
+            break
+    for index in range(len(lines) - 1, -1, -1):
+        upper = lines[index].upper()
+        if ("END OF" in upper and "PROJECT GUTENBERG" in upper) or upper.startswith("END OF THE PROJECT"):
+            end = index
+            found_end = True
+            break
+    if not (found_start and found_end) or start >= end:
+        return data, False
+    stripped = "".join(lines[start:end]).encode("utf-8")
+    validate_utf8(stripped)
+    return stripped, True
+
+
+def build_book_manifest(entries):
+    """Manifest for a book-level corpus: per-book hash/license/partition.
+
+    entries: list of (name, path, partition, license, source_url).
+    """
+    import hashlib as _hashlib
+    import os as _os
+    books = []
+    for name, path, partition, license, source_url in entries:
+        with open(path, "rb") as handle:
+            raw = handle.read()
+        stripped, did_strip = strip_gutenberg_boilerplate(raw)
+        books.append({
+            "name": name,
+            "path": path,
+            "partition": partition,
+            "license": license,
+            "source_url": source_url,
+            "raw_bytes": len(raw),
+            "raw_sha256": _hashlib.sha256(raw).hexdigest(),
+            "bytes": len(stripped),
+            "sha256": _hashlib.sha256(stripped).hexdigest(),
+            "boilerplate_stripped": did_strip,
+            "retrieved_utc": "2026-09-11",
+        })
+        if not _os.path.exists(path):
+            raise ValueError("missing corpus file: %s" % path)
+    manifest = {
+        "books": books,
+        "acquisition_bytes": sum(b["bytes"] for b in books if b["partition"] == "acquisition"),
+        "validation_bytes": sum(b["bytes"] for b in books if b["partition"] == "validation"),
+        "test_bytes": sum(b["bytes"] for b in books if b["partition"] == "test"),
+    }
+    return manifest
+
+
+def load_book_corpus(manifest):
+    """Load stripped bytes per partition from a book manifest."""
+    parts = {"acquisition": [], "validation": [], "test": []}
+    for book in manifest["books"]:
+        with open(book["path"], "rb") as handle:
+            raw = handle.read()
+        stripped, _ = strip_gutenberg_boilerplate(raw)
+        parts[book["partition"]].append((book["name"], stripped))
+    return parts
+
+
 def split_chapters(data):
     """Split on chapter headings; each chapter is a document lineage unit."""
     text = data.decode("utf-8", errors="strict")

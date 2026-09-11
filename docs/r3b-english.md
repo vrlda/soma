@@ -97,6 +97,25 @@ The fusion pathway is plumbed and parity-proven; its full payoff belongs to
 generation (R3C), where motor actions must consult memory. R3B stays open
 pending generation and compositional transfer.
 
+## E1 scaling (`r3b_e1_benchmark.py`, all gates pass)
+
+Book-level corpus, 7 public-domain Gutenberg books (3.85 MB acquisition over
+5 books, 141 KB validation Jekyll, 181 KB sealed test Time Machine;
+`reports/e1-manifest.json` with per-book hashes and licenses):
+
+- validation curve over acquisition books: 0.4009 -> 0.3976 -> 0.3973 ->
+  0.3962 -> 0.3959 (monotone, diminishing). Improves-with-data passes.
+- unseen-book validation and sealed test both beat byte-unigram
+  (test 0.3976 vs bar 0.5590); lesion fails causally (1.0).
+- Bounded: 62,104 < 131,072 circuits, no reclamation yet; exact mid-stream
+  resume verified.
+- Resource profile (M3 Pro): 143 s total, 766 MB peak RSS (dict-heavy
+  contexts; R5 engine concern), 7.1 MB JSON state.
+
+Caveats: growth is sublinear but unabated (E2 at 50 MB will hit the ceiling
+and exercise reclamation under pressure — untested); gains per book are
+small (depth, not volume, was the big win).
+
 ## R3C generation (`r3c_generation_benchmark.py`, all gates pass)
 
 - Constrained emission (exact UTF-8 prefix-legality per bit, encoding law

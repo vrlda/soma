@@ -91,6 +91,39 @@ class R3BEnglishTests(unittest.TestCase):
         self.assertTrue(_is_valid_utf8_prefix(bytes([0xED, 0x9F, 0xBF])))
         self.assertFalse(_is_valid_utf8_prefix(bytes([0xC0, 0xAF])))
 
+    def test_gutenberg_strip(self):
+        from soma.evaluation.english import strip_gutenberg_boilerplate
+        raw = (b"header junk\n*** START OF THE PROJECT GUTENBERG EBOOK X ***\n"
+               b"real content here\n*** END OF THE PROJECT GUTENBERG EBOOK X ***\ntrailer")
+        stripped, did = strip_gutenberg_boilerplate(raw)
+        self.assertTrue(did)
+        self.assertEqual(stripped, b"real content here\n")
+        kept, did_not = strip_gutenberg_boilerplate(b"no markers at all")
+        self.assertFalse(did_not)
+        self.assertEqual(kept, b"no markers at all")
+
+    def test_book_manifest_partitions(self):
+        import json
+        import tempfile
+        import os
+        from soma.evaluation.english import build_book_manifest, load_book_corpus
+        with tempfile.TemporaryDirectory() as directory:
+            paths = []
+            for name, text in (("a", b"aaa bbb"), ("b", b"ccc")):
+                path = os.path.join(directory, name + ".txt")
+                with open(path, "wb") as handle:
+                    handle.write(text)
+                paths.append(path)
+            manifest = build_book_manifest([
+                ("a", paths[0], "acquisition", "public-domain", "url-a"),
+                ("b", paths[1], "test", "public-domain", "url-b"),
+            ])
+            self.assertEqual(manifest["acquisition_bytes"], 7)
+            self.assertEqual(manifest["test_bytes"], 3)
+            parts = load_book_corpus(manifest)
+            self.assertEqual(parts["acquisition"], [("a", b"aaa bbb")])
+            self.assertEqual(parts["test"], [("b", b"ccc")])
+
     def test_encode_precedes_stream(self):
         data = "Hi!".encode("utf-8")
         rows = encode_bytes(data)
