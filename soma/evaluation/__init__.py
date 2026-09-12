@@ -1,5 +1,14 @@
 """R2 evaluation: locked cross-domain fixtures over the event bridge."""
 
+from .dialogue import (
+    AGENT,
+    USER,
+    bits_to_bytes,
+    respond,
+    sanitize_export,
+    teach_fact,
+    text_to_bits,
+)
 from .generate import (
     FIXED_PREFIXES,
     continuation_nll,
@@ -51,7 +60,10 @@ __all__ = [
     "build_book_manifest",
     "byte_unigram_bits",
     "clone_brain",
+    "AGENT",
     "FIXED_PREFIXES",
+    "USER",
+    "bits_to_bytes",
     "composite_probe_bytes",
     "continuation_nll",
     "load_book_corpus",
@@ -61,6 +73,7 @@ __all__ = [
     "load_corpus",
     "partition_documents",
     "read_lineage",
+    "respond",
     "run_english",
     "run_english_brain_memory",
     "run_english_continued",
@@ -71,7 +84,10 @@ __all__ = [
     "run_event_context_benchmark",
     "run_sequence",
     "run_sequence_benchmark",
+    "sanitize_export",
     "split_chapters",
     "strip_gutenberg_boilerplate",
+    "teach_fact",
+    "text_to_bits",
     "verify_clone",
 ]

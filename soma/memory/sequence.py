@@ -99,15 +99,29 @@ class SequenceCircuitMemory(object):
             raise ValueError("unknown sequence symbol")
         return self.distribution()[0][symbol]
 
-    def observe(self, symbol, learn=True):
-        """Observe one event and locally update its predecessor circuits."""
+    def observe(self, symbol, learn=True, weight=1, min_weighted_order=0):
+        """Observe one event and locally update its predecessor circuits.
+
+        Weight scales the count increment: trusted sources (corrections,
+        approved documents) learn faster than background chatter. Weights
+        are positive integers; unobserve() reverses them exactly.
+        min_weighted_order restricts full weight to specific (long)
+        contexts; shorter shared contexts learn at weight 1. This is the
+        episodic-vs-semantic distinction: single episodes must not rewrite
+        generic statistics.
+        """
         if symbol not in self.symbol_index:
             raise ValueError("unknown sequence symbol")
         if not isinstance(learn, bool):
             raise ValueError("learn flag must be boolean")
+        if isinstance(weight, bool) or not isinstance(weight, int) or weight < 1:
+            raise ValueError("weight must be a positive integer")
+        if not isinstance(min_weighted_order, int) or min_weighted_order < 0:
+            raise ValueError("min_weighted_order must be a nonnegative integer")
         if learn:
             symbol_index = self.symbol_index[symbol]
             for context in self._contexts():
+                active_weight = weight if len(context) >= min_weighted_order else 1
                 circuit = self.circuits.get(context)
                 if circuit is None:
                     self._reclaim()
@@ -116,7 +130,7 @@ class SequenceCircuitMemory(object):
                     circuit = self._new_circuit(self.events_seen)
                     self.circuits[context] = circuit
                     self.circuits_created += 1
-                circuit["counts"][symbol_index] += 1
+                circuit["counts"][symbol_index] += active_weight
                 circuit["last_used"] = self.events_seen
                 circuit["reuse"] += 1
         self.history.append(symbol)
@@ -126,6 +140,39 @@ class SequenceCircuitMemory(object):
             else:
                 del self.history[:-self.max_order]
         self.events_seen += 1
+
+    def unobserve(self, symbols, preceding_history, weight=1, min_weighted_order=0):
+        """Exactly reverse a previous weighted observation sequence.
+
+        preceding_history is the history list as it stood before the taught
+        sequence (snapshot it before teaching). Counts decrement by weight;
+        circuits that hit all-zero counts are dropped. Raises when the
+        reversal is impossible (never taught, or already removed).
+        """
+        symbols = list(symbols)
+        base = list(preceding_history)
+        if any(symbol not in self.symbol_index for symbol in symbols + base):
+            raise ValueError("unknown sequence symbol in unobserve")
+        if isinstance(weight, bool) or not isinstance(weight, int) or weight < 1:
+            raise ValueError("weight must be a positive integer")
+        for position, symbol in enumerate(symbols):
+            window = base + symbols[:position]
+            limit = min(self.max_order, len(window))
+            for order in range(limit + 1):
+                context = tuple(window[-order:]) if order else ()
+                active_weight = weight if len(context) >= min_weighted_order else 1
+                circuit = self.circuits.get(context)
+                if circuit is None:
+                    raise ValueError("unobserve found no circuit: teach first")
+                index = self.symbol_index[symbol]
+                circuit["counts"][index] -= active_weight
+                if circuit["counts"][index] < 0:
+                    raise ValueError("unobserve would drive counts negative")
+            pruned = [context for context, circuit in self.circuits.items()
+                      if context and sum(circuit["counts"]) <= 0]
+            for context in pruned:
+                del self.circuits[context]
+        self.validate()
 
     def promote_chunks(self, min_order=8, min_reuse=10, min_concentration=0.9,
                        max_chunks=4096, max_merged_reuse=None):
@@ -177,6 +224,7 @@ class SequenceCircuitMemory(object):
             self.chunks_promoted += 1
             promoted += 1
         return promoted
+
 
     def validate(self):
         if len(self.circuits) > self.max_circuits or () not in self.circuits:
@@ -275,3 +323,125 @@ class SequenceCircuitMemory(object):
         except AssertionError as error:
             raise ValueError("invalid sequence memory state: %s" % error)
         return memory
+
+
+class EpisodicBuffer(object):
+    """Exact-match correction store: trigger patterns map to completions.
+
+    Episodic entries override statistical prediction only on exact suffix
+    match (longest trigger wins). They never alter table counts, so a
+    correction cannot distort unrelated predictions: zero collateral by
+    construction. Removal is exact deletion.
+    """
+
+    VERSION = 1
+
+    def __init__(self, max_entries=1024):
+        self.max_entries = int(max_entries)
+        if self.max_entries < 1:
+            raise ValueError("episodic capacity must be positive")
+        self.entries = {}
+        self.next_id = 0
+        self.hits = 0
+        self.misses = 0
+
+    def add(self, trigger, completion, provenance="correction"):
+        """Store trigger->completion bit patterns. Returns entry id."""
+        trigger = tuple(int(bit) for bit in trigger)
+        completion = tuple(int(bit) for bit in completion)
+        if not trigger or not completion:
+            raise ValueError("episodic trigger and completion must be nonempty")
+        if any(bit not in (0, 1) for bit in trigger + completion):
+            raise ValueError("episodic patterns carry bits only")
+        for existing in self.entries.values():
+            if existing["trigger"] == trigger:
+                existing["completion"] = completion
+                existing["provenance"] = str(provenance)
+                existing["superseded"] = existing.get("superseded", 0) + 1
+                return existing["id"]
+        if len(self.entries) >= self.max_entries:
+            victim = min(self.entries.values(),
+                         key=lambda entry: (entry["uses"], entry["id"]))
+            del self.entries[victim["id"]]
+        entry_id = self.next_id
+        self.next_id += 1
+        self.entries[entry_id] = {
+            "id": entry_id,
+            "trigger": trigger,
+            "completion": completion,
+            "provenance": str(provenance),
+            "uses": 0,
+            "superseded": 0,
+        }
+        return entry_id
+
+    def match(self, history):
+        """Longest trigger that suffix-matches history, else None."""
+        history = tuple(history)
+        best = None
+        for entry in self.entries.values():
+            trigger = entry["trigger"]
+            if len(trigger) > len(history):
+                continue
+            if tuple(history[-len(trigger):]) == trigger:
+                if best is None or len(trigger) > len(best["trigger"]):
+                    best = entry
+        if best is None:
+            self.misses += 1
+            return None
+        best["uses"] += 1
+        self.hits += 1
+        return best["completion"]
+
+    def remove(self, entry_id):
+        if entry_id not in self.entries:
+            raise ValueError("unknown episodic entry")
+        del self.entries[entry_id]
+
+    def validate(self):
+        if len(self.entries) > self.max_entries:
+            raise AssertionError("episodic buffer exceeds capacity")
+        for entry_id, entry in self.entries.items():
+            if entry_id != entry["id"]:
+                raise AssertionError("episodic entry id mismatch")
+            if not entry["trigger"] or not entry["completion"]:
+                raise AssertionError("episodic entry patterns must be nonempty")
+        return True
+
+    def state_dict(self):
+        self.validate()
+        return {
+            "version": self.VERSION,
+            "max_entries": self.max_entries,
+            "next_id": self.next_id,
+            "hits": self.hits,
+            "misses": self.misses,
+            "entries": [
+                {"id": entry["id"], "trigger": list(entry["trigger"]),
+                 "completion": list(entry["completion"]),
+                 "provenance": entry["provenance"], "uses": entry["uses"],
+                 "superseded": entry.get("superseded", 0)}
+                for _, entry in sorted(self.entries.items())
+            ],
+        }
+
+    @classmethod
+    def from_state_dict(cls, payload):
+        if not isinstance(payload, dict) or payload.get("version") != cls.VERSION:
+            raise ValueError("unsupported episodic buffer state")
+        buffer = cls(payload.get("max_entries", 1024))
+        buffer.next_id = int(payload.get("next_id", 0))
+        buffer.hits = int(payload.get("hits", 0))
+        buffer.misses = int(payload.get("misses", 0))
+        for item in payload.get("entries", []):
+            entry_id = int(item["id"])
+            buffer.entries[entry_id] = {
+                "id": entry_id,
+                "trigger": tuple(int(bit) for bit in item["trigger"]),
+                "completion": tuple(int(bit) for bit in item["completion"]),
+                "provenance": str(item.get("provenance", "")),
+                "uses": int(item.get("uses", 0)),
+                "superseded": int(item.get("superseded", 0)),
+            }
+        buffer.validate()
+        return buffer
