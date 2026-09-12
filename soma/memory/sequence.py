@@ -393,6 +393,42 @@ class EpisodicBuffer(object):
         self.hits += 1
         return best["completion"]
 
+    def match_all(self, history, window=None):
+        """Every entry whose trigger occurs in the recent window.
+
+        Returns completions ordered by most-recent trigger end. Substring
+        (not only suffix) matching enables systematic recombination: known
+        parts in novel configurations. Window bounds the search and the
+        false-positive surface; default is the full history.
+        """
+        history = tuple(history)
+        if window is not None:
+            history = history[-int(window):]
+        hits = []
+        for entry in self.entries.values():
+            trigger = entry["trigger"]
+            if not trigger or len(trigger) > len(history):
+                continue
+            for end in range(len(trigger), len(history) + 1):
+                if tuple(history[end - len(trigger):end]) == trigger:
+                    hits.append((end, len(trigger), entry))
+                    break
+        hits.sort(key=lambda item: (-item[0], -item[1]))
+        accepted = []
+        for end, length, entry in hits:
+            start = end - length
+            if any(other_start <= start and end <= other_end
+                   for other_start, other_end, _ in accepted):
+                continue
+            accepted.append((start, end, entry))
+        for _, _, entry in accepted:
+            entry["uses"] += 1
+        if accepted:
+            self.hits += 1
+        else:
+            self.misses += 1
+        return [(entry["id"], entry["completion"]) for _, _, entry in accepted]
+
     def remove(self, entry_id):
         if entry_id not in self.entries:
             raise ValueError("unknown episodic entry")

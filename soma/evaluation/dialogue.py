@@ -84,11 +84,15 @@ def respond(background, dialogue, episodic, prefix_text, max_bytes=12,
         dialogue.observe(bit, learn=False)
     out_bits = []
     emitting = []
+    fired = set()
+    window = DIALOGUE_ORDER
     for _ in range(max_bytes * 8):
         if not emitting:
-            hit = episodic.match(list(dialogue.history))
-            if hit is not None:
-                emitting = list(hit)
+            for entry_id, completion in episodic.match_all(list(dialogue.history), window=window):
+                if entry_id not in fired:
+                    fired.add(entry_id)
+                    emitting.extend(completion)
+                    break
         if emitting:
             candidate = emitting.pop(0)
         else:

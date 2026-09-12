@@ -67,6 +67,38 @@ class R3DDialogueTests(unittest.TestCase):
         self.assertTrue(respond(_background(), dialogue, restored, "USER pub ", 4, seed=1).startswith(b"one"))
         self.assertFalse(respond(_background(), dialogue, restored, "USER sec ", 4, seed=1).startswith(b"two"))
 
+    def test_match_all_finds_substrings(self):
+        episodic = EpisodicBuffer()
+        episodic.add((1, 1, 0), (0, 1), "a")
+        episodic.add((0, 1, 1), (1, 0), "b")
+        history = (0, 0, 1, 1, 0, 0, 0, 1, 1)
+        hits = episodic.match_all(history)
+        self.assertEqual(len(hits), 2)
+        self.assertEqual(episodic.match((0, 1, 1, 0)), (0, 1))
+
+    def test_match_all_containment_prefers_longest(self):
+        episodic = EpisodicBuffer()
+        episodic.add((1, 0), (0,), "short")
+        episodic.add((1, 1, 0), (1,), "long")
+        hits = episodic.match_all((0, 1, 1, 0))
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0][1], (1,))
+
+    def test_match_all_window_bounds(self):
+        episodic = EpisodicBuffer()
+        episodic.add((1, 1), (0,), "a")
+        self.assertEqual(episodic.match_all((1, 1, 0, 0), window=2), [])
+        self.assertEqual(len(episodic.match_all((1, 1, 0, 0), window=4)), 1)
+
+    def test_compositional_recall(self):
+        dialogue = fresh_dialogue()
+        episodic = EpisodicBuffer()
+        teach_fact(dialogue, episodic, "USER AA means one AGENT ok ", "AA ", "one")
+        teach_fact(dialogue, episodic, "USER BB means two AGENT ok ", "BB ", "two")
+        response = respond(_background(), dialogue, episodic, "USER AA plus BB puts ", 10, seed=1)
+        self.assertIn(b"one", response)
+        self.assertIn(b"two", response)
+
     def test_emissions_never_train(self):
         background = _background()
         dialogue = fresh_dialogue()
