@@ -48,6 +48,7 @@ def evaluate(memory, data):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", default="reports/e1-manifest.json")
+    parser.add_argument("--report", default="reports/r3b-e1.json")
     parser.add_argument("--max-order", type=int, default=16)
     parser.add_argument("--max-circuits", type=int, default=131072)
     args = parser.parse_args()
@@ -131,7 +132,7 @@ def main():
     }
     result["all_passed"] = all(result["gates"].values())
     print(json.dumps(result, indent=2, sort_keys=True))
-    with open("reports/r3b-e1.json", "w") as handle:
+    with open(args.report, "w") as handle:
         json.dump(result, handle, indent=2, sort_keys=True)
     return 0 if result["all_passed"] else 1
 

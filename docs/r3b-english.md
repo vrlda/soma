@@ -112,9 +112,20 @@ Book-level corpus, 7 public-domain Gutenberg books (3.85 MB acquisition over
 - Resource profile (M3 Pro): 143 s total, 766 MB peak RSS (dict-heavy
   contexts; R5 engine concern), 7.1 MB JSON state.
 
-Caveats: growth is sublinear but unabated (E2 at 50 MB will hit the ceiling
-and exercise reclamation under pressure — untested); gains per book are
-small (depth, not volume, was the big win).
+Caveats: gains per book are small (depth, not volume, was the big win).
+
+## E2 scaling (`r3b_e1_benchmark.py --manifest reports/e2-manifest.json`)
+
+14-book lifetime, 11.5 MB acquisition, same validation/test books. All
+gates pass: improves-with-data (0.4009 -> 0.3979 with an honest
+War-and-Peace/Iliad domain-shift bump), unseen-book and sealed-test bars,
+bounded (74,784 < 131,072, zero reclamation), causal lesion. 473 s, 1.8 GB
+peak RSS, 8.7 MB state.
+
+Ceiling-pressure variant (`--max-circuits 40000`, `reports/r3b-e2-pressure.json`):
+780,288 created, 740,400 deterministically reclaimed, 39,888 resident —
+all gates still pass, quality cost 0.002 bits/bit. Bounded operation under
+pressure is now measured, not assumed. RSS remains the R5 argument.
 
 ## R3C generation (`r3c_generation_benchmark.py`, all gates pass)
 
