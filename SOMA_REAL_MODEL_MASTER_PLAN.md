@@ -678,7 +678,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 **Exit gates:** the brain demonstrates basic turn-taking, relevant short responses, explicit correction uptake, retention after interference/restart, continued learning after download, exact backup/restore, and all release checks in Section 7A. This is a demonstration brain, not yet the consumer-ready Text v1 release.
 
-### R4 — Continual language learning
+### R4 — Continual language learning ✅ COMPLETE
 
 **Deliverables:** correction protocol, trust-aware episodic/semantic memory, consolidation, knowledge conflict handling, source deletion, and lifelong text benchmark.
 

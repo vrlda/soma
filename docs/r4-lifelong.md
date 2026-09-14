@@ -7,3 +7,10 @@ held-out unchanged, episodic capacity bounded. Conflicts log provenance
 (old/new source, resolution); removal stays exact via unobserve/entry
 deletion. Consolidation runs through rehearsal into turn-scoped tables
 protected by the consolidation window; background E0 knowledge stays frozen.
+
+Poison quarantine (`test_r4_quarantine.py`): untrusted symbols stage into a
+bounded buffer with zero learning — protected predictions byte-identical
+under adversarial bit-flipped staging on real Alice bytes; explicit approve
+moves staged content into learning; discard drops it. Policy rule: untrusted
+sources must enter through quarantine; only an explicit approval crosses
+the boundary.

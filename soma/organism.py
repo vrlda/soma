@@ -139,6 +139,12 @@ class Organism:
         self.fusion_ll_motor = 0.0
         self.fusion_decay = 0.99
         self.fusion_last = None
+        # Quarantine: untrusted content stages here and NEVER touches
+        # protected state until an explicit approve() call. Staging is a
+        # bounded symbol buffer, not learned structure.
+        self.quarantine_staged = []
+        self.quarantine_receipts = 0
+        self.quarantine_max_staged = 65536
         # v11 compositional substrate.  It is inert until explicitly enabled
         # and owns a dedicated RNG so v10 routing/action streams are stable.
         self.compositional_substrate_enabled = False
@@ -610,6 +616,41 @@ class Organism:
         if self.sequence_memory is None:
             raise ValueError("sequence memory is not enabled")
         self.sequence_memory.reset_history()
+
+    def quarantine_events(self, symbols):
+        """Stage untrusted symbols with zero learning. Returns a receipt id.
+
+        Staged content is invisible to prediction and protected state. Only
+        an explicit approve_quarantine() call (the policy boundary) moves
+        staged content into learning.
+        """
+        if self.sequence_memory is None:
+            raise ValueError("sequence memory is not enabled")
+        symbols = list(symbols)
+        if len(self.quarantine_staged) + len(symbols) > self.quarantine_max_staged:
+            raise ValueError("quarantine staging bound exceeded")
+        unknown = [s for s in symbols if s not in self.sequence_memory.symbol_index]
+        if unknown:
+            raise ValueError("quarantine symbols must be declared")
+        self.quarantine_staged.extend(symbols)
+        self.quarantine_receipts += 1
+        return self.quarantine_receipts
+
+    def approve_quarantine(self, weight=1):
+        """Learn all staged content into sequence memory, then clear staging."""
+        if self.sequence_memory is None:
+            raise ValueError("sequence memory is not enabled")
+        if isinstance(weight, bool) or not isinstance(weight, int) or weight < 1:
+            raise ValueError("weight must be a positive integer")
+        staged, self.quarantine_staged = self.quarantine_staged, []
+        for symbol in staged:
+            self.sequence_memory.observe(symbol, learn=True, weight=weight)
+        return len(staged)
+
+    def discard_quarantine(self):
+        """Drop staged content without learning. Returns dropped count."""
+        staged, self.quarantine_staged = self.quarantine_staged, []
+        return len(staged)
 
     def fuse_with_memory(self, motor_probability, symbol=1):
         """Uncertainty-gated mixture of sequence memory and a motor forecast.
@@ -4719,6 +4760,14 @@ class Organism:
             if (not isinstance(self.fusion_last, (list, tuple)) or len(self.fusion_last) != 2
                     or not isinstance(self.fusion_last[0], dict)):
                 raise AssertionError("fusion pending forecast is invalid")
+        if not isinstance(self.quarantine_staged, list):
+            raise AssertionError("quarantine staging must be a list")
+        if len(self.quarantine_staged) > self.quarantine_max_staged:
+            raise AssertionError("quarantine staging exceeds bound")
+        if isinstance(self.quarantine_receipts, bool) or self.quarantine_receipts < 0:
+            raise AssertionError("quarantine receipts are invalid")
+        if isinstance(self.quarantine_max_staged, bool) or self.quarantine_max_staged < 1:
+            raise AssertionError("quarantine bound is invalid")
         if self.sequence_memory is not None:
             if tuple(self.sequence_memory.symbols) != tuple(self.sequence_memory_symbols):
                 raise AssertionError("sequence memory symbols disagree with memory state")
@@ -5495,6 +5544,9 @@ class Organism:
                 {str(key): value for key, value in self.fusion_last[0].items()},
                 self.fusion_last[1],
             ],
+            "quarantine_staged": list(self.quarantine_staged),
+            "quarantine_receipts": self.quarantine_receipts,
+            "quarantine_max_staged": self.quarantine_max_staged,
         }
 
     def save(self, path: str) -> None:
@@ -5887,6 +5939,9 @@ class Organism:
                     restored_key = key
                 distribution[restored_key] = float(value)
             organism.fusion_last = (distribution, float(fusion_last[1]))
+        organism.quarantine_staged = list(state.get("quarantine_staged", []))
+        organism.quarantine_receipts = int(state.get("quarantine_receipts", 0))
+        organism.quarantine_max_staged = int(state.get("quarantine_max_staged", 65536))
         organism.validate()
         return organism
 
