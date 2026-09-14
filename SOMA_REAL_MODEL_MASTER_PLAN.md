@@ -660,7 +660,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 **Exit gates:** the universal core beats memoryless and n-gram controls on locked nontrivial dependencies; shuffled-credit, frozen, and composition-disabled ablations fail as predicted; learned circuits provide causal predictive gain; arbitrary-event restoration is exact.
 
-### R3B — English developmental acquisition
+### R3B — English developmental acquisition ✅ COMPLETE
 
 **Deliverables:** reversible UTF-8 byte transducer, licensed document environment, learned symbolic composition, data ladder, fixed validation/test manifests, scaling curves, and MacBook resource profile. Fixed subword encoding remains an efficiency control.
 
@@ -672,7 +672,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 **Exit gates:** outputs are valid UTF-8 at the frozen rate; generations are measurably dependent on learned history; frozen-core and causal circuit ablations degrade generation; self-generated events do not silently train protected state.
 
-### R3D — Basic dialogue demonstration
+### R3D — Basic dialogue demonstration ✅ COMPLETE
 
 **Deliverables:** attributed participant channels, turn framing, elementary dialogue/correction curriculum, branch-qualified brain lineage, release sanitation, clean-machine loader, and downloadable demonstration `.soma` artifact.
 

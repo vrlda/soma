@@ -49,6 +49,46 @@ class SequenceCircuitMemoryTests(unittest.TestCase):
         self.assertEqual(left_predictions, right_predictions)
         self.assertEqual(uninterrupted.state_dict(), restored.state_dict())
 
+    def test_consolidation_window_protects_young_circuits(self):
+        young = SequenceCircuitMemory((0, 1), max_order=8, max_circuits=32)
+        pattern = [0, 0, 0, 1, 1, 1, 0, 1] * 2
+        for symbol in pattern:
+            young.observe(symbol)
+        taught = tuple(pattern[:8])
+        self.assertIn(taught, young.circuits)
+        state = 7
+        for _ in range(10):
+            state = (1103515245 * state + 12345) & 0x7fffffff
+            young.observe((state >> 8) % 2)
+        # Inside the grace window (2 * max_order events) the just-taught
+        # episode survives budget pressure...
+        self.assertIn(taught, young.circuits)
+        for _ in range(400):
+            state = (1103515245 * state + 12345) & 0x7fffffff
+            young.observe((state >> 8) % 2)
+        # ...while sustained pressure still reclaims: bounded growth holds
+        # and stale weak circuits lose fair competition after grace expiry.
+        self.assertGreater(young.circuits_reclaimed, 0)
+        self.assertLessEqual(len(young.circuits), 32)
+        young.validate()
+
+    def test_rehearsed_table_recall_without_episodic(self):
+        from soma.evaluation.dialogue import (
+            fresh_dialogue, respond, teach_fact, text_to_bits,
+        )
+        from soma.memory import EpisodicBuffer
+        background = SequenceCircuitMemory((0, 1), max_order=8, max_circuits=512)
+        for symbol in [0, 0, 1, 1, 0, 1] * 20:
+            background.observe(symbol)
+        dialogue = fresh_dialogue()
+        episodic = EpisodicBuffer()
+        teach_fact(dialogue, episodic, "USER AA BB AGENT ok ", "USER AA ", "BB")
+        teach_fact(dialogue, episodic, "USER AA BB AGENT ok ", "USER AA ", "BB")
+        bare = EpisodicBuffer()
+        response = respond(background, dialogue, bare, "USER AA ", 4,
+                           seed=1, deterministic=True)
+        self.assertTrue(response.startswith(b"BB"))
+
     def test_circuit_budget_is_hard(self):
         memory = SequenceCircuitMemory(tuple(range(4)), max_order=5, max_circuits=32)
         state = 7

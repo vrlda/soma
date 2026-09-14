@@ -47,7 +47,9 @@ def fresh_dialogue():
 
 def teach_fact(dialogue, episodic, fact_text, question, answer, provenance="correction"):
     """Expose fact text to turn-scoped dialogue memory; record the
-    question->answer episodic rule. Background E0 knowledge stays frozen."""
+    question->answer episodic rule. Background E0 knowledge stays frozen.
+    Each teaching is a fresh episode so repeated rehearsals align windows."""
+    dialogue.reset_history()
     for bit in text_to_bits(fact_text):
         dialogue.observe(bit, learn=True)
     trigger = text_to_bits(question)

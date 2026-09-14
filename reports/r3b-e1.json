@@ -9,7 +9,7 @@
       "circuits_created": 52839,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 1234515,
-      "elapsed_seconds": 42.6798300743103,
+      "elapsed_seconds": 47.24364399909973,
       "peak_rss_mb": 662.109375,
       "validation_bits_per_bit": 0.40092487501884283
     },
@@ -22,8 +22,8 @@
       "circuits_created": 55771,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 1972463,
-      "elapsed_seconds": 69.35781192779541,
-      "peak_rss_mb": 765.984375,
+      "elapsed_seconds": 79.21591281890869,
+      "peak_rss_mb": 676.5625,
       "validation_bits_per_bit": 0.3976098198019215
     },
     {
@@ -36,8 +36,8 @@
       "circuits_created": 60006,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 2843048,
-      "elapsed_seconds": 100.2246949672699,
-      "peak_rss_mb": 765.984375,
+      "elapsed_seconds": 118.93593788146973,
+      "peak_rss_mb": 676.5625,
       "validation_bits_per_bit": 0.3973472531969746
     },
     {
@@ -51,8 +51,8 @@
       "circuits_created": 60597,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 3264587,
-      "elapsed_seconds": 116.51154208183289,
-      "peak_rss_mb": 765.984375,
+      "elapsed_seconds": 139.41259479522705,
+      "peak_rss_mb": 676.5625,
       "validation_bits_per_bit": 0.39621782129930283
     },
     {
@@ -67,8 +67,8 @@
       "circuits_created": 62104,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 3852331,
-      "elapsed_seconds": 138.2495560646057,
-      "peak_rss_mb": 765.984375,
+      "elapsed_seconds": 166.48172402381897,
+      "peak_rss_mb": 676.5625,
       "validation_bits_per_bit": 0.39592261033748066
     }
   ],
@@ -183,12 +183,12 @@
   },
   "max_circuits": 131072,
   "max_order": 16,
-  "peak_rss_mb": 765.984375,
+  "peak_rss_mb": 676.5625,
   "protocol": "r3b-e1-v1",
   "state_bytes": 7146248,
   "test_bar": 0.5590231891704435,
   "test_bits_per_bit": 0.3976184582027331,
   "test_book": "timemachine",
-  "total_seconds": 143.2954239845276,
+  "total_seconds": 172.2254409790039,
   "validation_bar": 0.5651168036138577
 }

@@ -57,13 +57,21 @@ class SequenceCircuitMemory(object):
                 for order in range(limit + 1)]
 
     def _reclaim(self):
-        """Reclaim weak, old, specific circuits; root is permanent."""
+        """Reclaim weak, old, specific circuits; root is permanent.
+
+        Circuits younger than two full horizons keep a consolidation
+        window: reclamation must not eat structures still being acquired
+        within the current episode.
+        """
         if len(self.circuits) < self.max_circuits:
             return
         protected = set(self._contexts())
+        grace = 2 * max(1, self.max_order)
         candidates = []
         for context, circuit in self.circuits.items():
             if not context or context in protected:
+                continue
+            if self.events_seen - circuit["last_used"] < grace:
                 continue
             support = sum(circuit["counts"])
             candidates.append((support, circuit["reuse"], circuit["last_used"],
@@ -433,6 +441,32 @@ class EpisodicBuffer(object):
         if entry_id not in self.entries:
             raise ValueError("unknown episodic entry")
         del self.entries[entry_id]
+
+    def consolidate(self, memory, min_uses=3, weight=50):
+        """Fold high-reuse episodic rules into statistical table counts.
+
+        Replays trigger+completion through the table at the given weight,
+        then drops the consolidated entries. After consolidation the table
+        alone recalls the fact: episodic-to-semantic transfer. Returns the
+        list of consolidated entry ids. Raises on invalid input; the table
+        validates itself on every observe.
+        """
+        if not isinstance(min_uses, int) or min_uses < 1:
+            raise ValueError("min_uses must be a positive integer")
+        if isinstance(weight, bool) or not isinstance(weight, int) or weight < 1:
+            raise ValueError("weight must be a positive integer")
+        consolidated = []
+        for entry_id, entry in sorted(self.entries.items()):
+            if entry["uses"] < min_uses:
+                continue
+            sequence = list(entry["trigger"]) + list(entry["completion"])
+            memory.reset_history()
+            for symbol in sequence:
+                memory.observe(symbol, learn=True, weight=weight)
+            consolidated.append(entry_id)
+        for entry_id in consolidated:
+            del self.entries[entry_id]
+        return consolidated
 
     def validate(self):
         if len(self.entries) > self.max_entries:
