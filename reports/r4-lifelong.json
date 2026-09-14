@@ -1,0 +1,29 @@
+{
+  "all_passed": true,
+  "base_bits_per_bit": 0.37509488116237544,
+  "conflict_latest_wins": true,
+  "conflict_logged": true,
+  "corpus": "data/e0/alice.txt",
+  "corrected": true,
+  "episodic_entries": 5,
+  "final_bits_per_bit": 0.37509488116237544,
+  "gates": {
+    "bounded": true,
+    "conflict": true,
+    "correction": true,
+    "no_forgetting": true,
+    "retention": true,
+    "uptake": true
+  },
+  "manifest": {
+    "acquisition_bytes": 127072,
+    "documents": 13,
+    "license": "public-domain",
+    "test_bytes": 11782,
+    "test_sha256": "14005372aaf864d1aef667e5c13e3d8a666dfd900b90359a1d50da862b356e29",
+    "validation_bytes": 12122
+  },
+  "protocol": "r4-lifelong-v1",
+  "retained": 3,
+  "uptake": 4
+}

@@ -352,6 +352,7 @@ class EpisodicBuffer(object):
         self.next_id = 0
         self.hits = 0
         self.misses = 0
+        self.conflicts = []
 
     def add(self, trigger, completion, provenance="correction"):
         """Store trigger->completion bit patterns. Returns entry id."""
@@ -363,6 +364,15 @@ class EpisodicBuffer(object):
             raise ValueError("episodic patterns carry bits only")
         for existing in self.entries.values():
             if existing["trigger"] == trigger:
+                if existing["completion"] != completion:
+                    self.conflicts.append({
+                        "trigger": list(trigger),
+                        "old_completion": list(existing["completion"]),
+                        "new_completion": list(completion),
+                        "old_provenance": existing["provenance"],
+                        "new_provenance": str(provenance),
+                        "resolution": "latest-wins",
+                    })
                 existing["completion"] = completion
                 existing["provenance"] = str(provenance)
                 existing["superseded"] = existing.get("superseded", 0) + 1
@@ -471,6 +481,8 @@ class EpisodicBuffer(object):
     def validate(self):
         if len(self.entries) > self.max_entries:
             raise AssertionError("episodic buffer exceeds capacity")
+        if not isinstance(self.conflicts, list):
+            raise AssertionError("episodic conflicts must be a list")
         for entry_id, entry in self.entries.items():
             if entry_id != entry["id"]:
                 raise AssertionError("episodic entry id mismatch")
@@ -486,6 +498,7 @@ class EpisodicBuffer(object):
             "next_id": self.next_id,
             "hits": self.hits,
             "misses": self.misses,
+            "conflicts": [dict(item) for item in self.conflicts],
             "entries": [
                 {"id": entry["id"], "trigger": list(entry["trigger"]),
                  "completion": list(entry["completion"]),
@@ -503,6 +516,7 @@ class EpisodicBuffer(object):
         buffer.next_id = int(payload.get("next_id", 0))
         buffer.hits = int(payload.get("hits", 0))
         buffer.misses = int(payload.get("misses", 0))
+        buffer.conflicts = [dict(item) for item in payload.get("conflicts", [])]
         for item in payload.get("entries", []):
             entry_id = int(item["id"])
             buffer.entries[entry_id] = {

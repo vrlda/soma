@@ -99,6 +99,26 @@ class R3DDialogueTests(unittest.TestCase):
         self.assertIn(b"one", response)
         self.assertIn(b"two", response)
 
+    def test_conflict_logged_latest_wins(self):
+        episodic = EpisodicBuffer()
+        episodic.add((1, 0), (0,), "userA")
+        self.assertEqual(episodic.conflicts, [])
+        episodic.add((1, 0), (1,), "userB")
+        self.assertEqual(len(episodic.conflicts), 1)
+        record = episodic.conflicts[0]
+        self.assertEqual(record["resolution"], "latest-wins")
+        self.assertEqual(record["old_provenance"], "userA")
+        self.assertEqual(record["new_provenance"], "userB")
+        self.assertEqual(episodic.match((1, 1, 0)), (1,))
+        episodic.validate()
+
+    def test_conflicts_persist_round_trip(self):
+        episodic = EpisodicBuffer()
+        episodic.add((1, 0), (0,), "userA")
+        episodic.add((1, 0), (1,), "userB")
+        restored = EpisodicBuffer.from_state_dict(episodic.state_dict())
+        self.assertEqual(restored.conflicts, episodic.conflicts)
+
     def test_emissions_never_train(self):
         background = _background()
         dialogue = fresh_dialogue()
