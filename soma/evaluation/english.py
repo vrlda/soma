@@ -220,6 +220,11 @@ def byte_unigram_bits(data):
     return bits / max(1, total)
 
 
+def byte_vocabulary(data):
+    """Set of byte values observed in training data (transducer-level fact)."""
+    return frozenset(bytes(bytearray(data)))
+
+
 def bit_marginal_bits(train_data, test_data):
     """Unigram-bit baseline: train rate applied to held-out bits."""
     train_bits, _ = bit_stream(train_data)
