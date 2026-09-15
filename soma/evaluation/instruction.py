@@ -91,14 +91,15 @@ def instruct(background, dialogue, episodic, user_text, max_bytes=24, seed=0,
     else:
         attributed = bytes(user_text)
     window = 256
+    question_bits = text_to_bits(attributed)
     background.reset_history()
-    for bit in text_to_bits(attributed)[-window:]:
+    for bit in question_bits[-window:]:
         background.observe(bit, learn=False)
     distribution, order = background.distribution()
-    # The episodic check fires only when background history covers the
-    # trigger (short triggers); respond() always checks episodic on full
-    # dialogue history, so taught rules still govern generation.
-    if not episodic.match_all(list(background.history), window=window) and not memory_specific(order):
+    # Episodic rules match the question itself (triggers live at question
+    # scale); background history only carries the statistical backoff view.
+    # respond() rechecks episodic on full dialogue history at emit time.
+    if not episodic.match_all(question_bits) and not memory_specific(order):
         return UNCERTAINTY_TEXT, "uncertain"
     response = respond(background, dialogue, episodic, attributed,
                        max_bytes=max_bytes, seed=seed)

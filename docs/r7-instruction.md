@@ -10,6 +10,7 @@ neighbors answered, zero E0 collateral from corrections.
 
 Honest scope: uncertainty fires on vocabulary novelty and sub-byte-order
 backoff; fluent in-distribution nonsense is answered from marginals
-(documented miscalibration). The instruct-level episodic check needs
-background history covering the trigger; generation always checks episodic
-on full dialogue history. Skill set is minimal (more tools later).
+(documented miscalibration). Episodic rules match the question bits
+directly; background history only feeds the order check; generation
+rechecks episodic on full dialogue history. Skill set is minimal (more
+tools later).

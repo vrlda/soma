@@ -37,7 +37,11 @@ def correct(store, name, question, answer, fact_text=None):
 
 
 def chat_turn(store, name, user_text, max_bytes=24, seed=0):
-    """One attributed turn: USER text in, AGENT text out."""
+    """One attributed turn through the instruction router: refusal, skills,
+    episodic recall, generation, uncertainty. Vocabulary gating is off in
+    service chat (no stored training byte set); order-based uncertainty
+    still applies. Documented in docs/r8-service.md."""
+    from ..evaluation.instruction import instruct
     organism, episodic, _, dialogue = store.load(name)
     memory = organism.sequence_memory
     if memory is None:
@@ -47,9 +51,9 @@ def chat_turn(store, name, user_text, max_bytes=24, seed=0):
         dialogue.observe(bit, learn=True)
     store.save(name, organism, episodic, dialogue=dialogue)
     organism2, episodic2, _, dialogue2 = store.load(name)
-    raw = respond(organism2.sequence_memory, dialogue2, episodic2,
-                  user_turn, max_bytes=max_bytes, seed=seed)
-    return _decode_response(raw)
+    reply, _ = instruct(organism2.sequence_memory, dialogue2, episodic2,
+                         user_text, max_bytes=max_bytes, seed=seed)
+    return reply
 
 
 def forget_fact(store, name, question):
