@@ -1,5 +1,14 @@
 # R7 Instruction Behavior (`r7_instruction_benchmark.py`, all gates pass)
 
+## Tool calls (`r7_tool_benchmark.py`, all gates pass)
+
+Declared schemas (string enums), trigger substrings, stub executors.
+Bit-level prefix-legality masking guarantees every emitted call parses;
+content comes from taught episodic calls (16-bit table horizons cannot
+select distant user-turn entities — documented). Multi-turn loop verified:
+trigger, propose, execute, observe result, follow-up recalled. No tool
+definitions means no calls proposed.
+
 Router order: refusal policy, declared skill patterns (repeat, spell),
 episodic recall, table generation, calibrated uncertainty. Skills are exact
 deterministic transforms, disclosed as tools.

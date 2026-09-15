@@ -1,0 +1,22 @@
+{
+  "all_passed": true,
+  "content_ok": true,
+  "corpus": "data/e0/alice.txt",
+  "followup": "rainyther ",
+  "gates": {
+    "no_tools_no_calls": true,
+    "result_reused": true,
+    "right_tool_args": true,
+    "valid_syntax": true
+  },
+  "manifest": {
+    "acquisition_bytes": 127072,
+    "documents": 13,
+    "license": "public-domain",
+    "test_bytes": 11782,
+    "test_sha256": "14005372aaf864d1aef667e5c13e3d8a666dfd900b90359a1d50da862b356e29",
+    "validation_bytes": 12122
+  },
+  "protocol": "r7-tool-v1",
+  "validity": "2/2"
+}
