@@ -30,8 +30,12 @@ def _sha256_file(path):
 
 
 class BrainStore(object):
-    def __init__(self, root):
+    def __init__(self, root, state_budget_bytes=None):
         self.root = os.path.abspath(root)
+        if state_budget_bytes is not None and (
+                isinstance(state_budget_bytes, bool) or int(state_budget_bytes) < 1):
+            raise ValueError("state budget must be a positive integer")
+        self.state_budget_bytes = None if state_budget_bytes is None else int(state_budget_bytes)
         if not os.path.isdir(self.root):
             os.makedirs(self.root)
 
@@ -96,7 +100,11 @@ class BrainStore(object):
 
     def load(self, name):
         from ..memory import SequenceCircuitMemory
+        from ..persistence import recover_if_needed
         paths = self._paths(name)
+        if not os.path.exists(paths["manifest"]) and not os.path.exists(paths["brain"] + ".prev"):
+            raise ValueError("unknown brain: %s" % name)
+        recover_if_needed(paths)
         if not os.path.exists(paths["manifest"]):
             raise ValueError("unknown brain: %s" % name)
         organism = Organism.load(paths["brain"])
@@ -112,25 +120,38 @@ class BrainStore(object):
         return organism, episodic, manifest, dialogue
 
     def save(self, name, organism, episodic, description=None, dialogue=None):
+        from ..persistence import begin_save, end_save, rotate_previous
         paths = self._paths(name)
         if not os.path.exists(paths["manifest"]):
             raise ValueError("unknown brain: %s" % name)
         organism.validate()
         episodic.validate()
+        with open(paths["manifest"]) as handle:
+            manifest = json.load(handle)
+        begin_save(paths["dir"])
+        rotate_previous(paths)
         organism.save(paths["brain"])
         with open(paths["episodic"], "w") as handle:
             json.dump(episodic.state_dict(), handle, sort_keys=True)
-        if dialogue is not None:
-            dialogue.validate()
-            with open(paths["dialogue"], "w") as handle:
-                json.dump(dialogue.state_dict(), handle, sort_keys=True)
-        with open(paths["manifest"]) as handle:
-            manifest = json.load(handle)
+        if dialogue is None:
+            from ..memory import SequenceCircuitMemory
+            dialogue = SequenceCircuitMemory((0, 1), max_order=256, max_circuits=16384)
+        dialogue.validate()
+        with open(paths["dialogue"], "w") as handle:
+            json.dump(dialogue.state_dict(), handle, sort_keys=True)
         manifest["identity"] = _sha256_file(paths["brain"])[:16]
         if description is not None:
             manifest["description"] = str(description)
         with open(paths["manifest"], "w") as handle:
             json.dump(manifest, handle, indent=2, sort_keys=True)
+        end_save(paths["dir"])
+        if self.state_budget_bytes is not None:
+            total = sum(os.path.getsize(paths[key]) for key in
+                        ("brain", "dialogue", "episodic", "manifest")
+                        if paths.get(key) is not None and os.path.exists(paths[key]))
+            if total > self.state_budget_bytes:
+                raise ValueError("brain state %d bytes exceeds budget %d" % (
+                    total, self.state_budget_bytes))
         return manifest
 
     def clone(self, source, destination, reason):
@@ -142,7 +163,8 @@ class BrainStore(object):
             raise ValueError("unknown brain: %s" % source)
         if os.path.exists(destination_paths["dir"]):
             raise ValueError("brain already exists: %s" % destination)
-        shutil.copytree(source_paths["dir"], destination_paths["dir"])
+        shutil.copytree(source_paths["dir"], destination_paths["dir"],
+                        ignore=shutil.ignore_patterns("journal.log", "*.prev"))
         with open(destination_paths["manifest"]) as handle:
             manifest = json.load(handle)
         manifest["name"] = destination
@@ -196,9 +218,45 @@ class BrainStore(object):
         paths = self._paths(name)
         if not os.path.exists(paths["manifest"]):
             raise ValueError("unknown brain: %s" % name)
-        with tarfile.open(path, "w:gz") as archive:
-            archive.add(paths["dir"], arcname=name)
+        with tempfile.TemporaryDirectory() as scratch:
+            staged = os.path.join(scratch, name)
+            shutil.copytree(paths["dir"], staged,
+                            ignore=shutil.ignore_patterns("journal.log", "*.prev"))
+            with tarfile.open(path, "w:gz") as archive:
+                archive.add(staged, arcname=name)
         return {"path": os.path.abspath(path), "sha256": _sha256_file(path)}
+
+    def export_soma(self, name, path):
+        """Write the versioned binary `.soma` artifact for download."""
+        from ..persistence import write_soma
+        paths = self._paths(name)
+        if not os.path.exists(paths["manifest"]):
+            raise ValueError("unknown brain: %s" % name)
+        chunks = {}
+        for key in ("manifest", "brain", "dialogue", "episodic"):
+            with open(paths[key], "rb") as handle:
+                chunks[key + ".json"] = handle.read()
+        return write_soma(path, chunks)
+
+    def import_soma(self, path, name):
+        """Import a `.soma` artifact with full hash verification."""
+        from ..persistence import read_soma
+        destination_paths = self._paths(name)
+        if os.path.exists(destination_paths["dir"]):
+            raise ValueError("brain already exists: %s" % name)
+        chunks = read_soma(path)
+        os.makedirs(destination_paths["dir"])
+        mapping = {"manifest.json": "manifest", "brain.json": "brain",
+                   "dialogue.json": "dialogue", "episodic.json": "episodic"}
+        for chunk_name, key in mapping.items():
+            with open(destination_paths[key], "wb") as handle:
+                handle.write(chunks[chunk_name])
+        organism, episodic, _, _ = self.load(name)
+        organism.validate()
+        episodic.validate()
+        manifest = self.inspect(name)
+        manifest["name"] = name
+        return manifest
 
     def import_brain(self, path, name):
         destination_paths = self._paths(name)

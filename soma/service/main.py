@@ -84,6 +84,23 @@ def cmd_brain_import(args):
     return 0
 
 
+def cmd_brain_export_soma(args):
+    print(json.dumps(_store(args).export_soma(args.name, args.path), indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_brain_import_soma(args):
+    print(json.dumps(_store(args).import_soma(args.path, args.name), indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_profile(args):
+    from .profile import profile_brain
+    print(json.dumps(profile_brain(_store(args), args.name, steps=args.steps),
+                     indent=2, sort_keys=True))
+    return 0
+
+
 def cmd_chat(args):
     from .chat import repl
     repl(_store(args), args.name)
@@ -170,6 +187,21 @@ def build_parser():
     import_brain.add_argument("path")
     import_brain.add_argument("name")
     import_brain.set_defaults(function=cmd_brain_import)
+
+    export_soma = commands.add_parser("brain-export-soma")
+    export_soma.add_argument("name")
+    export_soma.add_argument("path")
+    export_soma.set_defaults(function=cmd_brain_export_soma)
+
+    import_soma = commands.add_parser("brain-import-soma")
+    import_soma.add_argument("path")
+    import_soma.add_argument("name")
+    import_soma.set_defaults(function=cmd_brain_import_soma)
+
+    profile = commands.add_parser("profile")
+    profile.add_argument("name")
+    profile.add_argument("--steps", type=int, default=2000)
+    profile.set_defaults(function=cmd_profile)
 
     chat = commands.add_parser("chat")
     chat.add_argument("name")
