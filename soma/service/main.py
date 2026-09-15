@@ -38,10 +38,18 @@ def cmd_brain_teach(args):
     total = {"bytes": 0, "bits": 0}
     for path in args.paths:
         with open(path, "rb") as handle:
-            result = teach_text(store, args.name, handle.read(), provenance=path)
+            result = teach_text(store, args.name, handle.read(), provenance=path,
+                                trust=args.trust)
         total["bytes"] += result["bytes"]
         total["bits"] += result["bits"]
     print(json.dumps(total, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_brain_approve(args):
+    from .chat import approve_staged
+    result = approve_staged(_store(args), args.name, weight=args.weight)
+    print(json.dumps(result, indent=2, sort_keys=True))
     return 0
 
 
@@ -151,7 +159,13 @@ def build_parser():
     teach = commands.add_parser("brain-teach")
     teach.add_argument("name")
     teach.add_argument("paths", nargs="+")
+    teach.add_argument("--trust", default="trusted", choices=("trusted", "untrusted"))
     teach.set_defaults(function=cmd_brain_teach)
+
+    approve = commands.add_parser("brain-approve")
+    approve.add_argument("name")
+    approve.add_argument("--weight", type=int, default=1)
+    approve.set_defaults(function=cmd_brain_approve)
 
     correct = commands.add_parser("brain-correct")
     correct.add_argument("name")

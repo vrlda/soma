@@ -344,15 +344,25 @@ class EpisodicBuffer(object):
 
     VERSION = 1
 
-    def __init__(self, max_entries=1024):
+    # Provenance ranks: higher supersedes lower; equal ranks keep
+    # latest-wins. Unknown labels default to user level (compat).
+    PROVENANCE_RANKS = {"system": 3, "correction": 2, "user": 1,
+                        "approved-notes": 1, "untrusted": 0}
+
+    def __init__(self, max_entries=1024, max_per_provenance=None):
         self.max_entries = int(max_entries)
         if self.max_entries < 1:
             raise ValueError("episodic capacity must be positive")
+        if max_per_provenance is not None and (not isinstance(max_per_provenance, int)
+                                               or max_per_provenance < 1):
+            raise ValueError("per-provenance quota must be a positive integer")
+        self.max_per_provenance = max_per_provenance
         self.entries = {}
         self.next_id = 0
         self.hits = 0
         self.misses = 0
         self.conflicts = []
+        self.blocked = []
 
     def add(self, trigger, completion, provenance="correction"):
         """Store trigger->completion bit patterns. Returns entry id."""
@@ -362,8 +372,10 @@ class EpisodicBuffer(object):
             raise ValueError("episodic trigger and completion must be nonempty")
         if any(bit not in (0, 1) for bit in trigger + completion):
             raise ValueError("episodic patterns carry bits only")
+        rank = self.PROVENANCE_RANKS.get(str(provenance), 1)
         for existing in self.entries.values():
             if existing["trigger"] == trigger:
+                old_rank = self.PROVENANCE_RANKS.get(existing["provenance"], 1)
                 if existing["completion"] != completion:
                     self.conflicts.append({
                         "trigger": list(trigger),
@@ -371,12 +383,22 @@ class EpisodicBuffer(object):
                         "new_completion": list(completion),
                         "old_provenance": existing["provenance"],
                         "new_provenance": str(provenance),
-                        "resolution": "latest-wins",
+                        "resolution": "latest-wins" if rank >= old_rank else "blocked-lower-trust",
                     })
+                    del self.conflicts[:-1024]
+                if rank < old_rank:
+                    if existing["id"] not in self.blocked:
+                        self.blocked.append(existing["id"])
+                    return existing["id"]
                 existing["completion"] = completion
                 existing["provenance"] = str(provenance)
                 existing["superseded"] = existing.get("superseded", 0) + 1
                 return existing["id"]
+        if self.max_per_provenance is not None:
+            owned = sum(1 for entry in self.entries.values()
+                        if entry["provenance"] == str(provenance))
+            if owned >= self.max_per_provenance:
+                raise ValueError("per-provenance episodic quota exceeded")
         if len(self.entries) >= self.max_entries:
             victim = min(self.entries.values(),
                          key=lambda entry: (entry["uses"], entry["id"]))
@@ -483,6 +505,11 @@ class EpisodicBuffer(object):
             raise AssertionError("episodic buffer exceeds capacity")
         if not isinstance(self.conflicts, list):
             raise AssertionError("episodic conflicts must be a list")
+        if self.max_per_provenance is not None and (
+                not isinstance(self.max_per_provenance, int) or self.max_per_provenance < 1):
+            raise AssertionError("episodic quota is invalid")
+        if not isinstance(self.blocked, list):
+            raise AssertionError("episodic blocked list is invalid")
         for entry_id, entry in self.entries.items():
             if entry_id != entry["id"]:
                 raise AssertionError("episodic entry id mismatch")
@@ -498,6 +525,8 @@ class EpisodicBuffer(object):
             "next_id": self.next_id,
             "hits": self.hits,
             "misses": self.misses,
+            "max_per_provenance": self.max_per_provenance,
+            "blocked": list(self.blocked),
             "conflicts": [dict(item) for item in self.conflicts],
             "entries": [
                 {"id": entry["id"], "trigger": list(entry["trigger"]),
@@ -516,6 +545,9 @@ class EpisodicBuffer(object):
         buffer.next_id = int(payload.get("next_id", 0))
         buffer.hits = int(payload.get("hits", 0))
         buffer.misses = int(payload.get("misses", 0))
+        quota = payload.get("max_per_provenance")
+        buffer.max_per_provenance = None if quota is None else int(quota)
+        buffer.blocked = [int(value) for value in payload.get("blocked", [])]
         buffer.conflicts = [dict(item) for item in payload.get("conflicts", [])]
         for item in payload.get("entries", []):
             entry_id = int(item["id"])

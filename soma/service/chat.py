@@ -11,8 +11,11 @@ def _decode_response(raw):
         return bytes(raw).decode("utf-8", errors="ignore")
 
 
-def teach_text(store, name, text, provenance="approved-notes"):
-    """Ingest approved text: background-rate exposure, recorded provenance."""
+def teach_text(store, name, text, provenance="approved-notes", trust="trusted"):
+    """Ingest text: trusted sources learn immediately; untrusted sources
+    stage into quarantine and need an explicit brain-approve first."""
+    if trust not in ("trusted", "untrusted"):
+        raise ValueError("trust must be trusted or untrusted")
     if isinstance(text, str):
         text = text.encode("utf-8")
     organism, episodic, _, dialogue = store.load(name)
@@ -21,10 +24,25 @@ def teach_text(store, name, text, provenance="approved-notes"):
         raise ValueError("brain has no sequence memory")
     from ..evaluation.english import bit_stream
     bits, _ = bit_stream(bytes(text))
+    if trust == "untrusted":
+        receipt = organism.quarantine_events(bits)
+        store.save(name, organism, episodic, dialogue=dialogue)
+        return {"bytes": len(text), "bits": len(bits), "provenance": provenance,
+                "quarantined": True, "receipt": receipt}
     for symbol in bits:
         memory.observe(symbol, learn=True)
     store.save(name, organism, episodic, dialogue=dialogue)
     return {"bytes": len(text), "bits": len(bits), "provenance": provenance}
+
+
+def approve_staged(store, name, weight=1):
+    """Approve quarantined content into learning. The policy boundary."""
+    organism, episodic, _, dialogue = store.load(name)
+    if organism.sequence_memory is None:
+        raise ValueError("brain has no sequence memory")
+    count = organism.approve_quarantine(weight=weight)
+    store.save(name, organism, episodic, dialogue=dialogue)
+    return {"approved_bits": count}
 
 
 def correct(store, name, question, answer, fact_text=None):

@@ -119,6 +119,38 @@ class R3DDialogueTests(unittest.TestCase):
         restored = EpisodicBuffer.from_state_dict(episodic.state_dict())
         self.assertEqual(restored.conflicts, episodic.conflicts)
 
+    def test_lower_trust_cannot_supersede(self):
+        episodic = EpisodicBuffer()
+        teach_id = episodic.add((1, 0, 1), (0,), "user")
+        same = episodic.add((1, 0, 1), (1,), "untrusted")
+        self.assertEqual(same, teach_id)
+        self.assertEqual(episodic.match((1, 0, 1)), (0,))
+        self.assertIn(teach_id, episodic.blocked)
+        resolutions = [record["resolution"] for record in episodic.conflicts]
+        self.assertIn("blocked-lower-trust", resolutions)
+
+    def test_equal_trust_latest_wins(self):
+        episodic = EpisodicBuffer()
+        episodic.add((1, 0, 1), (0,), "user")
+        episodic.add((1, 0, 1), (1,), "user")
+        self.assertEqual(episodic.match((1, 0, 1)), (1,))
+        self.assertEqual(episodic.blocked, [])
+
+    def test_higher_trust_supersedes(self):
+        episodic = EpisodicBuffer()
+        episodic.add((1, 0, 1), (0,), "user")
+        episodic.add((1, 0, 1), (1,), "correction")
+        self.assertEqual(episodic.match((1, 0, 1)), (1,))
+
+    def test_per_provenance_quota(self):
+        episodic = EpisodicBuffer(max_per_provenance=2)
+        episodic.add((1,), (0,), "stranger")
+        episodic.add((0, 1), (0,), "stranger")
+        with self.assertRaises(ValueError):
+            episodic.add((1, 1), (0,), "stranger")
+        episodic.add((1, 1), (0,), "user")
+        episodic.validate()
+
     def test_emissions_never_train(self):
         background = _background()
         dialogue = fresh_dialogue()

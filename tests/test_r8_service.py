@@ -66,6 +66,23 @@ class R8ServiceTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     store3.import_brain(os.path.join(scratch, "demo.tgz"), "demo")
 
+    def test_untrusted_teach_quarantines(self):
+        with tempfile.TemporaryDirectory() as root:
+            store = BrainStore(root)
+            store.create("demo")
+            from soma.service.chat import approve_staged, teach_text
+            result = teach_text(store, "demo", b"poison bytes here", provenance="web",
+                                trust="untrusted")
+            self.assertTrue(result["quarantined"])
+            organism, _, _, _ = store.load("demo")
+            self.assertEqual(organism.sequence_memory.events_seen, 0)
+            approved = approve_staged(store, "demo")
+            self.assertGreater(approved["approved_bits"], 0)
+            organism, _, _, _ = store.load("demo")
+            self.assertGreater(organism.sequence_memory.events_seen, 0)
+            with self.assertRaises(ValueError):
+                teach_text(store, "demo", b"x", trust="weird")
+
     def test_doctor_ok(self):
         with tempfile.TemporaryDirectory() as root:
             store = BrainStore(root)
