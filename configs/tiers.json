@@ -1,0 +1,1 @@
+{"tiers": {"micro": {"max_cells": 64, "max_synapses": 256, "notes": "correctness and CI"}, "prosumer": {"max_cells": 4096, "max_synapses": 131072, "notes": "release candidate workstation"}, "small": {"max_cells": 1024, "max_synapses": 16384, "notes": "useful local alpha"}, "tiny": {"max_cells": 256, "max_synapses": 2048, "notes": "language feasibility"}}}

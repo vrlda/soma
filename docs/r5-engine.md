@@ -1,4 +1,14 @@
-# R5 Scalable Runtime (Core Shipped; GPU + Full Port Future)
+# R5 Scalable Runtime (Core + Kernels Shipped; GPU + Full Port Future)
+
+## Rust kernels with differential parity
+
+Beyond graph mutation: forward propagation (all cell types, dormant
+freeze, adaptation/observe dynamics) agrees at ~1e-16, and the Hebbian +
+actor update kernels agree bitwise (gap 0.0), across seeds. Toolchain:
+`engine/differential_forward.py`, `engine/differential_learn.py`.
+Routing, detectors, fingerprints, and structural growth stay Python-side
+by design (documented in code); porting them is the defined next engine
+milestone, not assumed done.
 
 ## Binary `.soma` format v1 (`soma/persistence/soma_v1.py`)
 
@@ -19,6 +29,11 @@ previous generations.
 Per-step microseconds (organism + memory), active-cell counts, state bytes,
 RSS. State budgets enforced on save (tested). 20k-step soak proxy green
 with hard bounds held (`reports/r5-soak.json`).
+
+## Tier ceilings (`configs/tiers.json`)
+
+Micro/Tiny/Small/Prosumer cell/synapse budgets frozen; the 200k-step soak
+(`reports/r5-soak-200k.json`) holds hard bounds with validation throughout.
 
 ## Host-language decision: Rust (measured)
 

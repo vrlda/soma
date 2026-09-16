@@ -5,6 +5,8 @@
 //! GPU backends, and packaging follow only if this spike validates.
 
 pub mod graph;
+pub mod neuron;
 pub mod tape;
 
 pub use graph::{SparseGraph, SynapseId};
+pub use neuron::{ForwardFixture, Network};
