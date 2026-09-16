@@ -666,7 +666,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 **Exit gates:** the blank-descended brain improves held-out bits/byte and calibration across qualified stages; learned compositions are reused and retained; quality improves with data without total-brain execution or unbounded storage; no English-specific core code or evaluation leakage.
 
-### R3C — Generative text
+### R3C — Generative text ✅ COMPLETE
 
 **Deliverables:** byte/symbol effector, bounded sampling, stopping, streaming output, fixed-prefix suite, self-emission attribution, and generation controls.
 
