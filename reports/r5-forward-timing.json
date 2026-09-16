@@ -1,0 +1,7 @@
+{
+  "python_us_per_step": 111.1447811126709,
+  "rust_us_per_step": 33.9135,
+  "speedup": 3.2773019922057856,
+  "cells": 34,
+  "synapses": 270
+}

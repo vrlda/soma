@@ -36,8 +36,16 @@ with hard bounds held (`reports/r5-soak.json`).
 
 ## Tier ceilings (`configs/tiers.json`)
 
-Micro/Tiny/Small/Prosumer cell/synapse budgets frozen; the 200k-step soak
-(`reports/r5-soak-200k.json`) holds hard bounds with validation throughout.
+Micro/Tiny/Small/Prosumer cell/synapse budgets frozen; the 2M-step soak
+(`reports/r5-soak-2m.json`, 4x500k chunks with save/load resume between
+chunks) holds hard bounds with validation throughout.
+
+## Timing (in-process compute, `reports/r5-forward-timing.json`)
+
+Graph mutation ~170x Rust over Python; forward propagation 3.3x on a
+35-cell network (small-graph overhead dominates both sides; larger nets
+unmeasured, no claim). Binary-IPC figures are reported separately where
+measured and never conflated with compute.
 
 ## Host-language decision: Rust (measured)
 
