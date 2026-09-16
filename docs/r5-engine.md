@@ -3,12 +3,16 @@
 ## Rust kernels with differential parity
 
 Beyond graph mutation: forward propagation (all cell types, dormant
-freeze, adaptation/observe dynamics) agrees at ~1e-16, and the Hebbian +
-actor update kernels agree bitwise (gap 0.0), across seeds. Toolchain:
-`engine/differential_forward.py`, `engine/differential_learn.py`.
-Routing, detectors, fingerprints, and structural growth stay Python-side
+freeze, adaptation/observe dynamics) agrees at ~1e-16, the Hebbian +
+actor update kernels agree bitwise (gap 0.0), the R1 evidence router
+pure functions agree at ~5e-14 (libm), and the CUSUM detector update
+(predictor, variance, cusum, freeze, confidence, streak, global
+surprise) agrees at ~1e-15 — all across seeds. Toolchain:
+`engine/differential_{forward,learn,evidence,detector}.py`.
+Fingerprint/probe state machines and structural growth stay Python-side
 by design (documented in code); porting them is the defined next engine
-milestone, not assumed done.
+milestone, not assumed done. Long soak: 500k steps bounded
+(`reports/r5-soak-500k.json`).
 
 ## Binary `.soma` format v1 (`soma/persistence/soma_v1.py`)
 
