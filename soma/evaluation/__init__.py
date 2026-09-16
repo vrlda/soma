@@ -65,6 +65,11 @@ from .temporal import (
     run_event_context,
     run_event_context_benchmark,
 )
+from .vision import (
+    R11_ACCEPTANCE_SEEDS,
+    run_glyph_benchmark,
+    run_glyphs,
+)
 
 __all__ = [
     "R2_ACCEPTANCE_SEEDS",
@@ -99,8 +104,11 @@ __all__ = [
     "make_pair",
     "partition_documents",
     "read_lineage",
+    "R11_ACCEPTANCE_SEEDS",
     "respond",
     "run_english",
+    "run_glyph_benchmark",
+    "run_glyphs",
     "score",
     "run_english_brain_memory",
     "run_english_continued",

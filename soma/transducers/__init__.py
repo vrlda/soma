@@ -6,10 +6,11 @@ from .bit_scalar import BitScalarTransducer
 from .scalar_stream import ScalarStreamTransducer
 from .symbol_bits import SymbolBitsTransducer
 from .text_bytes import TextBytesTransducer, decode_bits, encode_bytes, validate_utf8
+from .vision import GlyphTransducer, render_horizontal, render_vertical
 
 __all__ = [
-    "BitHistoryTransducer",
     "BitScalarTransducer",
+    "GlyphTransducer",
     "ScalarStreamTransducer",
     "SymbolBitsTransducer",
     "TextBytesTransducer",
@@ -17,5 +18,7 @@ __all__ = [
     "TransducerSpec",
     "decode_bits",
     "encode_bytes",
+    "render_horizontal",
+    "render_vertical",
     "validate_utf8",
 ]
