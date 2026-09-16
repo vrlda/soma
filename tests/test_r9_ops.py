@@ -85,6 +85,17 @@ class PreferenceTests(unittest.TestCase):
         pair = make_pair("p", "q", "fine", "bad\x00", True)
         self.assertIn(synthetic_rater(pair), ("A", "B", "tie"))
 
+    def test_installer_smoke(self):
+        import subprocess
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        with tempfile.TemporaryDirectory() as root:
+            environment = dict(os.environ, SOMA_ROOT=root)
+            completed = subprocess.run(
+                ["bash", "install.sh"], cwd=repo,
+                env=environment, capture_output=True, text=True, timeout=300)
+            self.assertEqual(completed.returncode, 0, completed.stderr[-2000:])
+            self.assertTrue(os.path.isdir(os.path.join(root, "brains")))
+
     def test_cli_telemetry_commands(self):
         with tempfile.TemporaryDirectory() as root:
             self.assertEqual(main(["--root", root, "telemetry", "status"]), 0)

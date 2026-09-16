@@ -11,5 +11,10 @@ OpenAI-compatible `/v1/chat/completions` plus `/learn`, `/inspect`,
 fact recalled through the HTTP API.
 
 Scope notes: dialogue memory budget can saturate on tiny teaches (bounded
-by design); runtime install is local detection only (compiled engine is
-R5); no authentication on the local API (localhost default).
+by design); no authentication on the local API (localhost default).
+
+Installer (`install.sh`): Python/hardware checks, layout creation, import
+smoke, fast unit subset; fails loud. Presets (`configs/presets.json`):
+Micro/Tiny/Small/Prosumer memory budgets. Clean-machine procedure:
+`docs/clean-machine.md`. R6 quality floors: `scripts/check_floors.py`
+(frozen bars over report JSONs; currently all passing).
