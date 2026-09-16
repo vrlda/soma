@@ -60,6 +60,13 @@ from .sequence import (
     run_sequence,
     run_sequence_benchmark,
 )
+from .embodied import (
+    R12_ACCEPTANCE_SEEDS,
+    SafetyController,
+    run_cart,
+    run_cart_benchmark,
+    run_replay,
+)
 from .temporal import (
     R2_ACCEPTANCE_SEEDS,
     run_event_context,
@@ -105,7 +112,12 @@ __all__ = [
     "partition_documents",
     "read_lineage",
     "R11_ACCEPTANCE_SEEDS",
+    "R12_ACCEPTANCE_SEEDS",
+    "SafetyController",
     "respond",
+    "run_cart",
+    "run_cart_benchmark",
+    "run_replay",
     "run_english",
     "run_glyph_benchmark",
     "run_glyphs",
