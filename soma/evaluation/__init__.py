@@ -9,6 +9,13 @@ from .dialogue import (
     teach_fact,
     text_to_bits,
 )
+from .preference import (
+    load_json_list,
+    make_pair,
+    score,
+    synthetic_rater,
+    validate_judgment,
+)
 from .instruction import (
     UNCERTAINTY_TEXT,
     check_refusal,
@@ -88,10 +95,13 @@ __all__ = [
     "match_skill",
     "memory_confident",
     "memory_specific",
+    "load_json_list",
+    "make_pair",
     "partition_documents",
     "read_lineage",
     "respond",
     "run_english",
+    "score",
     "run_english_brain_memory",
     "run_english_continued",
     "run_english_fused",
@@ -105,7 +115,9 @@ __all__ = [
     "sanitize_export",
     "split_chapters",
     "strip_gutenberg_boilerplate",
+    "synthetic_rater",
     "teach_fact",
     "text_to_bits",
+    "validate_judgment",
     "verify_clone",
 ]

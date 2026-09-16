@@ -126,6 +126,22 @@ def cmd_doctor(args):
     return 0
 
 
+def cmd_telemetry(args):
+    from .telemetry import set_consent, status
+    if args.state == "status":
+        print(json.dumps(status(args.root), indent=2, sort_keys=True))
+    else:
+        print(json.dumps(set_consent(args.root, args.state == "on",
+                                     content=args.content), indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_bundle(args):
+    from .telemetry import bundle
+    print(bundle(args.root, args.path))
+    return 0
+
+
 def cmd_transducers(args):
     from ..transducers import (
         BitScalarTransducer, ScalarStreamTransducer, SymbolBitsTransducer, TextBytesTransducer,
@@ -229,6 +245,15 @@ def build_parser():
     doctor = commands.add_parser("doctor")
     doctor.set_defaults(function=cmd_doctor)
 
+    telemetry = commands.add_parser("telemetry")
+    telemetry.add_argument("state", choices=("on", "off", "status"), nargs="?", default="status")
+    telemetry.add_argument("--content", action="store_true")
+    telemetry.set_defaults(function=cmd_telemetry)
+
+    bundle = commands.add_parser("bundle")
+    bundle.add_argument("path")
+    bundle.set_defaults(function=cmd_bundle)
+
     transducers = commands.add_parser("transducers")
     transducers.set_defaults(function=cmd_transducers)
 
@@ -236,15 +261,20 @@ def build_parser():
 
 
 def main(argv=None):
+    import time as _time
+    from .telemetry import record as _record
     arguments = build_parser().parse_args(argv)
+    started = _time.time()
     try:
-        return arguments.function(arguments)
+        code = arguments.function(arguments)
     except ValueError as error:
         print("error: %s" % error, file=sys.stderr)
-        return 1
+        code = 1
     except (OSError, AssertionError) as error:
         print("error: %s" % error, file=sys.stderr)
-        return 2
+        code = 2
+    _record(arguments.root, arguments.command, int(( _time.time() - started) * 1000), code)
+    return code
 
 
 if __name__ == "__main__":
