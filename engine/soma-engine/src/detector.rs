@@ -160,6 +160,13 @@ mod tests {
     #[test]
     fn sustained_negative_surprise_accumulates() {
         let mut state = state();
+        for _ in 0..10 {
+            let outcome = update(&params(), state, &[1.0, 0.0, 0.0, 0.0], 0.5, 0.0, false, true, 0.1);
+            state = outcome.state;
+        }
+        // Warning-state freeze: the predictor stops tracking, so a regime
+        // shift accumulates CUSUM evidence instead of being absorbed.
+        state.frozen = true;
         for _ in 0..40 {
             let outcome = update(&params(), state, &[1.0, 0.0, 0.0, 0.0], -2.0, 0.0, false, true, 0.1);
             state = outcome.state;
