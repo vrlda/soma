@@ -51,6 +51,18 @@ def main():
     parser.add_argument("--report", default="reports/r3b-e1.json")
     parser.add_argument("--max-order", type=int, default=16)
     parser.add_argument("--max-circuits", type=int, default=131072)
+    parser.add_argument("--resume-from", default=None,
+                        help="memory state JSON to resume acquisition from")
+    parser.add_argument("--save-memory", default=None,
+                        help="write memory state JSON after acquisition")
+    parser.add_argument("--start-book", type=int, default=0,
+                        help="first acquisition book index (staged runs)")
+    parser.add_argument("--end-book", type=int, default=None,
+                        help="one past the last acquisition book index")
+    parser.add_argument("--initial-bytes", type=int, default=0,
+                        help="cumulative bytes before this stage")
+    parser.add_argument("--skip-final", action="store_true",
+                        help="skip sealed test/lesion eval (staged runs)")
     args = parser.parse_args()
 
     with open(args.manifest) as handle:
@@ -60,13 +72,22 @@ def main():
     validation = parts["validation"][0][1]
     test_name, test_data = parts["test"][0]
 
-    memory = SequenceCircuitMemory((0, 1), max_order=args.max_order,
-                                   max_circuits=args.max_circuits,
-                                   min_support=2, prior=0.5)
+    if args.resume_from is not None:
+        with open(args.resume_from) as handle:
+            memory = SequenceCircuitMemory.from_state_dict(json.load(handle))
+        if (memory.max_order != args.max_order or memory.max_circuits != args.max_circuits):
+            parser.error("resume state config differs from requested")
+    else:
+        memory = SequenceCircuitMemory((0, 1), max_order=args.max_order,
+                                       max_circuits=args.max_circuits,
+                                       min_support=2, prior=0.5)
     curve = []
     start = time.time()
-    cumulative_bytes = 0
-    for name, data in acquisition:
+    cumulative_bytes = args.initial_bytes
+    staged = acquisition[args.start_book:args.end_book]
+    if not staged:
+        parser.error("book stage is empty")
+    for name, data in staged:
         bits, _ = bit_stream(data)
         for symbol in bits[:-1]:
             memory.observe(symbol)
@@ -85,20 +106,37 @@ def main():
         print(json.dumps(curve[-1], sort_keys=True), flush=True)
         memory.validate()
 
+    if args.save_memory is not None:
+        with open(args.save_memory, "w") as handle:
+            json.dump(memory.state_dict(), handle)
     bar = byte_unigram_bits(validation) / 8.0
-    test_bar = byte_unigram_bits(test_data) / 8.0
-    test_bpb = evaluate(memory, test_data)
-    lesioned = SequenceCircuitMemory.from_state_dict(memory.state_dict())
-    for circuit in lesioned.circuits.values():
-        circuit["counts"] = [0] * len(circuit["counts"])
-    lesioned.reset_history()
-    lesion_predictions, lesion_targets = [], []
-    test_bits, _ = bit_stream(test_data)
-    for step in range(max(0, len(test_bits) - 1)):
-        lesioned.observe(test_bits[step], learn=False)
-        lesion_predictions.append(0.5)
-        lesion_targets.append(test_bits[step + 1])
-    lesion_bpb = bits_per_bit(lesion_predictions, lesion_targets)
+    if args.skip_final:
+        test_bar, test_bpb, lesion_bpb = None, None, None
+        gates = {
+            "beats_validation_bar": curve[-1]["validation_bits_per_bit"] < bar,
+            "bounded": len(memory.circuits) <= args.max_circuits,
+        }
+    else:
+        test_bar = byte_unigram_bits(test_data) / 8.0
+        test_bpb = evaluate(memory, test_data)
+        lesioned = SequenceCircuitMemory.from_state_dict(memory.state_dict())
+        for circuit in lesioned.circuits.values():
+            circuit["counts"] = [0] * len(circuit["counts"])
+        lesioned.reset_history()
+        lesion_predictions, lesion_targets = [], []
+        test_bits, _ = bit_stream(test_data)
+        for step in range(max(0, len(test_bits) - 1)):
+            lesioned.observe(test_bits[step], learn=False)
+            lesion_predictions.append(0.5)
+            lesion_targets.append(test_bits[step + 1])
+        lesion_bpb = bits_per_bit(lesion_predictions, lesion_targets)
+        gates = {
+            "improves_with_data": curve[-1]["validation_bits_per_bit"] < curve[0]["validation_bits_per_bit"],
+            "beats_validation_bar": curve[-1]["validation_bits_per_bit"] < bar,
+            "beats_test_bar": test_bpb < test_bar,
+            "bounded": len(memory.circuits) <= args.max_circuits,
+            "causal": lesion_bpb >= test_bar,
+        }
 
     # Exact mid-stream resume check on a slice.
     resumed = SequenceCircuitMemory.from_state_dict(memory.state_dict())
@@ -122,13 +160,7 @@ def main():
         "state_bytes": state_bytes,
         "total_seconds": time.time() - start,
         "peak_rss_mb": _peak_mb(),
-        "gates": {
-            "improves_with_data": curve[-1]["validation_bits_per_bit"] < curve[0]["validation_bits_per_bit"],
-            "beats_validation_bar": curve[-1]["validation_bits_per_bit"] < bar,
-            "beats_test_bar": test_bpb < test_bar,
-            "bounded": len(memory.circuits) <= args.max_circuits,
-            "causal": lesion_bpb >= test_bar,
-        },
+        "gates": gates,
     }
     result["all_passed"] = all(result["gates"].values())
     print(json.dumps(result, indent=2, sort_keys=True))

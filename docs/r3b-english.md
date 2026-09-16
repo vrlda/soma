@@ -127,6 +127,19 @@ Ceiling-pressure variant (`--max-circuits 40000`, `reports/r3b-e2-pressure.json`
 all gates still pass, quality cost 0.002 bits/bit. Bounded operation under
 pressure is now measured, not assumed. RSS remains the R5 argument.
 
+## E3-lite scaling (27 books, 18 MB, `reports/r3b-e3.json`)
+
+All gates pass: curve 0.4009 -> 0.3960 across the ladder, sealed test
+0.3980 vs 0.559 bar, 78,550 circuits with zero reclamation (English
+16-bit context space saturates sublinearly), causal lesion. Cost: 821 s,
+1.64 GB peak RSS, 9.2 MB state. Trainable memory checkpoint saved
+(`reports/r3b-e3-memory.json`) for staged continuation.
+
+Verdict on volume scaling: E0->E2 gained 0.005 with 11 MB; E2->E3 gained
+0.000 with 6.5 MB more. Depth (order), not volume, was the big win;
+further data without new mechanisms is correctly deprioritized. Full
+100 MB E3 awaits the R5 engine (RSS curve forbids it on this machine).
+
 ## R3C generation (`r3c_generation_benchmark.py`, all gates pass)
 
 - Constrained emission (exact UTF-8 prefix-legality per bit, encoding law
