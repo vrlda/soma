@@ -6,7 +6,9 @@ bits) and rewards are computed outside the bridge.
 """
 
 import hashlib
+import json
 import math
+import os
 import random
 
 from ..events import Event, EventBridge
@@ -116,6 +118,43 @@ def build_book_manifest(entries):
     return manifest
 
 
+def manifest_digest(manifest):
+    """Stable identity for a frozen corpus manifest."""
+    encoded = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def load_verified_book_corpus(manifest, manifest_path=None):
+    """Load book bytes only when raw/stripped manifest hashes and sizes match."""
+    parts = {"acquisition": [], "validation": [], "test": []}
+    manifest_directory = os.path.dirname(os.path.abspath(manifest_path)) if manifest_path else None
+    for book in manifest.get("books", []):
+        path = book["path"]
+        if not os.path.exists(path) and manifest_directory is not None:
+            candidate = os.path.normpath(os.path.join(
+                manifest_directory, os.pardir, path))
+            if os.path.exists(candidate):
+                path = candidate
+        with open(path, "rb") as handle:
+            raw = handle.read()
+        if len(raw) != int(book["raw_bytes"]):
+            raise ValueError("manifest raw byte count mismatch for %s" % book["name"])
+        if hashlib.sha256(raw).hexdigest() != book["raw_sha256"]:
+            raise ValueError("manifest raw hash mismatch for %s" % book["name"])
+        stripped, did_strip = strip_gutenberg_boilerplate(raw)
+        if len(stripped) != int(book["bytes"]):
+            raise ValueError("manifest stripped byte count mismatch for %s" % book["name"])
+        if hashlib.sha256(stripped).hexdigest() != book["sha256"]:
+            raise ValueError("manifest stripped hash mismatch for %s" % book["name"])
+        if bool(book.get("boilerplate_stripped")) != did_strip:
+            raise ValueError("manifest boilerplate flag mismatch for %s" % book["name"])
+        partition = book["partition"]
+        if partition not in parts:
+            raise ValueError("unknown manifest partition: %s" % partition)
+        parts[partition].append((book["name"], stripped))
+    return parts
+
+
 def load_book_corpus(manifest):
     """Load stripped bytes per partition from a book manifest."""
     parts = {"acquisition": [], "validation": [], "test": []}
@@ -218,6 +257,26 @@ def byte_unigram_bits(data):
         probability = counts[byte] / total
         bits -= math.log(probability, 2)
     return bits / max(1, total)
+
+
+def byte_unigram_cross_bits(train_data, eval_data, prior=0.5):
+    """Acquisition-fitted byte-unigram cross-entropy in bits per input bit.
+
+    Unlike :func:`byte_unigram_bits`, this never estimates byte frequencies
+    from the evaluation stream.  The positive prior keeps unseen bytes finite
+    while remaining a conventional, fixed baseline.
+    """
+    if not math.isfinite(float(prior)) or float(prior) <= 0.0:
+        raise ValueError("byte unigram prior must be positive and finite")
+    counts = [0] * 256
+    for byte in train_data:
+        counts[byte] += 1
+    denominator = len(train_data) + float(prior) * 256.0
+    bits = 0.0
+    for byte in eval_data:
+        probability = (counts[byte] + float(prior)) / denominator
+        bits -= math.log(probability, 2)
+    return bits / max(1, len(eval_data) * 8)
 
 
 def byte_vocabulary(data):

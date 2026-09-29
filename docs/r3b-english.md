@@ -97,7 +97,7 @@ The fusion pathway is plumbed and parity-proven; its full payoff belongs to
 generation (R3C), where motor actions must consult memory. R3B stays open
 pending generation and compositional transfer.
 
-## E1 scaling (`r3b_e1_benchmark.py`, all gates pass)
+## E1 scaling (`r3b_e1_benchmark.py`, historical v1 report)
 
 Book-level corpus, 7 public-domain Gutenberg books (3.85 MB acquisition over
 5 books, 141 KB validation Jekyll, 181 KB sealed test Time Machine;
@@ -111,6 +111,23 @@ Book-level corpus, 7 public-domain Gutenberg books (3.85 MB acquisition over
   resume verified.
 - Resource profile (M3 Pro): 143 s total, 766 MB peak RSS (dict-heavy
   contexts; R5 engine concern), 7.1 MB JSON state.
+
+The developmental trainer also supports a manifest-bound checkpoint envelope:
+`--save-checkpoint PATH` records the canonical manifest digest, memory
+configuration, next acquisition-book cursor, and cumulative bytes. Resuming
+that envelope validates all four before continuing and derives the next stage
+automatically; a wrong corpus or cursor is rejected. Legacy raw states from
+`--save-memory` remain readable for development, while locked qualification
+resumes must pass `--require-bound-checkpoint`. Locked tests cover envelope
+round-trip, wrong-manifest rejection, raw-state compatibility, and exact
+staged versus uninterrupted continuation.
+
+Trainer acquisition files are rechecked against raw and stripped hashes before
+use. Unigram bars are now acquisition-fitted cross-entropies (with a fixed
+prior), never frequencies estimated from validation or sealed test bytes.
+The trainer protocol is now `r3b-e1-v2`; the checked-in `r3b-e1-v1` report is
+explicitly protocol-v1 legacy, predates these integrity and baseline changes,
+and is excluded from all v2/R6 acceptance decisions until regenerated.
 
 Caveats: gains per book are small (depth, not volume, was the big win).
 
@@ -127,12 +144,13 @@ Ceiling-pressure variant (`--max-circuits 40000`, `reports/r3b-e2-pressure.json`
 all gates still pass, quality cost 0.002 bits/bit. Bounded operation under
 pressure is now measured, not assumed. RSS remains the R5 argument.
 
-## E3-lite scaling (27 books, 18 MB, `reports/r3b-e3.json`)
+## E3-lite scaling (27 books, 18 MB, `reports/r3b-e3.json`, protocol v2)
 
-All gates pass: curve 0.4009 -> 0.3960 across the ladder, sealed test
-0.3980 vs 0.559 bar, 78,550 circuits with zero reclamation (English
-16-bit context space saturates sublinearly), causal lesion. Cost: 821 s,
-1.64 GB peak RSS, 9.2 MB state. Trainable memory checkpoint saved
+All gates pass under `r3b-e1-v2` (acquisition-fitted bars, verified manifest):
+curve 0.4009 -> 0.3960 across the ladder with an honest warpeace domain-shift
+bump and recovery, sealed test 0.3980 vs 0.563 bar, 78,549 circuits with zero
+reclamation (English 16-bit context space saturates sublinearly), causal lesion.
+Cost: 912 s, 1.5 GB peak RSS, 9.2 MB state. Trainable memory checkpoint saved
 (`reports/r3b-e3-memory.json`) for staged continuation.
 
 Verdict on volume scaling: E0->E2 gained 0.005 with 11 MB; E2->E3 gained

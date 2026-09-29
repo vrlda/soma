@@ -1,7 +1,7 @@
 import unittest
 
 from soma.evaluation.english import (
-    byte_unigram_bits,
+    byte_unigram_cross_bits,
     load_corpus,
     partition_documents,
     run_english_sequence_memory,
@@ -89,6 +89,24 @@ class SequenceCircuitMemoryTests(unittest.TestCase):
                            seed=1, deterministic=True)
         self.assertTrue(response.startswith(b"BB"))
 
+    def test_staged_acquisition_matches_uninterrupted(self):
+        import json
+        import tempfile
+        stream = [0, 0, 1, 1, 0, 1, 1, 0] * 40
+        full = SequenceCircuitMemory((0, 1), max_order=8, max_circuits=512)
+        for symbol in stream:
+            full.observe(symbol)
+        part = SequenceCircuitMemory((0, 1), max_order=8, max_circuits=512)
+        for symbol in stream[:160]:
+            part.observe(symbol)
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as handle:
+            json.dump(part.state_dict(), handle)
+            path = handle.name
+        resumed = SequenceCircuitMemory.from_state_dict(json.load(open(path)))
+        for symbol in stream[160:]:
+            resumed.observe(symbol)
+        self.assertEqual(resumed.state_dict(), full.state_dict())
+
     def test_circuit_budget_is_hard(self):
         memory = SequenceCircuitMemory(tuple(range(4)), max_order=5, max_circuits=32)
         state = 7
@@ -150,7 +168,7 @@ class SequenceCircuitMemoryTests(unittest.TestCase):
         lesion_reports, _ = run_english_sequence_memory(
             (acquisition[:20000], validation), max_order=16,
             max_circuits=131072, lesion=True)
-        bar = byte_unigram_bits(validation) / 8.0
+        bar = byte_unigram_cross_bits(acquisition[:20000], validation)
         self.assertLess(reports[1]["bits_per_bit"], bar)
         self.assertGreater(lesion_reports[1]["bits_per_bit"], bar)
         self.assertGreater(memory.circuits_created, 1)

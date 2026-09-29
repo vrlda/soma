@@ -34,6 +34,14 @@
 
 ## Try it (no coding)
 
+Clone with Git LFS installed to download the large benchmark reports:
+
+```bash
+git lfs install
+git clone https://github.com/vrlda/soma.git
+cd soma
+```
+
 ```bash
 export SOMA_BRAINS=/tmp/soma-demo
 python3 -m soma.service.main brain-create demo
@@ -51,7 +59,7 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
 - `soma/` — organism core (frozen paths) + `events/`, `routing/`,
   `transducers/`, `memory/`, `evaluation/`, `persistence/`, `service/`
 - `engine/soma-engine` — Rust sparse-graph spike with differential tapes
-- `tests/` — 393 unit tests (`python -m unittest discover -s tests`)
+- `tests/` — 482 unit tests (`python -m unittest discover -s tests`)
 - `r*_benchmark.py` — frozen milestone gates with JSON reports in `reports/`
 - `docs/` — per-milestone records, honest boundaries included
 - `data/` — licensed public-domain corpora with manifests

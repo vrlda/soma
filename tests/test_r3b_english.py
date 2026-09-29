@@ -10,6 +10,7 @@ from soma.evaluation.english import (
     bit_stream,
     bits_per_bit,
     byte_unigram_bits,
+    byte_unigram_cross_bits,
     run_english,
 )
 from soma.evaluation.lineage import clone_brain, read_lineage, verify_clone
@@ -26,6 +27,13 @@ class R3BEnglishTests(unittest.TestCase):
         data = b"aaab"
         expected = -(3 * math.log(0.75, 2) + math.log(0.25, 2)) / 4
         self.assertAlmostEqual(byte_unigram_bits(data), expected)
+
+    def test_byte_unigram_cross_fits_training_only(self):
+        train = b"aaab"
+        evaluation = b"bbbb"
+        cross = byte_unigram_cross_bits(train, evaluation)
+        self.assertGreater(cross, 0.7)
+        self.assertNotEqual(cross, byte_unigram_bits(evaluation) / 8.0)
 
     def test_bit_baselines_near_chance_on_uniform(self):
         data = bytes([0xAA, 0x55] * 32)

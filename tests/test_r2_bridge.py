@@ -81,6 +81,55 @@ class R2BridgeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             bridge.ingest(envelopes_for("scalar", 0.5, 1, {"series": 1, "bit0": 0, "bit1": 0, "bit2": 0}))
 
+    def test_no_credit_drains_without_numeric_zero_learning(self):
+        adapter = ADAPTERS["scalar"]()
+        bridge = EventBridge(make_event_organism(adapter.input_size, 8), adapter,
+                             novelty=0.10, exploration=0.20)
+        bridge.ingest(envelopes_for("scalar", 0.5, 0,
+                                   {"series": 0, "bit0": 0, "bit1": 0, "bit2": 0}))
+        baseline = bridge.organism.reward_baseline
+        bridge.no_credit()
+        checkpoint = json.loads(json.dumps(bridge.state_dict()))
+        clone = EventBridge(make_event_organism(adapter.input_size, 9), adapter,
+                            novelty=0.10, exploration=0.20)
+        clone.load_state_dict(checkpoint)
+        self.assertEqual(clone.state_dict(), bridge.state_dict())
+        bridge.ingest(envelopes_for("scalar", 0.6, 1,
+                                    {"series": 1, "bit0": 1, "bit1": 1, "bit2": 1}))
+        self.assertEqual(bridge.organism.reward_baseline, baseline)
+        self.assertTrue(bridge.organism._pending_outcome)
+        self.assertTrue(any(event.get("kind") == "outcome_discarded_no_credit"
+                            for event in bridge.organism.events))
+
+    def test_no_credit_rejects_delayed_credit_before_mutation(self):
+        adapter = ADAPTERS["scalar"]()
+        organism = make_event_organism(adapter.input_size, 10)
+        organism.enable_delayed_credit(1)
+        before = organism.state_dict()
+        energy_before = organism.resources.energy_used
+        with self.assertRaises(ValueError):
+            organism.step((0.5,), __import__("soma").Modulators(credit=False))
+        self.assertEqual(organism.step_count, 0)
+        self.assertEqual(organism.resources.energy_used, energy_before)
+        self.assertEqual(organism.state_dict(), before)
+
+    def test_no_credit_rejects_outstanding_adaptive_proposal_before_mutation(self):
+        adapter = ADAPTERS["scalar"]()
+        organism = make_event_organism(adapter.input_size, 11)
+        organism.adaptive_dendritic_proposal = {"owner_module": organism.active_motor_module}
+        before = organism.state_dict()
+        with self.assertRaises(ValueError):
+            organism.step((0.5,), __import__("soma").Modulators(credit=False))
+        self.assertEqual(organism.step_count, 0)
+        self.assertEqual(organism.state_dict(), before)
+
+    def test_no_credit_does_not_start_new_adaptive_proposal(self):
+        adapter = ADAPTERS["scalar"]()
+        organism = make_event_organism(adapter.input_size, 12)
+        organism.enable_adaptive_dendritic_learning(proposal_interval=1)
+        organism.step((0.5, 1.0), __import__("soma").Modulators(credit=False))
+        self.assertIsNone(organism.adaptive_dendritic_proposal)
+
     def test_closed_bridge_rejects_use(self):
         adapter = ADAPTERS["scalar"]()
         bridge = EventBridge(make_event_organism(2, 7), adapter)

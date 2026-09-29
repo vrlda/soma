@@ -42,6 +42,7 @@ class EventBridge(object):
         self.buffer = ChannelBuffer(
             [schema.name for schema in transducer.spec.channels], max_buffered=max_buffered)
         self.pending_reward = 0.0
+        self.pending_credit = True
         self.pending_action_id = None
         self.next_action_id = 0
         self.steps = 0
@@ -79,9 +80,11 @@ class EventBridge(object):
             return None
         vector = self._check_vector(self.transducer.pack_frame(frame))
         reward = self.pending_reward if self.pending_reward is not None else 0.0
+        credit = self.pending_credit
         result = self.organism.step(
-            vector, Modulators(reward=reward, novelty=self.novelty, exploration=self.exploration))
+            vector, Modulators(reward=reward, credit=credit, novelty=self.novelty, exploration=self.exploration))
         self.pending_reward = None
+        self.pending_credit = True
         proposal = self.transducer.unpack_action(result.outputs)
         self.transducer.spec.action_schema.check_payload(proposal)
         action = ActionEvent(
@@ -103,7 +106,30 @@ class EventBridge(object):
         if int(event.correlation_id) != int(self.pending_action_id):
             raise ValueError("outcome correlation %s does not match pending action %s" % (
                 event.correlation_id, self.pending_action_id))
-        self.pending_reward = float(event.outcome)
+        credited = event.optional.get("credited", True)
+        self.pending_credit = bool(credited)
+        self.pending_reward = float(event.outcome) if self.pending_credit else 0.0
+        self.pending_action_id = None
+        return True
+
+    def no_credit(self):
+        """Drain the pending action on the next ingest without learning credit.
+
+        Unlike an explicit zero reward, this does not update baselines,
+        eligibilities, scout evidence, or structural trials.  The action still
+        consumes its correlation slot, so event timing and lag history remain
+        unchanged.
+        """
+        if self.closed:
+            raise ValueError("bridge is closed")
+        if self.pending_action_id is None:
+            raise ValueError("no pending action to drain")
+        if getattr(self.organism, "delayed_credit_enabled", False) or getattr(self.organism, "delayed_credit_queue", ()):
+            raise ValueError("no-credit drain is not supported with delayed credit")
+        if getattr(self.organism, "adaptive_dendritic_proposal", None) is not None:
+            raise ValueError("no-credit drain requires no outstanding adaptive proposal")
+        self.pending_reward = 0.0
+        self.pending_credit = False
         self.pending_action_id = None
         return True
 
@@ -113,9 +139,13 @@ class EventBridge(object):
             raise ValueError("bridge is closed")
         if final_outcome is not None:
             self.outcome(final_outcome)
-        if self.pending_reward is not None and getattr(self.organism, "_pending_outcome", False):
-            self.organism.apply_outcome(self.pending_reward)
+        if getattr(self.organism, "_pending_outcome", False):
+            if self.pending_credit:
+                self.organism.apply_outcome(self.pending_reward if self.pending_reward is not None else 0.0)
+            else:
+                self.organism.discard_outcome()
             self.pending_reward = None
+            self.pending_credit = True
         self.closed = True
         return True
 
@@ -127,6 +157,7 @@ class EventBridge(object):
             "clock": self.clock.to_dict(),
             "buffer": self.buffer.to_dict(),
             "pending_reward": self.pending_reward,
+            "pending_credit": self.pending_credit,
             "pending_action_id": self.pending_action_id,
             "next_action_id": self.next_action_id,
             "steps": self.steps,
@@ -146,6 +177,7 @@ class EventBridge(object):
         self.pending_reward = payload["pending_reward"]
         if self.pending_reward is not None:
             self.pending_reward = float(self.pending_reward)
+        self.pending_credit = bool(payload.get("pending_credit", True))
         self.pending_action_id = payload["pending_action_id"]
         if self.pending_action_id is not None:
             self.pending_action_id = int(self.pending_action_id)

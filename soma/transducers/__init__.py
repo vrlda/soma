@@ -1,6 +1,6 @@
 """R2 transducer SDK: adapters translate domains to events, never solve tasks."""
 
-from .history import BitHistoryTransducer
+from .history import BitHistoryTransducer, BoundedLagWorkspaceTransducer
 from .sdk import Transducer, TransducerSpec
 from .bit_scalar import BitScalarTransducer
 from .cart import CartTransducer
@@ -11,6 +11,8 @@ from .vision import GlyphTransducer, render_horizontal, render_vertical
 
 __all__ = [
     "BitScalarTransducer",
+    "BitHistoryTransducer",
+    "BoundedLagWorkspaceTransducer",
     "CartTransducer",
     "GlyphTransducer",
     "ScalarStreamTransducer",

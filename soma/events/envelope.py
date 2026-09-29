@@ -14,7 +14,7 @@ OPTIONAL_EVENT = ("shape", "duration", "boundary", "uncertainty", "correlation_i
 REQUIRED_ACTION = ("channel", "event_id", "clock", "proposal", "effector_schema")
 OPTIONAL_ACTION = ("correlation_id", "budget", "stop")
 REQUIRED_OUTCOME = ("correlation_id", "clock", "outcome", "source")
-OPTIONAL_OUTCOME = ("trust", "delay")
+OPTIONAL_OUTCOME = ("trust", "delay", "credited")
 
 # Task intelligence must never cross the transducer boundary.
 FORBIDDEN_KEYS = ("task_id", "phase", "target", "schedule", "answer", "label",
@@ -198,6 +198,8 @@ class OutcomeEvent(object):
         for key in self.optional:
             if key not in OPTIONAL_OUTCOME:
                 raise ValueError("outcome has unknown optional key: %s" % key)
+        if "credited" in self.optional and not isinstance(self.optional["credited"], bool):
+            raise ValueError("outcome credited flag must be boolean")
 
     def to_dict(self):
         payload = {

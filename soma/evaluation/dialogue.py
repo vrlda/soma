@@ -74,10 +74,12 @@ def _constrain(out_bits, candidate):
 
 
 def respond(background, dialogue, episodic, prefix_text, max_bytes=12,
-            deterministic=False, seed=0):
+            deterministic=False, seed=0, trace=False):
     """Generate a turn across three tiers: episodic rule, dialogue table,
     background table. Dialogue history is turn-scoped; background is frozen
-    E0 knowledge. Emissions never train protected state."""
+    E0 knowledge. Emissions never train protected state. With trace=True,
+    also returns the fired episodic entry records (provenance attribution).
+    """
     rng = random.Random(seed)
     background.reset_history()
     dialogue.reset_history()
@@ -87,6 +89,7 @@ def respond(background, dialogue, episodic, prefix_text, max_bytes=12,
     out_bits = []
     emitting = []
     fired = set()
+    fired_records = []
     window = DIALOGUE_ORDER
     for _ in range(max_bytes * 8):
         if not emitting:
@@ -94,6 +97,7 @@ def respond(background, dialogue, episodic, prefix_text, max_bytes=12,
                 if entry_id not in fired:
                     fired.add(entry_id)
                     emitting.extend(completion)
+                    fired_records.append(dict(episodic.entries[entry_id]))
                     break
         if emitting:
             candidate = emitting.pop(0)
@@ -108,7 +112,10 @@ def respond(background, dialogue, episodic, prefix_text, max_bytes=12,
         out_bits.append(chosen)
         background.observe(chosen, learn=False)
         dialogue.observe(chosen, learn=False)
-    return bits_to_bytes(out_bits)
+    result = bits_to_bytes(out_bits)
+    if trace:
+        return result, fired_records
+    return result
 
 
 def sanitize_export(memory, episodic, blocked_provenance=("private",)):

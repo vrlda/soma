@@ -27,6 +27,10 @@ class R2EventTests(unittest.TestCase):
         self.assertEqual(ActionEvent.from_dict(action.to_dict()).to_dict(), action.to_dict())
         outcome = OutcomeEvent(3, 5, 0.25, "fixture")
         self.assertEqual(OutcomeEvent.from_dict(outcome.to_dict()).to_dict(), outcome.to_dict())
+        no_credit = OutcomeEvent(3, 5, 0.0, "fixture", credited=False)
+        self.assertEqual(OutcomeEvent.from_dict(no_credit.to_dict()).to_dict(), no_credit.to_dict())
+        with self.assertRaises(ValueError):
+            OutcomeEvent(3, 5, 0.0, "fixture", credited=0)
 
     def test_forbidden_task_keys_rejected(self):
         with self.assertRaises(ValueError):

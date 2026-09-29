@@ -5,7 +5,7 @@ import argparse
 import json
 
 from soma.evaluation.english import (
-    byte_unigram_bits,
+    byte_unigram_cross_bits,
     load_corpus,
     partition_documents,
     run_english_sequence_memory,
@@ -31,11 +31,11 @@ def main():
         (acquisition, validation), args.max_order, args.max_circuits)
     lesion_reports, _ = run_english_sequence_memory(
         (acquisition, validation), args.max_order, args.max_circuits, lesion=True)
-    bar = byte_unigram_bits(validation) / 8.0
+    bar = byte_unigram_cross_bits(acquisition, validation)
     validation_bpb = reports[1]["bits_per_bit"]
     lesion_bpb = lesion_reports[1]["bits_per_bit"]
     result = {
-        "protocol": "r3b-e0-sequence-circuit-v1",
+        "protocol": "r3b-e0-sequence-circuit-v2",
         "corpus": args.corpus,
         "manifest": manifest,
         "acquisition_bytes_used": len(acquisition),

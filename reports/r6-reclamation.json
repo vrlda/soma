@@ -1,0 +1,29 @@
+{
+  "all_passed": true,
+  "budget": 256,
+  "gates": {
+    "acquisition": true,
+    "determinism": true,
+    "engagement": true,
+    "retention": true
+  },
+  "margins": {
+    "acquisition_tolerance": 0.005,
+    "retention": 0.001
+  },
+  "metrics": {
+    "control_a_post": 0.912339960071734,
+    "control_a_pre": 0.8586593347051731,
+    "control_b_post": 1.0329479749044777,
+    "control_contexts": 256,
+    "control_retention_loss": 0.05368062536656093,
+    "model_a_post": 0.7573782624023203,
+    "model_a_pre": 0.7547842274391747,
+    "model_b_post": 0.7605384712543484,
+    "model_circuits": 255,
+    "model_reclaimed": 23250396,
+    "model_retention_loss": 0.002594034963145586
+  },
+  "order": 8,
+  "protocol": "r6b-reclamation-v2"
+}

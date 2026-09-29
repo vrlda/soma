@@ -1,0 +1,23 @@
+{
+  "accuracy": "8/8",
+  "all_passed": true,
+  "corpus": "data/e0/alice.txt",
+  "evaluation_scope": "episodic exact-match factual lookup and provenance plumbing",
+  "gates": {
+    "accuracy": true,
+    "correction": true,
+    "lesion_fails": true,
+    "provenance": true
+  },
+  "lesioned_recall": "0/8",
+  "manifest": {
+    "acquisition_bytes": 127072,
+    "documents": 13,
+    "license": "public-domain",
+    "test_bytes": 11782,
+    "test_sha256": "14005372aaf864d1aef667e5c13e3d8a666dfd900b90359a1d50da862b356e29",
+    "validation_bytes": 12122
+  },
+  "protocol": "r6-factual-v1",
+  "provenance": "8/8"
+}

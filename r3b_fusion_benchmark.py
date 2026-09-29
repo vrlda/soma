@@ -10,7 +10,7 @@ import argparse
 import json
 
 from soma.evaluation.english import (
-    byte_unigram_bits,
+    byte_unigram_cross_bits,
     composite_probe_bytes,
     load_corpus,
     partition_documents,
@@ -34,9 +34,9 @@ def main():
     lesion, _ = run_english_fused([acquisition, validation], 0, lesion_memory=True)
     fused_probe, _ = run_english_fused([acquisition, probe], 0)
     mem_probe, _ = run_english_brain_memory([acquisition, probe], 0)
-    bar = byte_unigram_bits(validation) / 8.0
+    bar = byte_unigram_cross_bits(acquisition, validation)
     result = {
-        "protocol": "r3b-fused-v1",
+        "protocol": "r3b-fused-v2",
         "corpus": args.corpus,
         "manifest": manifest,
         "byte_unigram_bits_per_bit": bar,

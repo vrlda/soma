@@ -1,5 +1,6 @@
 {
   "all_passed": true,
+  "checkpoint_protocol": "r3b-e1-checkpoint-v1",
   "curve": [
     {
       "books_done": [
@@ -9,8 +10,8 @@
       "circuits_created": 52839,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 1234515,
-      "elapsed_seconds": 49.58956599235535,
-      "peak_rss_mb": 565.0625,
+      "elapsed_seconds": 52.12095904350281,
+      "peak_rss_mb": 561.875,
       "validation_bits_per_bit": 0.40092487501884283
     },
     {
@@ -18,13 +19,13 @@
         "moby",
         "pride"
       ],
-      "circuits": 55771,
-      "circuits_created": 55771,
+      "circuits": 55770,
+      "circuits_created": 55770,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 1972463,
-      "elapsed_seconds": 81.74497723579407,
-      "peak_rss_mb": 667.84375,
-      "validation_bits_per_bit": 0.3976098198019215
+      "elapsed_seconds": 88.17124009132385,
+      "peak_rss_mb": 595.109375,
+      "validation_bits_per_bit": 0.3976111714964701
     },
     {
       "books_done": [
@@ -32,13 +33,13 @@
         "pride",
         "dracula"
       ],
-      "circuits": 60006,
-      "circuits_created": 60006,
+      "circuits": 60005,
+      "circuits_created": 60005,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 2843048,
-      "elapsed_seconds": 119.83437609672546,
-      "peak_rss_mb": 844.234375,
-      "validation_bits_per_bit": 0.3973472531969746
+      "elapsed_seconds": 130.46247506141663,
+      "peak_rss_mb": 595.109375,
+      "validation_bits_per_bit": 0.3973484542266203
     },
     {
       "books_done": [
@@ -47,13 +48,13 @@
         "dracula",
         "frankenstein"
       ],
-      "circuits": 60597,
-      "circuits_created": 60597,
+      "circuits": 60596,
+      "circuits_created": 60596,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 3264587,
-      "elapsed_seconds": 139.7683551311493,
-      "peak_rss_mb": 844.234375,
-      "validation_bits_per_bit": 0.39621782129930283
+      "elapsed_seconds": 152.6629512310028,
+      "peak_rss_mb": 595.109375,
+      "validation_bits_per_bit": 0.39621888344378053
     },
     {
       "books_done": [
@@ -63,13 +64,13 @@
         "frankenstein",
         "sherlock"
       ],
-      "circuits": 62104,
-      "circuits_created": 62104,
+      "circuits": 62102,
+      "circuits_created": 62102,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 3852331,
-      "elapsed_seconds": 166.4940140247345,
-      "peak_rss_mb": 844.234375,
-      "validation_bits_per_bit": 0.39592261033748066
+      "elapsed_seconds": 182.3434281349182,
+      "peak_rss_mb": 595.109375,
+      "validation_bits_per_bit": 0.3959235117025142
     },
     {
       "books_done": [
@@ -80,13 +81,13 @@
         "sherlock",
         "warpeace"
       ],
-      "circuits": 67234,
-      "circuits_created": 67234,
+      "circuits": 67233,
+      "circuits_created": 67233,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 7192121,
-      "elapsed_seconds": 306.1012179851532,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.3997035239518581
+      "elapsed_seconds": 339.03135108947754,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39970328150986667
     },
     {
       "books_done": [
@@ -98,13 +99,13 @@
         "warpeace",
         "iliad"
       ],
-      "circuits": 72643,
-      "circuits_created": 72643,
+      "circuits": 72642,
+      "circuits_created": 72642,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 8307959,
-      "elapsed_seconds": 355.15391421318054,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39981684678735546
+      "elapsed_seconds": 393.43214201927185,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.399816806218529
     },
     {
       "books_done": [
@@ -117,13 +118,13 @@
         "iliad",
         "greatexp"
       ],
-      "circuits": 73055,
-      "circuits_created": 73055,
+      "circuits": 73054,
+      "circuits_created": 73054,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 9346371,
-      "elapsed_seconds": 400.9172451496124,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39932421028702747
+      "elapsed_seconds": 444.9747738838196,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39932409677968583
     },
     {
       "books_done": [
@@ -137,13 +138,13 @@
         "greatexp",
         "huckfinn"
       ],
-      "circuits": 73668,
-      "circuits_created": 73668,
+      "circuits": 73667,
+      "circuits_created": 73667,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 9937034,
-      "elapsed_seconds": 428.20173692703247,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.398393243284143
+      "elapsed_seconds": 475.9327621459961,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.3983932946170371
     },
     {
       "books_done": [
@@ -158,13 +159,13 @@
         "huckfinn",
         "dorian"
       ],
-      "circuits": 73841,
-      "circuits_created": 73841,
+      "circuits": 73840,
+      "circuits_created": 73840,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 10383026,
-      "elapsed_seconds": 449.4668951034546,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39842293672115364
+      "elapsed_seconds": 498.5697751045227,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39842293261812023
     },
     {
       "books_done": [
@@ -180,13 +181,13 @@
         "dorian",
         "heartdark"
       ],
-      "circuits": 73912,
-      "circuits_created": 73912,
+      "circuits": 73911,
+      "circuits_created": 73911,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 10600325,
-      "elapsed_seconds": 461.3584849834442,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.3984434873034988
+      "elapsed_seconds": 512.5637230873108,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.3984434259136839
     },
     {
       "books_done": [
@@ -203,13 +204,13 @@
         "heartdark",
         "wizardoz"
       ],
-      "circuits": 74017,
-      "circuits_created": 74017,
+      "circuits": 74016,
+      "circuits_created": 74016,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 10817787,
-      "elapsed_seconds": 473.2829120159149,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.3985373758873158
+      "elapsed_seconds": 525.8138060569763,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.3985372566868515
     },
     {
       "books_done": [
@@ -227,13 +228,13 @@
         "wizardoz",
         "prince"
       ],
-      "circuits": 74418,
-      "circuits_created": 74418,
+      "circuits": 74417,
+      "circuits_created": 74417,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 11101215,
-      "elapsed_seconds": 487.803395986557,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.3982544010251797
+      "elapsed_seconds": 542.0286362171173,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39825424949183
     },
     {
       "books_done": [
@@ -252,13 +253,13 @@
         "prince",
         "tomsawyer"
       ],
-      "circuits": 74784,
-      "circuits_created": 74784,
+      "circuits": 74783,
+      "circuits_created": 74783,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 11506849,
-      "elapsed_seconds": 507.41391801834106,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39791705383766796
+      "elapsed_seconds": 564.0222718715668,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.397916863706248
     },
     {
       "books_done": [
@@ -278,13 +279,13 @@
         "tomsawyer",
         "tale2cities"
       ],
-      "circuits": 74878,
-      "circuits_created": 74878,
+      "circuits": 74877,
+      "circuits_created": 74877,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 12278355,
-      "elapsed_seconds": 542.091334104538,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39723247402447087
+      "elapsed_seconds": 602.7074768543243,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.3972323931193001
     },
     {
       "books_done": [
@@ -305,13 +306,13 @@
         "tale2cities",
         "janeeyre"
       ],
-      "circuits": 75157,
-      "circuits_created": 75157,
+      "circuits": 75156,
+      "circuits_created": 75156,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 13098829,
-      "elapsed_seconds": 578.9143531322479,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39682686737041833
+      "elapsed_seconds": 644.0408811569214,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.3968267627437524
     },
     {
       "books_done": [
@@ -333,13 +334,13 @@
         "janeeyre",
         "douglass"
       ],
-      "circuits": 75305,
-      "circuits_created": 75305,
+      "circuits": 75304,
+      "circuits_created": 75304,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 13324203,
-      "elapsed_seconds": 591.1137001514435,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39669318766301964
+      "elapsed_seconds": 658.1669261455536,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.396693130056128
     },
     {
       "books_done": [
@@ -362,13 +363,13 @@
         "douglass",
         "warworlds"
       ],
-      "circuits": 75381,
-      "circuits_created": 75381,
+      "circuits": 75380,
+      "circuits_created": 75380,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 13664710,
-      "elapsed_seconds": 608.0561900138855,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39648105942278045
+      "elapsed_seconds": 677.6717400550842,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39648076272655386
     },
     {
       "books_done": [
@@ -392,13 +393,13 @@
         "warworlds",
         "twentyk"
       ],
-      "circuits": 75790,
-      "circuits_created": 75790,
+      "circuits": 75789,
+      "circuits_created": 75789,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 15084847,
-      "elapsed_seconds": 670.2029311656952,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39608071284144425
+      "elapsed_seconds": 748.6377608776093,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.3960804514727455
     },
     {
       "books_done": [
@@ -423,13 +424,13 @@
         "twentyk",
         "countmonte"
       ],
-      "circuits": 76687,
-      "circuits_created": 76687,
+      "circuits": 76686,
+      "circuits_created": 76686,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 15703483,
-      "elapsed_seconds": 698.8725969791412,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.3960964026683364
+      "elapsed_seconds": 780.808187007904,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.3960961428693054
     },
     {
       "books_done": [
@@ -455,13 +456,13 @@
         "countmonte",
         "odyssey"
       ],
-      "circuits": 76863,
-      "circuits_created": 76863,
+      "circuits": 76862,
+      "circuits_created": 76862,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 16324769,
-      "elapsed_seconds": 727.5960812568665,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.3962066926465819
+      "elapsed_seconds": 813.4880621433258,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39620650145362774
     },
     {
       "books_done": [
@@ -488,13 +489,13 @@
         "odyssey",
         "flatland"
       ],
-      "circuits": 78066,
-      "circuits_created": 78066,
+      "circuits": 78065,
+      "circuits_created": 78065,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 17022822,
-      "elapsed_seconds": 759.4098749160767,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39637120906667545
+      "elapsed_seconds": 849.265496969223,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39637100316738005
     },
     {
       "books_done": [
@@ -522,13 +523,13 @@
         "flatland",
         "study"
       ],
-      "circuits": 78111,
-      "circuits_created": 78111,
+      "circuits": 78110,
+      "circuits_created": 78110,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 17267071,
-      "elapsed_seconds": 772.4402461051941,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39602837892218673
+      "elapsed_seconds": 864.2242450714111,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.3960282324258956
     },
     {
       "books_done": [
@@ -557,13 +558,13 @@
         "study",
         "anne"
       ],
-      "circuits": 78188,
-      "circuits_created": 78188,
+      "circuits": 78187,
+      "circuits_created": 78187,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 17843194,
-      "elapsed_seconds": 799.2090201377869,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39599491802687437
+      "elapsed_seconds": 894.306391954422,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39599472650296713
     },
     {
       "books_done": [
@@ -593,13 +594,13 @@
         "anne",
         "wessex"
       ],
-      "circuits": 78543,
-      "circuits_created": 78543,
+      "circuits": 78542,
+      "circuits_created": 78542,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 17947886,
-      "elapsed_seconds": 806.462306022644,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.3960144581955235
+      "elapsed_seconds": 902.6140820980072,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39601422904550027
     },
     {
       "books_done": [
@@ -630,13 +631,13 @@
         "wessex",
         "owlcreek"
       ],
-      "circuits": 78550,
-      "circuits_created": 78550,
+      "circuits": 78549,
+      "circuits_created": 78549,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 17969663,
-      "elapsed_seconds": 810.3167459964752,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.3960171588819245
+      "elapsed_seconds": 907.1616630554199,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.39601690393598116
     },
     {
       "books_done": [
@@ -668,17 +669,17 @@
         "owlcreek",
         "yellowwall"
       ],
-      "circuits": 78550,
-      "circuits_created": 78550,
+      "circuits": 78549,
+      "circuits_created": 78549,
       "circuits_reclaimed": 0,
       "cumulative_bytes": 18002420,
-      "elapsed_seconds": 814.619950056076,
-      "peak_rss_mb": 1640.390625,
-      "validation_bits_per_bit": 0.39602126229697937
+      "elapsed_seconds": 912.1843950748444,
+      "peak_rss_mb": 1498.890625,
+      "validation_bits_per_bit": 0.3960209893155733
     }
   ],
-  "final_circuits": 78550,
-  "final_circuits_created": 78550,
+  "final_circuits": 78549,
+  "final_circuits_created": 78549,
   "final_circuits_reclaimed": 0,
   "gates": {
     "beats_test_bar": true,
@@ -1074,12 +1075,19 @@
   },
   "max_circuits": 131072,
   "max_order": 16,
-  "peak_rss_mb": 1640.390625,
-  "protocol": "r3b-e1-v1",
-  "state_bytes": 9212666,
-  "test_bar": 0.5590231891704435,
-  "test_bits_per_bit": 0.3980064175680765,
+  "peak_rss_mb": 1498.890625,
+  "protocol": "r3b-e1-v2",
+  "resume": {
+    "end_book": 27,
+    "envelope": false,
+    "initial_bytes": 0,
+    "source": null,
+    "start_book": 0
+  },
+  "state_bytes": 9210924,
+  "test_bar": 0.5631893474967157,
+  "test_bits_per_bit": 0.3980060493580782,
   "test_book": "timemachine",
-  "total_seconds": 821.4997041225433,
-  "validation_bar": 0.5651168036138577
+  "total_seconds": 919.5859811306,
+  "validation_bar": 0.5683468846109905
 }

@@ -18,6 +18,10 @@ from .synapses import SparseDirectedGraph, Synapse, synapse_to_dict
 @dataclass
 class Modulators:
     reward: float = 0.0
+    # False drains the prior action without applying reward, prediction error,
+    # eligibility, baseline, or scout evidence.  It is used for observations
+    # that are intentionally withheld from a learner while preserving timing.
+    credit: bool = True
     novelty: float = 0.0
     uncertainty: float = 0.0
     salience: float = 0.0
@@ -216,6 +220,10 @@ class Organism:
         self.variable_order_learning_enabled = False
         self.variable_order_representation_seed: Optional[int] = None
         self.variable_order_rng = random.Random(seed + 735391)
+        # ``None`` preserves the historical all-input candidate family.  New
+        # callers may explicitly bind the family to declared varying sensor
+        # IDs (for example, omitting a transducer's fixed trailing bias).
+        self.variable_order_candidate_input_ids: Optional[Tuple[str, ...]] = None
         self.variable_order_feature_order: Tuple[Tuple[str, ...], ...] = ()
         self.variable_order_module_features: Dict[str, str] = {}
         self.variable_order_fingerprint_window = 16
@@ -235,6 +243,31 @@ class Organism:
         self.variable_order_owner_evidence_count = 0
         self.variable_order_midpoint_novelty_probability = 0.0
         self.variable_order_temporal_refresh_used = False
+        # Optional v10 persistent scout.  The legacy fingerprint learner is
+        # deliberately unchanged unless this explicit mode is enabled.  The
+        # scout keeps evidence across fingerprint episodes and only delegates
+        # to the existing router after a predeclared, multiplicity-adjusted
+        # evidence budget is met.
+        self.variable_order_persistent_scout_enabled = False
+        self.variable_order_persistent_evidence_budget = 128
+        self.variable_order_persistent_min_count = 32
+        self.variable_order_persistent_min_z = 3.0
+        self.variable_order_persistent_min_margin = 0.05
+        self.variable_order_persistent_evidence: Dict[str, Dict[str, float]] = {}
+        self.variable_order_persistent_evidence_count = 0
+        self.variable_order_persistent_episode_count = 0
+        self.variable_order_persistent_terminal_state = "active"
+        self.variable_order_persistent_terminal_step = 0
+        self.variable_order_persistent_last_telemetry: Dict[str, object] = {
+            "candidate_count": 0,
+            "observed_candidate_count": 0,
+            "family_size": 0,
+            "winner_rank": None,
+            "top_two_scores": [],
+            "winner_runner_margin": 0.0,
+            "evidence_count": 0,
+            "install_reason": "disabled",
+        }
         # M4 graph-derived structural substrate. Inert until explicitly
         # enabled, preserving every frozen v8-v12 execution path.
         self.general_structural_learning_enabled = False
@@ -1486,17 +1519,29 @@ class Organism:
 
     install_compositional_feature = install_composed_feature
 
-    def enable_variable_order_learning(self, representation_seed: int, max_order: int = 3) -> None:
+    def enable_variable_order_learning(self, representation_seed: int, max_order: int = 3,
+                                       candidate_input_ids: Optional[Sequence[str]] = None) -> None:
         """Enable the target-blind v10 local variable-order router."""
         self.enable_variable_order(max_order)
         if isinstance(representation_seed, bool) or not isinstance(representation_seed, int):
             raise ValueError("representation_seed must be an integer")
+        if candidate_input_ids is None:
+            candidates = tuple(self.input_ids)
+        else:
+            candidates = tuple(str(identifier) for identifier in candidate_input_ids)
+            if not candidates or len(set(candidates)) != len(candidates):
+                raise ValueError("candidate_input_ids must be a nonempty unique subset")
+            if tuple(sorted(candidates)) != candidates:
+                raise ValueError("candidate_input_ids must be sorted")
+            if any(identifier not in self.input_ids for identifier in candidates):
+                raise ValueError("candidate_input_ids must be organism inputs")
+        self.variable_order_candidate_input_ids = None if candidate_input_ids is None else candidates
         self.variable_order_learning_enabled = True
         self.variable_order_representation_seed = int(representation_seed)
         self.variable_order_rng = random.Random(int(representation_seed))
-        features = [tuple(str(source) for source in pair) for pair in combinations(self.input_ids, 2)]
+        features = [tuple(str(source) for source in pair) for pair in combinations(candidates, 2)]
         if max_order >= 3:
-            features.extend(tuple(str(source) for source in triple) for triple in combinations(self.input_ids, 3))
+            features.extend(tuple(str(source) for source in triple) for triple in combinations(candidates, 3))
         self.variable_order_rng.shuffle(features)
         self.variable_order_feature_order = tuple(features)
         self.variable_order_fingerprint_window = 16
@@ -1510,6 +1555,187 @@ class Organism:
         if self.context_enabled and self.active_motor_module is not None:
             self._variable_order_begin_fingerprint()
         self.validate()
+
+    def enable_variable_order_persistent_scout(
+        self,
+        evidence_budget: int = 128,
+        min_count: int = 32,
+        min_z: float = 3.0,
+        min_margin: float = 0.05,
+    ) -> None:
+        """Opt into persistent, sparse-credit variable-order discovery.
+
+        Legacy variable-order learning uses one short fingerprint episode and
+        remains the default.  This mode carries only the candidate sufficient
+        statistics (sum, sumsq, count) across episodes.  A route is eligible
+        only after the declared action-evidence budget and per-candidate
+        count are met, and uses a conservative, multiplicity-adjusted
+        winner/runner heuristic over the full declared pair/triple family.
+        This is not a calibrated FWER/null test.  The learner sees every
+        declared pair/triple; parity or other feature-family screening is not
+        performed here.
+        """
+        if not self.variable_order_learning_enabled:
+            raise ValueError("persistent scout requires variable-order learning")
+        if isinstance(evidence_budget, bool) or not isinstance(evidence_budget, int) or evidence_budget < 1:
+            raise ValueError("persistent scout evidence budget must be a positive integer")
+        if isinstance(min_count, bool) or not isinstance(min_count, int) or min_count < 1 or min_count > evidence_budget:
+            raise ValueError("persistent scout minimum count must be in [1, evidence_budget]")
+        for name, value, lower in (
+            ("min_z", min_z, 0.0),
+            ("min_margin", min_margin, 0.0),
+        ):
+            if not math.isfinite(float(value)) or float(value) < lower:
+                raise ValueError("persistent scout %s must be finite and nonnegative" % name)
+        if self.variable_order_persistent_evidence_count or self.variable_order_persistent_episode_count:
+            raise ValueError("cannot reconfigure persistent scout after evidence arrives")
+        self.variable_order_persistent_scout_enabled = True
+        self.variable_order_persistent_evidence_budget = int(evidence_budget)
+        self.variable_order_persistent_min_count = int(min_count)
+        self.variable_order_persistent_min_z = float(min_z)
+        self.variable_order_persistent_min_margin = float(min_margin)
+        self.variable_order_persistent_evidence = {}
+        self.variable_order_persistent_terminal_state = "active"
+        self.variable_order_persistent_terminal_step = 0
+        self.variable_order_persistent_last_telemetry = {
+            "candidate_count": 0,
+            "observed_candidate_count": 0,
+            "family_size": len(self._variable_order_feature_bank()),
+            "winner_rank": None,
+            "top_two_scores": [],
+            "winner_runner_margin": 0.0,
+            "evidence_count": 0,
+            "install_reason": "awaiting_evidence_budget",
+        }
+        self.validate()
+
+    def _variable_order_persistent_candidates(self) -> List[Tuple[float, float, Tuple[str, ...], str, float, int]]:
+        """Return ranked persistent candidates with deterministic tie breaks."""
+        candidates = []
+        for key, value in self.variable_order_persistent_evidence.items():
+            count = int(value.get("count", 0.0))
+            if count < self.variable_order_persistent_min_count:
+                continue
+            total = float(value.get("sum", 0.0))
+            sumsq = float(value.get("sumsq", 0.0))
+            mean = total / float(count)
+            variance = max(0.0, sumsq / float(count) - mean * mean)
+            stderr = math.sqrt(variance / float(count))
+            z = abs(mean / stderr) if stderr > 1e-12 else (math.inf if abs(mean) > 0.0 else 0.0)
+            score = abs(total) / math.sqrt(max(1e-12, sumsq))
+            feature = self._dendritic_feature_from_key(key)
+            candidates.append((score, z, feature, key, total, count))
+        candidates.sort(key=lambda item: (-item[0], -item[1], self._variable_order_feature_rank(item[3]), item[3]))
+        return candidates
+
+    def _variable_order_persistent_route(self) -> None:
+        """Gate the existing router on persistent evidence, then route once."""
+        if self.variable_order_persistent_terminal_state != "active":
+            # A budget-complete scout is a terminal decision, not a recurring
+            # peek at the same evidence.  This guard also makes resumed
+            # checkpoints deterministic at episode boundaries.
+            self.variable_order_fingerprint_active = False
+            self.variable_order_fingerprint_pending = None
+            return
+        candidates = self._variable_order_persistent_candidates()
+        candidate_count = len(candidates)
+        winner = candidates[0] if candidates else None
+        second_score = candidates[1][0] if len(candidates) > 1 else 0.0
+        family_size = len(self._variable_order_feature_bank())
+        # This is a conservative heuristic, not a calibrated FWER guarantee:
+        # use the full declared pair/triple family, including candidates that
+        # have not yet met the per-feature minimum count.
+        correction = math.sqrt(2.0 * math.log(max(2, family_size))) if family_size else 0.0
+        enough_budget = self.variable_order_persistent_evidence_count >= self.variable_order_persistent_evidence_budget
+        enough_separation = bool(
+            winner is not None
+            and winner[1] >= self.variable_order_persistent_min_z + correction
+            and winner[0] - second_score >= self.variable_order_persistent_min_margin + 0.5 * correction
+        )
+        reason = "awaiting_evidence_budget"
+        if enough_budget and not candidates:
+            reason = "no_candidate_meets_min_count"
+        elif enough_budget and not enough_separation:
+            reason = "winner_not_multiplicity_safe"
+        elif enough_budget:
+            reason = "multiplicity_safe_winner"
+        self.variable_order_persistent_last_telemetry = {
+            "candidate_count": candidate_count,
+            "observed_candidate_count": len(self.variable_order_persistent_evidence),
+            "family_size": family_size,
+            "winner_rank": 1 if winner is not None else None,
+            "winner_feature_rank": self._variable_order_feature_rank(winner[3]) if winner is not None else None,
+            "winner_key": winner[3] if winner is not None else None,
+            "top_two_scores": [float(item[0]) for item in candidates[:2]],
+            "winner_z": float(winner[1]) if winner is not None else 0.0,
+            "runner_score": float(second_score),
+            "winner_runner_margin": float(winner[0] - second_score) if winner is not None else 0.0,
+            "evidence_count": int(self.variable_order_persistent_evidence_count),
+            "winner_evidence_count": int(winner[5]) if winner is not None else 0,
+            "install_reason": reason,
+        }
+        self.events.append({
+            "step": self.step_count,
+            "kind": "variable_order_persistent_scout_evaluated",
+            **copy.deepcopy(self.variable_order_persistent_last_telemetry),
+        })
+        # The legacy route is the sole structural installer.  Give it the
+        # cumulative evidence only after the opt-in gate passes; otherwise
+        # route an empty episode so context state is closed without installing
+        # a weak or underpowered winner.
+        self.variable_order_fingerprint_evidence = (
+            self.variable_order_persistent_evidence if enough_budget and enough_separation else {}
+        )
+        event_start = len(self.events)
+        try:
+            self._variable_order_route()
+        finally:
+            self.variable_order_fingerprint_evidence = {}
+        if enough_budget:
+            installed = any(
+                event.get("kind") == "variable_order_fingerprint_resolved"
+                and bool(event.get("installed"))
+                for event in self.events[event_start:]
+            )
+            if enough_separation:
+                self.variable_order_persistent_last_telemetry["install_reason"] = (
+                    "installed" if installed else "eligible_winner_not_installed"
+                )
+            if not candidates:
+                terminal_state = "inconclusive"
+                decision_reason = "no_candidate_meets_min_count"
+            elif not enough_separation:
+                terminal_state = "rejected"
+                decision_reason = "winner_not_multiplicity_safe"
+            elif installed:
+                terminal_state = "accepted"
+                decision_reason = "multiplicity_adjusted_winner_installed"
+            else:
+                terminal_state = "inconclusive"
+                decision_reason = "winner_passed_gate_but_router_did_not_install"
+            self.variable_order_persistent_terminal_state = terminal_state
+            self.variable_order_persistent_terminal_step = self.step_count
+            self.variable_order_persistent_last_telemetry.update({
+                "terminal_state": terminal_state,
+                "decision_reason": decision_reason,
+            })
+            self.events.append({
+                "step": self.step_count,
+                "kind": "variable_order_persistent_scout_decided",
+                "terminal_state": terminal_state,
+                "decision_reason": decision_reason,
+                **copy.deepcopy(self.variable_order_persistent_last_telemetry),
+            })
+        elif self.variable_order_persistent_terminal_state == "active" and not self.variable_order_fingerprint_active:
+            # Persistent mode owns its episode cadence.  Do not wait for the
+            # motor detector warning/hold path to request another fingerprint.
+            self._variable_order_begin_fingerprint()
+            self.events.append({
+                "step": self.step_count,
+                "kind": "variable_order_persistent_scout_continued",
+                "episode_count": self.variable_order_persistent_episode_count,
+                "evidence_count": self.variable_order_persistent_evidence_count,
+            })
 
     def set_variable_order_fingerprint_window(self, window: int) -> None:
         """Configure probe evidence length without leaving an active probe stale."""
@@ -2006,13 +2232,19 @@ class Organism:
     def _variable_order_feature_bank(self) -> Tuple[Tuple[str, ...], ...]:
         if self.variable_order_feature_order:
             return self.variable_order_feature_order
-        features = [tuple(str(source) for source in pair) for pair in combinations(self.input_ids, 2)]
+        candidate_inputs = self.variable_order_candidate_input_ids or tuple(self.input_ids)
+        features = [tuple(str(source) for source in pair) for pair in combinations(candidate_inputs, 2)]
         if self.max_dendritic_order >= 3:
-            features.extend(tuple(str(source) for source in triple) for triple in combinations(self.input_ids, 3))
+            features.extend(tuple(str(source) for source in triple) for triple in combinations(candidate_inputs, 3))
         return tuple(features)
 
     def _variable_order_begin_fingerprint(self) -> None:
         if not self.variable_order_learning_enabled or self.variable_order_fingerprint_active:
+            return
+        if (
+            self.variable_order_persistent_scout_enabled
+            and self.variable_order_persistent_terminal_state != "active"
+        ):
             return
         incumbent = self.motor_modules.get(self.active_motor_module)
         if incumbent is None:
@@ -2560,19 +2792,39 @@ class Organism:
         else:
             self.composition_direct_route_pending = direct_route
 
-    def _variable_order_accumulate_fingerprint(self, reward: float) -> None:
+    def _variable_order_accumulate_fingerprint(self, reward: float, prediction_error: Optional[float] = None) -> None:
         pending = self.variable_order_fingerprint_pending
         self.variable_order_fingerprint_pending = None
         if pending is None or not self.variable_order_fingerprint_active:
             return
+        if (
+            self.variable_order_persistent_scout_enabled
+            and self.variable_order_persistent_terminal_state != "active"
+        ):
+            self.variable_order_fingerprint_active = False
+            return
         raw_reward = float(reward)
+        # The persistent scout is explicitly centered on reward prediction
+        # error. Legacy evidence keeps its historical raw-reward signal.
+        signal = (
+            float(prediction_error)
+            if self.variable_order_persistent_scout_enabled and prediction_error is not None
+            else raw_reward
+        )
         for payload in pending.get("eligibilities", []):
             key = str(payload["key"])
             value = self.variable_order_fingerprint_evidence.setdefault(key, {"sum": 0.0, "sumsq": 0.0, "count": 0.0})
-            credit = raw_reward * float(payload["eligibility"])
+            credit = signal * float(payload["eligibility"])
             value["sum"] += credit
             value["sumsq"] += credit * credit
             value["count"] += 1.0
+            if self.variable_order_persistent_scout_enabled:
+                persistent = self.variable_order_persistent_evidence.setdefault(
+                    key, {"sum": 0.0, "sumsq": 0.0, "count": 0.0}
+                )
+                persistent["sum"] += credit
+                persistent["sumsq"] += credit * credit
+                persistent["count"] += 1.0
         for payload in pending.get("general_eligibilities", []):
             key = str(payload["key"])
             value = self.general_fingerprint_evidence.setdefault(key, {"sum": 0.0, "sumsq": 0.0, "count": 0.0})
@@ -2581,6 +2833,8 @@ class Organism:
             value["sumsq"] += credit * credit
             value["count"] += 1.0
         self.variable_order_fingerprint_count += 1
+        if self.variable_order_persistent_scout_enabled:
+            self.variable_order_persistent_evidence_count += 1
         self._variable_order_refresh_owner_evidence()
         if self.variable_order_fingerprint_count == self.variable_order_fingerprint_window // 2:
             self.variable_order_midpoint_novelty_probability = self.variable_order_owner_posterior.get("__novelty__", 0.0)
@@ -2589,7 +2843,11 @@ class Organism:
         if self._variable_order_maybe_begin_midpoint_owner_probe():
             return
         if self.variable_order_fingerprint_count >= self.variable_order_fingerprint_window:
-            self._variable_order_route()
+            if self.variable_order_persistent_scout_enabled:
+                self.variable_order_persistent_episode_count += 1
+                self._variable_order_persistent_route()
+            else:
+                self._variable_order_route()
 
     def _validate_variable_order_pending(self, pending: Optional[Mapping[str, object]], mode: str) -> None:
         if pending is None:
@@ -4531,7 +4789,7 @@ class Organism:
             if fingerprint_owned:
                 if self.variable_order_fingerprint_active:
                     self._composition_accumulate_fingerprint(reward)
-                    self._variable_order_accumulate_fingerprint(reward)
+                    self._variable_order_accumulate_fingerprint(reward, prediction_error)
                 else:
                     self._adaptive_dendritic_fingerprint_accumulate(reward)
             elif self.variable_order_learning_enabled:
@@ -4569,6 +4827,40 @@ class Organism:
         result = self._consume_outcome_immediate(reward)
         self.events.append({"step": self.step_count, "kind": "delayed_credit_applied", "delay": self.delayed_credit_delay, "action_module": snapshot.get("pending_motor_module")})
         return result
+
+    def discard_outcome(self) -> None:
+        """Drain one pending action without granting any learning credit.
+
+        This is distinct from a numeric zero reward: no prediction error,
+        baseline update, eligibility accumulation, scout evidence, actor
+        update, or structural-trial evidence is produced.  The operation is
+        intentionally immediate-only; callers using delayed credit must first
+        settle that protocol explicitly.
+        """
+        if not self._pending_outcome:
+            return
+        if self.delayed_credit_enabled or self.delayed_credit_queue:
+            raise ValueError("no-credit drain is not supported with delayed credit")
+        self.variable_order_fingerprint_pending = None
+        self.composition_fingerprint_pending = None
+        self.variable_order_normal_pending = None
+        self.adaptive_dendritic_fingerprint_pending = None
+        self.adaptive_dendritic_shadow_pending = None
+        proposal = self.adaptive_dendritic_proposal
+        if proposal is not None:
+            proposal["pending_local_eligibility"] = 0.0
+        for edge in self.graph.iter_synapses():
+            edge.actor_eligibility_trace = 0.0
+        self.pending_motor_module = None
+        self.context_pending_features = ()
+        self.context_pending_action = 0.0
+        self.context_pending_mode = "normal"
+        self.context_pending_prediction = 0.0
+        self.context_pending_scale = 0.1
+        self.context_pending_exploration_value = 0.0
+        self.context_pending_exploration_sigma = 0.0
+        self._pending_outcome = False
+        self.events.append({"step": self.step_count, "kind": "outcome_discarded_no_credit"})
 
     def apply_outcome(self, reward: float) -> None:
         """Apply a terminal outcome without generating another decision."""
@@ -4609,6 +4901,13 @@ class Organism:
         if len(inputs) != len(self.input_ids):
             raise ValueError("expected %d inputs, got %d" % (len(self.input_ids), len(inputs)))
         modulators = modulators or Modulators()
+        if not isinstance(modulators.credit, bool):
+            raise ValueError("modulator credit must be boolean")
+        if not modulators.credit:
+            if self.delayed_credit_enabled or self.delayed_credit_queue:
+                raise ValueError("no-credit drain is not supported with delayed credit")
+            if self.adaptive_dendritic_proposal is not None:
+                raise ValueError("no-credit drain requires no outstanding adaptive proposal")
         values = [float(value) for value in inputs]
         if not all(math.isfinite(value) for value in values):
             raise ValueError("inputs must contain only finite numbers")
@@ -4618,8 +4917,16 @@ class Organism:
         self.step_count += 1
         self.resources.begin_step(len(self.cells), len(self.graph.synapses))
         event_start = len(self.events)
-        prediction_error = self._consume_outcome(float(modulators.reward))
-        self._adaptive_dendritic_maybe_propose()
+        prediction_error = (
+            self._consume_outcome(float(modulators.reward))
+            if modulators.credit else 0.0
+        )
+        if not modulators.credit:
+            self.discard_outcome()
+        # A no-credit observation must not create a new adaptive proposal: it
+        # is an observational timing step, not a structural trial.
+        if modulators.credit:
+            self._adaptive_dendritic_maybe_propose()
         self._propagate(values)
         self._local_learning(modulators)
         self._homeostasis()
@@ -4650,6 +4957,7 @@ class Organism:
         self.metrics_history.append({
             "step": self.step_count,
             "reward": float(modulators.reward),
+            "credit": bool(modulators.credit),
             "prediction_error": prediction_error,
             "mean_abs_activity": sum(abs(self.cells[identifier].activation) for identifier in sorted(self.cells)) / float(len(self.cells)),
             "cells": len(self.cells),
@@ -4792,6 +5100,10 @@ class Organism:
         for feature in self.variable_order_feature_order:
             if len(feature) not in (2, 3) or tuple(sorted(feature)) != tuple(feature) or len(set(feature)) != len(feature) or any(source not in self.input_ids for source in feature):
                 raise AssertionError("variable-order feature order is invalid")
+        if self.variable_order_candidate_input_ids is not None:
+            candidates = tuple(self.variable_order_candidate_input_ids)
+            if not candidates or tuple(sorted(candidates)) != candidates or len(set(candidates)) != len(candidates) or any(source not in self.input_ids for source in candidates):
+                raise AssertionError("variable-order candidate input IDs are invalid")
         if len(set(self.variable_order_feature_order)) != len(self.variable_order_feature_order):
             raise AssertionError("variable-order feature order contains duplicates")
         for module_id, key in self.variable_order_module_features.items():
@@ -4972,6 +5284,28 @@ class Organism:
             self._dendritic_feature_from_key(key)
             if any(not math.isfinite(float(value.get(name, 0.0))) for name in ("sum", "sumsq", "count")) or float(value.get("count", 0.0)) < 0.0 or float(value.get("sumsq", 0.0)) < 0.0:
                 raise AssertionError("variable-order fingerprint evidence is invalid")
+        if not isinstance(self.variable_order_persistent_scout_enabled, bool):
+            raise AssertionError("persistent variable-order scout flag is invalid")
+        if isinstance(self.variable_order_persistent_evidence_budget, bool) or self.variable_order_persistent_evidence_budget < 1:
+            raise AssertionError("persistent variable-order evidence budget is invalid")
+        if isinstance(self.variable_order_persistent_min_count, bool) or not 1 <= self.variable_order_persistent_min_count <= self.variable_order_persistent_evidence_budget:
+            raise AssertionError("persistent variable-order minimum count is invalid")
+        for name in ("variable_order_persistent_min_z", "variable_order_persistent_min_margin"):
+            if not math.isfinite(float(getattr(self, name))) or float(getattr(self, name)) < 0.0:
+                raise AssertionError("persistent variable-order threshold is invalid")
+        if self.variable_order_persistent_evidence_count < 0 or self.variable_order_persistent_episode_count < 0:
+            raise AssertionError("persistent variable-order counters are invalid")
+        if self.variable_order_persistent_terminal_state not in ("active", "accepted", "rejected", "inconclusive") or self.variable_order_persistent_terminal_step < 0:
+            raise AssertionError("persistent variable-order terminal state is invalid")
+        for key, value in self.variable_order_persistent_evidence.items():
+            self._dendritic_feature_from_key(key)
+            if any(not math.isfinite(float(value.get(name, 0.0))) for name in ("sum", "sumsq", "count")) or float(value.get("count", 0.0)) < 0.0 or float(value.get("sumsq", 0.0)) < 0.0:
+                raise AssertionError("persistent variable-order evidence is invalid")
+        telemetry = self.variable_order_persistent_last_telemetry
+        if not isinstance(telemetry, Mapping) or int(telemetry.get("candidate_count", 0)) < 0 or int(telemetry.get("observed_candidate_count", 0)) < 0 or int(telemetry.get("evidence_count", 0)) < 0:
+            raise AssertionError("persistent variable-order telemetry is invalid")
+        if not isinstance(telemetry.get("top_two_scores", []), (list, tuple)) or any(not math.isfinite(float(value)) for value in telemetry.get("top_two_scores", [])) or not math.isfinite(float(telemetry.get("winner_runner_margin", 0.0))):
+            raise AssertionError("persistent variable-order scores are invalid")
         if self.variable_order_normal_count < 0 or self.variable_order_normal_count > self.variable_order_normal_window:
             raise AssertionError("variable-order normal evidence count is invalid")
         for key, value in self.variable_order_normal_evidence.items():
@@ -5351,6 +5685,7 @@ class Organism:
             },
             "variable_order_learning_enabled": self.variable_order_learning_enabled,
             "variable_order_representation_seed": self.variable_order_representation_seed,
+            "variable_order_candidate_input_ids": list(self.variable_order_candidate_input_ids) if self.variable_order_candidate_input_ids is not None else None,
             "variable_order_rng_state": self.variable_order_rng.getstate(),
             "variable_order_feature_order": [list(feature) for feature in self.variable_order_feature_order],
             "variable_order_module_features": dict(sorted(self.variable_order_module_features.items())),
@@ -5373,6 +5708,19 @@ class Organism:
             "variable_order_owner_evidence_count": self.variable_order_owner_evidence_count,
             "variable_order_midpoint_novelty_probability": self.variable_order_midpoint_novelty_probability,
             "variable_order_temporal_refresh_used": self.variable_order_temporal_refresh_used,
+            "variable_order_persistent_scout_enabled": self.variable_order_persistent_scout_enabled,
+            "variable_order_persistent_evidence_budget": self.variable_order_persistent_evidence_budget,
+            "variable_order_persistent_min_count": self.variable_order_persistent_min_count,
+            "variable_order_persistent_min_z": self.variable_order_persistent_min_z,
+            "variable_order_persistent_min_margin": self.variable_order_persistent_min_margin,
+            "variable_order_persistent_terminal_state": self.variable_order_persistent_terminal_state,
+            "variable_order_persistent_terminal_step": self.variable_order_persistent_terminal_step,
+            "variable_order_persistent_evidence": {
+                key: dict(value) for key, value in sorted(self.variable_order_persistent_evidence.items())
+            },
+            "variable_order_persistent_evidence_count": self.variable_order_persistent_evidence_count,
+            "variable_order_persistent_episode_count": self.variable_order_persistent_episode_count,
+            "variable_order_persistent_last_telemetry": copy.deepcopy(self.variable_order_persistent_last_telemetry),
             "general_structural_learning_enabled": self.general_structural_learning_enabled,
             "general_structural_max_depth": self.general_structural_max_depth,
             "general_structural_max_leaves": self.general_structural_max_leaves,
@@ -5641,6 +5989,11 @@ class Organism:
             for key, value in dict(state.get("variable_order_extra_sources", {})).items()
         }
         organism.variable_order_learning_enabled = bool(state.get("variable_order_learning_enabled", False))
+        candidate_input_ids = state.get("variable_order_candidate_input_ids")
+        if candidate_input_ids is None:
+            organism.variable_order_candidate_input_ids = None
+        else:
+            organism.variable_order_candidate_input_ids = tuple(str(identifier) for identifier in candidate_input_ids)
         representation_seed = state.get("variable_order_representation_seed")
         organism.variable_order_representation_seed = int(representation_seed) if representation_seed is not None else None
         variable_order_rng_state = state.get("variable_order_rng_state")
@@ -5677,6 +6030,35 @@ class Organism:
         organism.variable_order_owner_evidence_count = int(state.get("variable_order_owner_evidence_count", 0))
         organism.variable_order_midpoint_novelty_probability = float(state.get("variable_order_midpoint_novelty_probability", 0.0))
         organism.variable_order_temporal_refresh_used = bool(state.get("variable_order_temporal_refresh_used", False))
+        # v12 checkpoints predate the persistent scout; missing fields migrate
+        # to the inert/default configuration without changing legacy runs.
+        organism.variable_order_persistent_scout_enabled = bool(state.get("variable_order_persistent_scout_enabled", False))
+        organism.variable_order_persistent_evidence_budget = int(state.get("variable_order_persistent_evidence_budget", 128))
+        organism.variable_order_persistent_min_count = int(state.get("variable_order_persistent_min_count", 32))
+        organism.variable_order_persistent_min_z = float(state.get("variable_order_persistent_min_z", 3.0))
+        organism.variable_order_persistent_min_margin = float(state.get("variable_order_persistent_min_margin", 0.05))
+        organism.variable_order_persistent_terminal_state = str(state.get("variable_order_persistent_terminal_state", "active"))
+        organism.variable_order_persistent_terminal_step = int(state.get("variable_order_persistent_terminal_step", 0))
+        organism.variable_order_persistent_evidence = {
+            str(key): {
+                "sum": float(value.get("sum", 0.0)),
+                "sumsq": float(value.get("sumsq", 0.0)),
+                "count": float(value.get("count", 0.0)),
+            }
+            for key, value in dict(state.get("variable_order_persistent_evidence", {})).items()
+        }
+        organism.variable_order_persistent_evidence_count = int(state.get("variable_order_persistent_evidence_count", 0))
+        organism.variable_order_persistent_episode_count = int(state.get("variable_order_persistent_episode_count", 0))
+        organism.variable_order_persistent_last_telemetry = copy.deepcopy(dict(state.get("variable_order_persistent_last_telemetry", {
+            "candidate_count": 0,
+            "observed_candidate_count": 0,
+            "family_size": 0,
+            "winner_rank": None,
+            "top_two_scores": [],
+            "winner_runner_margin": 0.0,
+            "evidence_count": organism.variable_order_persistent_evidence_count,
+            "install_reason": "disabled" if not organism.variable_order_persistent_scout_enabled else "awaiting_evidence_budget",
+        })))
         organism.general_structural_learning_enabled = bool(state.get("general_structural_learning_enabled", False))
         organism.general_structural_max_depth = int(state.get("general_structural_max_depth", 4))
         organism.general_structural_max_leaves = int(state.get("general_structural_max_leaves", 8))
