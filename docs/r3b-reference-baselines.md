@@ -34,13 +34,22 @@ rule).
   structural mechanisms should eventually beat. gzip, which never sees the
   acquisition books, already beats the current E2 score.
 
+## What the E2 score depends on
+
+`r3b_e1_benchmark.py` trains a bare `soma.memory.SequenceCircuitMemory`; no
+`Organism` is constructed. Service chat reaches the same class through
+`Organism.sequence_memory`, a pass-through. The E2 number therefore measures
+the suffix-circuit memory (whose circuits do grow and are reclaimed under a
+budget), not the organism's cell/synapse plasticity, homeostasis, or
+consolidation. The organism participates only in the fused/motor runs
+(`run_english_fused`, E0 parity 0.37509).
+
 ## Suggested next gates (proposal)
 
 1. Report these references in every future E-series result.
 2. Add a gate "beats frozen order-2 byte n-gram", then order 3.
-3. An ablation that disables organism structural plasticity (growth,
-   pruning, consolidation) while keeping sequence circuits, to measure how
-   much of the language score depends on the SOMA-specific mechanisms.
+3. A language result in which organism plasticity is on the scoring path,
+   with an ablation (plasticity off, circuits kept) showing it helps.
 
 Reproduce: `python3 r3b_reference_baselines.py` (≈2 min; the n-gram peaks
 at ≈0.7 GB RSS and the xz -9e encoder adds ≈0.7 GB; `--skip-primed` drops
