@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Stop tracking build output: `engine/soma-engine/target/` (3,518 files of
+  macOS binaries that could not run on Linux), `__pycache__`, `*.pyc`,
+  `.DS_Store`.
+- `engine/tests.sh` builds the release binaries and fails on any parity
+  mismatch (`pipefail`); CI runs it and tests Python 3.10–3.14.
+- `r3b_reference_baselines.py`: frozen byte n-gram and compressor
+  references for the E2 English score (non-gating).
+
 ## 0.3.0-alpha — language track working set
 
 Added (all gated, all hashed in reports/r0-baseline/SHA256SUMS):

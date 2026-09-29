@@ -59,14 +59,22 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
 - `soma/` — organism core (frozen paths) + `events/`, `routing/`,
   `transducers/`, `memory/`, `evaluation/`, `persistence/`, `service/`
 - `engine/soma-engine` — Rust sparse-graph spike with differential tapes
+  (`bash engine/tests.sh` builds it and runs every Python/Rust parity gate)
 - `tests/` — 482 unit tests (`python -m unittest discover -s tests`)
-- `r*_benchmark.py` — frozen milestone gates with JSON reports in `reports/`
+- `r*_benchmark.py` — frozen milestone gates with JSON reports in `reports/`;
+  `r6_*_pilot.py` / `*_study.py` / `*_calibration.py` are exploratory R6
+  experiments, and `r3b_reference_baselines.py` is a non-gating comparison.
+  They stay at the root because tests import them and
+  `reports/r0-baseline/SHA256SUMS` pins their paths.
 - `docs/` — per-milestone records, honest boundaries included
 - `data/` — licensed public-domain corpora with manifests
 
 ## Honesty section
 
 - Language ability is statistical bit prediction plus exact episodic rules;
+  E2 English (0.3995 bits/bit) sits between a frozen order-1 and order-2
+  byte n-gram and behind gzip; a frozen order-5 n-gram reaches 0.258
+  ([reference baselines](docs/r3b-reference-baselines.md)).
   there is no comprehension, and fluent nonsense is answered from marginals.
 - Compositional transfer works for taught parts in novel arrangements;
   open-ended semantic generalization is unproven.

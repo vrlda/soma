@@ -7,6 +7,8 @@
   `reports/e2-manifest.json`.
 - Metrics: validation 0.3979, sealed test 0.3995 bits/bit vs 0.559 bar;
   fused E0 parity 0.37509; probe fallback documented in `reports/`.
+  Reference: frozen byte n-gram order 2 = 0.363, order 5 = 0.258; gzip -9 =
+  0.386 (`docs/r3b-reference-baselines.md`).
 - Reproduce: `python3 r3b_e1_benchmark.py --manifest reports/e2-manifest.json`.
 - Intended use: research baseline for continual bit-level language
   experiments. Not a chat product: no comprehension, fluent nonsense

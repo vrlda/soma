@@ -1,0 +1,54 @@
+{
+  "acquisition_bytes": 11506849,
+  "benchmark": "r3b-reference-baselines-v1",
+  "fit_seconds": 35.9,
+  "manifest": "reports/e2-manifest.json",
+  "max_order": 6,
+  "soma": {
+    "max_order_bits": 16,
+    "source": "reports/r3b-e2.json",
+    "test": 0.39949785257869685,
+    "validation": 0.39791705383766796
+  },
+  "splits": {
+    "test": {
+      "book": "timemachine",
+      "bytes": 181481,
+      "compressors_adaptive": {
+        "bz2_9": 0.31021429240526555,
+        "gzip_9": 0.38600184041304597,
+        "xz_9e": 0.3451821402791477,
+        "xz_primed": 0.28790341688661625
+      },
+      "ngram_witten_bell_frozen": {
+        "order_0": 0.563574447774286,
+        "order_1": 0.4407019816627788,
+        "order_2": 0.3626504640936487,
+        "order_3": 0.3018219975089179,
+        "order_4": 0.2677996760130022,
+        "order_5": 0.2575372421567961,
+        "order_6": 0.2612655156842879
+      }
+    },
+    "validation": {
+      "book": "jekyll",
+      "bytes": 141077,
+      "compressors_adaptive": {
+        "bz2_9": 0.3187620944590543,
+        "gzip_9": 0.39240273042381113,
+        "xz_9e": 0.35591910800484844,
+        "xz_primed": 0.28892023504894493
+      },
+      "ngram_witten_bell_frozen": {
+        "order_0": 0.5689485435339353,
+        "order_1": 0.44311626458626246,
+        "order_2": 0.3587583100173298,
+        "order_3": 0.29727016951566526,
+        "order_4": 0.26668152071739165,
+        "order_5": 0.25827329698295376,
+        "order_6": 0.26162709388101313
+      }
+    }
+  },
+  "unit": "bits/bit (byte-level bits/byte divided by 8)"
+}
