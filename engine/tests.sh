@@ -1,7 +1,8 @@
 #!/bin/bash
 # R5 engine gate: Rust unit tests plus every differential harness.
-set -e
+set -eo pipefail
 cd "$(dirname "$0")/.."
+cargo build --release --manifest-path engine/soma-engine/Cargo.toml
 cargo test --manifest-path engine/soma-engine/Cargo.toml 2>&1 | grep -E "test result"
 python3 engine/differential_tape.py 7 50000 | grep -E "all_passed"
 python3 engine/differential_forward.py 0 200 | grep -E "all_passed"
