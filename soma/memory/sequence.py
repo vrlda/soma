@@ -65,6 +65,11 @@ class SequenceCircuitMemory(object):
         """
         if len(self.circuits) < self.max_circuits:
             return
+        # A scan that found nothing stays empty for the rest of this event:
+        # only protected (current-context) circuits change until history
+        # advances, so repeating it is pure quadratic cost.
+        if getattr(self, "_reclaim_exhausted_at", None) == self.events_seen:
+            return
         protected = set(self._contexts())
         grace = 2 * max(1, self.max_order)
         candidates = []
@@ -77,6 +82,7 @@ class SequenceCircuitMemory(object):
             candidates.append((support, circuit["reuse"], circuit["last_used"],
                                -len(context), context))
         if not candidates:
+            self._reclaim_exhausted_at = self.events_seen
             return
         candidates.sort()
         batch = max(1, min(1024, self.max_circuits // 100))
