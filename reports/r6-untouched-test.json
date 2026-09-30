@@ -1,0 +1,72 @@
+{
+  "acquisition_bytes": 11506849,
+  "all_hypotheses_supported": true,
+  "circuit_mixing": {
+    "compact": {
+      "bits_per_bit": 0.24547483799917197,
+      "circuits": 3828442,
+      "circuits_reclaimed": 52953088,
+      "peak_rss_mb": 416.6328125,
+      "seconds": 134.506716255
+    },
+    "full": {
+      "bits_per_bit": 0.2381193111233791,
+      "circuits": 15882794,
+      "circuits_reclaimed": 12582912,
+      "peak_rss_mb": 1607.05859375,
+      "seconds": 158.011060796
+    }
+  },
+  "frozen_config": {
+    "arbitration": true,
+    "calibration": false,
+    "calibration_limit": 255,
+    "correction": true,
+    "correction_rate": 0.02,
+    "count_limit": 1023,
+    "gate_bit_position": false,
+    "gate_partial": true,
+    "growth_threshold": 8,
+    "halve_above": 1000000,
+    "initial_weight": 0.3,
+    "learning_rate": 0.002,
+    "orders": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      10,
+      12
+    ],
+    "reclaim_fraction": 0.125
+  },
+  "hypotheses": {
+    "H1_full_beats_ngram_order5": true,
+    "H2_full_beats_prior_e2": true,
+    "H3_compact_beats_ngram_order5": true
+  },
+  "manifest": "reports/e2u-manifest.json",
+  "prior_e2_gates": {
+    "beats_test_bar": true,
+    "beats_validation_bar": true,
+    "bounded": true,
+    "causal": true,
+    "improves_with_data": true
+  },
+  "protocol": "r6-untouched-test-v1",
+  "references": {
+    "byte_unigram": 0.5739704713994714,
+    "ngram_order_2": 0.3619410430722678,
+    "ngram_order_5": 0.2587755926943957,
+    "prior_e2_memory": 0.400850944452958
+  },
+  "single_evaluation": true,
+  "test_book": "thursday",
+  "test_bytes": 328945,
+  "total_seconds": 1625.1089601516724
+}

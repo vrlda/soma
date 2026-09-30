@@ -62,6 +62,12 @@ the final one scores 0.2473.
 
 ## Honest boundaries
 
+- **Untouched test (resolved):** on a book never used anywhere,
+  scored once under a pre-registered protocol, full circuit mixing scores
+  0.2381 against 0.2588 for the order-5 n-gram and 0.4009 for the prior
+  E2 memory; all three hypotheses hold
+  ([r6-untouched-test.md](r6-untouched-test.md)). The note below explains
+  why that test was needed.
 - **Tuning was not blind.** About 20 configurations were compared, and
   test scores were printed next to validation during tuning. Choices were
   made on validation, and the two never disagreed on direction. Still,

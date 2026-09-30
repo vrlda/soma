@@ -13,6 +13,9 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- Untouched test scored once: full circuit mixing 0.2381 bits/bit on
+  *The Man Who Was Thursday* vs 0.2588 for the frozen order-5 n-gram and
+  0.4009 for the prior E2 memory; all pre-registered hypotheses held.
 - Pre-registered untouched test for R6 circuit mixing
   (`docs/r6-untouched-test.md`, `r6_untouched_test.py`): the book, frozen
   configuration, comparisons, and hypotheses are fixed before scoring;

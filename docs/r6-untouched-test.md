@@ -1,8 +1,30 @@
 # R6 untouched test: pre-registration
 
-Master plan §22 step 2. **Status: pre-registered, not yet scored.** This
-file was committed before any score existed for the chosen book. The git
-history is the timestamp.
+Master plan §22 step 2. **Status: scored once, 2026-09-30. All three
+hypotheses supported.** This file was committed (d1e54b9) before any score
+existed for the chosen book, and the book's bytes were committed
+(6e7adec) before scoring. The git history is the timestamp.
+
+## Result (`reports/r6-untouched-test.json`, single evaluation)
+
+| Model (frozen, same 11.5 MB acquisition) | Untouched: *Thursday* | Tuning-visible: *Time Machine* |
+|---|---|---|
+| byte unigram | 0.5740 | 0.5636 |
+| Witten-Bell byte n-gram, order 2 | 0.3619 | 0.3627 |
+| prior E2 memory (`SequenceCircuitMemory`) | 0.4009 | 0.3995 |
+| Witten-Bell byte n-gram, order 5 | 0.2588 | 0.2575 |
+| **circuit mixing, compact (4.2M circuits, 0.42 GB)** | **0.2455** | 0.2473 |
+| **circuit mixing, full (16.8M circuits, 1.6 GB)** | **0.2381** | 0.2406 |
+
+- **H1 supported:** full circuit mixing is 8.0% below the order-5 n-gram
+  (1.90 vs 2.07 bits/byte).
+- **H2 supported:** it is 40.6% below the prior E2 memory.
+- **H3 supported:** the compact tier is 5.1% below the order-5 n-gram.
+
+The untouched scores track the tuning-visible ones closely, and the
+ordering is identical, so there is no sign that tuning overfit the Time
+Machine book. This is one book: it supports the claim on unseen English
+prose of this register, not on English in general.
 
 ## Why
 
@@ -67,7 +89,10 @@ correction stage that step 3 may later remove.
 Absolute scores will differ from Time Machine because the book differs;
 the hypotheses concern ordering on the same bytes.
 
-## Blocker
+## Execution notes
 
-This environment's network policy denies `www.gutenberg.org`. Allowing
-that host (or supplying the file) is the only remaining prerequisite.
+- The book was downloaded after network access was granted.
+  `prepare` normalized CRLF to LF. The stored text has 1,338 curly quotes
+  and no ASCII quotes, matching acquisition conventions.
+- `score` ran once (1,625 s). The prior E2 memory passed all of its own
+  protocol gates on this test book.
