@@ -15,8 +15,9 @@ Gates:
   G6 bounded: live circuits never exceed the budget.
   G7 arbitration_causal: replacing plastic arbitration with longest-match
      backoff over the same circuits is worse (compact tier).
-Ablations of calibration, correction, and evidence-gated growth are
-reported with their measured effect; they are not gates.
+Variants (correction off, evidence-gated growth off, count-state
+calibration on) are reported with their measured effect; they are not
+gates. ``default_better`` means the shipped configuration wins.
 """
 
 import argparse
@@ -37,7 +38,7 @@ FULL_BUDGET = 1 << 24
 COMPACT_BUDGET = 1 << 22
 ABLATIONS = (
     ("no_arbitration", {"arbitration": False}),
-    ("no_calibration", {"calibration": False}),
+    ("with_calibration", {"calibration": True}),
     ("no_correction", {"correction": False}),
     ("no_growth_gate", {"growth_threshold": 0}),
 )
@@ -123,7 +124,7 @@ def main():
             "validation": scores["validation"],
             "test": scores["test"],
             "validation_cost": scores["validation"] - compact["bits_per_bit"]["validation"],
-            "helps": scores["validation"] > compact["bits_per_bit"]["validation"],
+            "default_better": scores["validation"] > compact["bits_per_bit"]["validation"],
         }
 
     gates = {
@@ -136,7 +137,7 @@ def main():
         "bounded": full["circuits"] <= FULL_BUDGET and compact["circuits"] <= COMPACT_BUDGET,
     }
     if "no_arbitration" in ablations:
-        gates["arbitration_causal"] = ablations["no_arbitration"]["helps"]
+        gates["arbitration_causal"] = ablations["no_arbitration"]["default_better"]
     report = {
         "protocol": PROTOCOL,
         "manifest": args.manifest,

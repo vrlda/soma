@@ -9,6 +9,12 @@
   mismatch (`pipefail`); CI runs it and tests Python 3.10–3.14.
 - `r3b_reference_baselines.py`: frozen byte n-gram and compressor
   references for the E2 English score (non-gating).
+- `CircuitMixingMemory` (`soma/memory/mixing.py`) with bit-exact Rust port
+  `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
+  reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
+  `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- Fix quadratic reclamation scan in `SequenceCircuitMemory` that made
+  teaching a service brain take minutes (installer smoke test timed out).
 
 ## 0.3.0-alpha — language track working set
 

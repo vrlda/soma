@@ -1,0 +1,296 @@
+{
+  "ablations": {
+    "no_arbitration": {
+      "default_better": true,
+      "test": 0.2565592909258393,
+      "validation": 0.2561148528585201,
+      "validation_cost": 0.00997783534065741
+    },
+    "no_correction": {
+      "default_better": false,
+      "test": 0.24736014801977674,
+      "validation": 0.2460922179001654,
+      "validation_cost": -4.4799617697294236e-05
+    },
+    "no_growth_gate": {
+      "default_better": true,
+      "test": 0.25037918699658984,
+      "validation": 0.24906192484689915,
+      "validation_cost": 0.002924907329036469
+    },
+    "with_calibration": {
+      "default_better": true,
+      "test": 0.25033412805894545,
+      "validation": 0.24888745036623405,
+      "validation_cost": 0.0027504328483713703
+    }
+  },
+  "acquisition_bytes": 11506849,
+  "all_passed": true,
+  "compact": {
+    "arbitration": true,
+    "bits_per_bit": {
+      "test": 0.24733373709672354,
+      "validation": 0.24613701751786268
+    },
+    "circuits": 3828442,
+    "circuits_created": 56781530,
+    "circuits_reclaimed": 52953088,
+    "config": "MixerConfig { orders: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12], max_circuits: 4194304, learning_rate: 0.002, count_limit: 1023, initial_weight: 0.3, reclaim_fraction: 0.125, arbitration: true, halve_above: 1000000, calibration: false, calibration_limit: 255, gate_bit_position: false, gate_partial: true, correction: true, correction_rate: 0.02, growth_threshold: 8 }",
+    "count_limit": 1023,
+    "curve": [
+      {
+        "bits_per_bit": {
+          "test": 0.24733373709672354,
+          "validation": 0.24613701751786268
+        },
+        "circuits": 3828442,
+        "circuits_created": 56781530,
+        "circuits_reclaimed": 52953088,
+        "cumulative_bytes": 11506849,
+        "elapsed_seconds": 192.111382342,
+        "file": "/tmp/tmpsqqjttmh/acq-13-tomsawyer.bin"
+      }
+    ],
+    "engine": "soma-mixer",
+    "events_seen": 97215720,
+    "learning_rate": 0.002,
+    "max_circuits": 4194304,
+    "orders": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      10,
+      12
+    ],
+    "peak_rss_mb": 416.4765625,
+    "total_seconds": 196.472033375
+  },
+  "full": {
+    "arbitration": true,
+    "bits_per_bit": {
+      "test": 0.24061206950241443,
+      "validation": 0.23999282520272958
+    },
+    "circuits": 15882794,
+    "circuits_created": 28465706,
+    "circuits_reclaimed": 12582912,
+    "config": "MixerConfig { orders: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12], max_circuits: 16777216, learning_rate: 0.002, count_limit: 1023, initial_weight: 0.3, reclaim_fraction: 0.125, arbitration: true, halve_above: 1000000, calibration: false, calibration_limit: 255, gate_bit_position: false, gate_partial: true, correction: true, correction_rate: 0.02, growth_threshold: 8 }",
+    "count_limit": 1023,
+    "curve": [
+      {
+        "bits_per_bit": {
+          "test": 0.27128605519035315,
+          "validation": 0.2738820778733856
+        },
+        "circuits": 2758144,
+        "circuits_created": 2758144,
+        "circuits_reclaimed": 0,
+        "cumulative_bytes": 1234515,
+        "elapsed_seconds": 14.872604138,
+        "file": "/tmp/tmpsqqjttmh/acq-00-moby.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.27005367654891227,
+          "validation": 0.2656927644738873
+        },
+        "circuits": 4319504,
+        "circuits_created": 4319504,
+        "circuits_reclaimed": 0,
+        "cumulative_bytes": 1972463,
+        "elapsed_seconds": 30.696132896,
+        "file": "/tmp/tmpsqqjttmh/acq-01-pride.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.26423936650521485,
+          "validation": 0.26341876481173837
+        },
+        "circuits": 6285403,
+        "circuits_created": 6285403,
+        "circuits_reclaimed": 0,
+        "cumulative_bytes": 2843048,
+        "elapsed_seconds": 47.994700489,
+        "file": "/tmp/tmpsqqjttmh/acq-02-dracula.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.253275852536222,
+          "validation": 0.25212616591042053
+        },
+        "circuits": 7242247,
+        "circuits_created": 7242247,
+        "circuits_reclaimed": 0,
+        "cumulative_bytes": 3264587,
+        "elapsed_seconds": 58.912618308,
+        "file": "/tmp/tmpsqqjttmh/acq-03-frankenstein.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.25537139339474274,
+          "validation": 0.2535561211648092
+        },
+        "circuits": 8539988,
+        "circuits_created": 8539988,
+        "circuits_reclaimed": 0,
+        "cumulative_bytes": 3852331,
+        "elapsed_seconds": 76.915473728,
+        "file": "/tmp/tmpsqqjttmh/acq-04-sherlock.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.26480439457479255,
+          "validation": 0.26469264015855926
+        },
+        "circuits": 15890993,
+        "circuits_created": 15890993,
+        "circuits_reclaimed": 0,
+        "cumulative_bytes": 7192121,
+        "elapsed_seconds": 151.959849083,
+        "file": "/tmp/tmpsqqjttmh/acq-05-warpeace.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.2521859005763993,
+          "validation": 0.2515053802042028
+        },
+        "circuits": 16624780,
+        "circuits_created": 18721932,
+        "circuits_reclaimed": 2097152,
+        "cumulative_bytes": 8307959,
+        "elapsed_seconds": 181.940906069,
+        "file": "/tmp/tmpsqqjttmh/acq-06-iliad.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.2517977858673208,
+          "validation": 0.24964174700562752
+        },
+        "circuits": 15357707,
+        "circuits_created": 21649163,
+        "circuits_reclaimed": 6291456,
+        "cumulative_bytes": 9346371,
+        "elapsed_seconds": 211.975738566,
+        "file": "/tmp/tmpsqqjttmh/acq-07-greatexp.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.24700492861253034,
+          "validation": 0.24472347300297523
+        },
+        "circuits": 15008377,
+        "circuits_created": 23396985,
+        "circuits_reclaimed": 8388608,
+        "cumulative_bytes": 9937034,
+        "elapsed_seconds": 232.781921137,
+        "file": "/tmp/tmpsqqjttmh/acq-08-huckfinn.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.24807424046238727,
+          "validation": 0.24545275145142176
+        },
+        "circuits": 16361303,
+        "circuits_created": 24749911,
+        "circuits_reclaimed": 8388608,
+        "cumulative_bytes": 10383026,
+        "elapsed_seconds": 248.238469196,
+        "file": "/tmp/tmpsqqjttmh/acq-09-dorian.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.2475354270522844,
+          "validation": 0.24742179559178604
+        },
+        "circuits": 14979353,
+        "circuits_created": 25465113,
+        "circuits_reclaimed": 10485760,
+        "cumulative_bytes": 10600325,
+        "elapsed_seconds": 261.160018376,
+        "file": "/tmp/tmpsqqjttmh/acq-10-heartdark.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.250293053548168,
+          "validation": 0.248822140120327
+        },
+        "circuits": 15625870,
+        "circuits_created": 26111630,
+        "circuits_reclaimed": 10485760,
+        "cumulative_bytes": 10817787,
+        "elapsed_seconds": 272.367437058,
+        "file": "/tmp/tmpsqqjttmh/acq-11-wizardoz.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.24363647089267898,
+          "validation": 0.24250105515265946
+        },
+        "circuits": 16556594,
+        "circuits_created": 27042354,
+        "circuits_reclaimed": 10485760,
+        "cumulative_bytes": 11101215,
+        "elapsed_seconds": 284.230244505,
+        "file": "/tmp/tmpsqqjttmh/acq-12-prince.bin"
+      },
+      {
+        "bits_per_bit": {
+          "test": 0.24061206950241443,
+          "validation": 0.23999282520272958
+        },
+        "circuits": 15882794,
+        "circuits_created": 28465706,
+        "circuits_reclaimed": 12582912,
+        "cumulative_bytes": 11506849,
+        "elapsed_seconds": 301.00156737,
+        "file": "/tmp/tmpsqqjttmh/acq-13-tomsawyer.bin"
+      }
+    ],
+    "engine": "soma-mixer",
+    "events_seen": 130761752,
+    "learning_rate": 0.002,
+    "max_circuits": 16777216,
+    "orders": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      10,
+      12
+    ],
+    "peak_rss_mb": 1625.9765625,
+    "total_seconds": 306.752938841
+  },
+  "gates": {
+    "arbitration_causal": true,
+    "beats_byte_unigram": true,
+    "beats_ngram_order2": true,
+    "beats_ngram_order5": true,
+    "beats_prior_e2": true,
+    "bounded": true,
+    "improves_with_data": true
+  },
+  "manifest": "reports/e2-manifest.json",
+  "ngram_test": {
+    "order_2": 0.3626504640936487,
+    "order_5": 0.2575372421567961
+  },
+  "prior_e2_test": 0.39949785257869685,
+  "protocol": "r6-circuit-mixing-v1",
+  "test_book": "timemachine",
+  "total_seconds": 681.1634998321533,
+  "unigram_test_bar": 0.5635741461079711,
+  "validation_book": "jekyll"
+}

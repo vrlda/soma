@@ -1,0 +1,46 @@
+{
+  "ablations": {
+    "no_arbitration": {
+      "default_better": true,
+      "test": 0.2565592909258393,
+      "validation": 0.2561148528585201,
+      "validation_cost": 0.00997783534065741
+    },
+    "no_correction": {
+      "default_better": false,
+      "test": 0.24736014801977674,
+      "validation": 0.2460922179001654,
+      "validation_cost": -4.4799617697294236e-05
+    },
+    "no_growth_gate": {
+      "default_better": true,
+      "test": 0.25037918699658984,
+      "validation": 0.24906192484689915,
+      "validation_cost": 0.002924907329036469
+    },
+    "with_calibration": {
+      "default_better": true,
+      "test": 0.25033412805894545,
+      "validation": 0.24888745036623405,
+      "validation_cost": 0.0027504328483713703
+    }
+  },
+  "all_passed": true,
+  "compact": {
+    "test": 0.24733373709672354,
+    "validation": 0.24613701751786268
+  },
+  "full": {
+    "test": 0.24061206950241443,
+    "validation": 0.23999282520272958
+  },
+  "gates": {
+    "arbitration_causal": true,
+    "beats_byte_unigram": true,
+    "beats_ngram_order2": true,
+    "beats_ngram_order5": true,
+    "beats_prior_e2": true,
+    "bounded": true,
+    "improves_with_data": true
+  }
+}

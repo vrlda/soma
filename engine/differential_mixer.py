@@ -21,7 +21,8 @@ BINARY = os.path.join(ROOT, "engine", "soma-engine", "target", "release", "soma-
 
 CONFIGS = (
     {"max_circuits": 4096},
-    {"max_circuits": 8192, "orders": [0, 1, 2, 4, 8, 12], "growth_threshold": 2},
+    {"max_circuits": 8192, "orders": [0, 1, 2, 4, 8, 12], "growth_threshold": 2,
+     "calibration": True, "count_limit": 255},
     {"max_circuits": 4096, "arbitration": False, "calibration": False, "correction": False,
      "halve_above": 2, "count_limit": 60, "orders": [0, 1, 2, 3]},
     {"max_circuits": 16384, "gate_partial": False, "gate_bit_position": True,

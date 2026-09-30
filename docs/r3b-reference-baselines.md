@@ -47,7 +47,9 @@ consolidation. The organism participates only in the fused/motor runs
 ## Suggested next gates (proposal)
 
 1. Report these references in every future E-series result.
-2. Add a gate "beats frozen order-2 byte n-gram", then order 3.
+2. Add a gate "beats frozen order-2 byte n-gram", then order 3. (Done for
+   the R6 circuit-mixing memory: `r6_circuit_mixing_benchmark.py` gates on
+   order 2 and order 5.)
 3. A language result in which organism plasticity is on the scoring path,
    with an ablation (plasticity off, circuits kept) showing it helps.
 

@@ -82,7 +82,7 @@ impl Default for MixerConfig {
             reclaim_fraction: 0.125,
             arbitration: true,
             halve_above: 1_000_000,
-            calibration: true,
+            calibration: false,
             calibration_limit: 255,
             gate_bit_position: false,
             gate_partial: true,

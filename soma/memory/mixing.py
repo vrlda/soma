@@ -84,7 +84,7 @@ class CircuitMixingMemory(object):
     def __init__(self, orders=(0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12), max_circuits=1 << 22,
                  learning_rate=0.002, count_limit=1023, initial_weight=0.3,
                  reclaim_fraction=0.125, arbitration=True, halve_above=1000000,
-                 calibration=True, calibration_limit=255, gate_bit_position=False,
+                 calibration=False, calibration_limit=255, gate_bit_position=False,
                  gate_partial=True, correction=True, correction_rate=0.02,
                  growth_threshold=8):
         self.orders = tuple(int(order) for order in orders)

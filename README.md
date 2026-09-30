@@ -28,7 +28,7 @@
 | R8 service | partial | CLI/chat/API/doctor work; installer, signatures, clean-machine open |
 | R9 red-team | partial | 7/7 attack gates; telemetry, runbooks, long alpha open |
 | R5 engine | partial | binary format, journal, profiler, Rust spike (~170x) |
-| R6 useful scale | partial | E2 11 MB; E3+ needs engine |
+| R6 useful scale | partial | circuit mixing: 0.2406 bits/bit on E2 (was 0.3995), beats order-5 n-gram; Rust engine, 7/7 gates |
 | R10 release | open | needs R5/R6 |
 | R11/R12 multimodal | future | after Text v1 |
 
@@ -74,7 +74,10 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
 - Language ability is statistical bit prediction plus exact episodic rules;
   E2 English (0.3995 bits/bit) sits between a frozen order-1 and order-2
   byte n-gram and behind gzip; a frozen order-5 n-gram reaches 0.258
-  ([reference baselines](docs/r3b-reference-baselines.md)).
+  ([reference baselines](docs/r3b-reference-baselines.md)). The R6
+  circuit-mixing memory reaches 0.2406 on the same protocol
+  ([docs](docs/r6-circuit-mixing.md)); chat does not use it yet, and its
+  test book was visible during tuning.
   there is no comprehension, and fluent nonsense is answered from marginals.
 - Compositional transfer works for taught parts in novel arrangements;
   open-ended semantic generalization is unproven.
