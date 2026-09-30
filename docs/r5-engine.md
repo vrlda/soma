@@ -50,7 +50,7 @@ measured and never conflated with compute.
 ## Host-language decision: Rust (measured)
 
 `engine/soma-engine`: sparse graph with stable ids + generational slots,
-JSON snapshot, shared LCG op tapes. `cargo test` green (4 tests).
+JSON snapshot, shared LCG op tapes. `cargo test` green (11 unit tests as of 2026-09-30).
 Differential `engine/differential_tape.py`: identical 50k/200k op tapes in
 Rust and Python agree bitwise (worst gap 0.0); Rust is ~170x faster at
 graph mutation. Full neural semantics, Metal/CUDA backends, and packaging

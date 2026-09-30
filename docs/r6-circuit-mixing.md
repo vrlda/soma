@@ -79,6 +79,13 @@ the final one scores 0.2473.
   The structural plasticity measured here is circuit growth, gating, and
   reclamation inside the memory.
 
+## Next steps
+
+These are tracked in master plan §22: an untouched test book (step 2),
+removing the neutral correction stage (step 3), a retention matrix and
+consolidation (steps 4–5), and forgetting, quarantine, persistence, and
+engine serving (steps 7–8).
+
 ## Reproduce
 
 ```bash

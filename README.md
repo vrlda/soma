@@ -1,15 +1,34 @@
 # SOMA — Self-Organizing Morphogenic Architecture
 
-> **Project status:** research program past the synthetic-kernel era and mid
-> language track. The organism core (v8–v15, frozen, 221-test baseline) now
-> sits under a universal event system, calibrated evidence routing,
-> sequence memory with E0–E2 English scaling, generation, dialogue,
-> instruction behavior, tools, continual learning, red-team hardening, and a
-> prosumer service. The active roadmap is
-> [`SOMA_REAL_MODEL_MASTER_PLAN.md`](SOMA_REAL_MODEL_MASTER_PLAN.md);
-> milestones R0–R4, R3A–R3D are complete (see table). This is not a
-> consumer model and not AGI: capabilities below are exactly measured,
-> with boundaries stated.
+> **Project status (2026-09-30):** research program, mid language track.
+> The frozen v8–v15 organism core sits under a universal event system,
+> calibrated evidence routing, English sequence memory, generation,
+> dialogue, instruction behavior, tools, continual learning, red-team
+> hardening, and a local service. Milestones R0–R4 are complete; R5–R9 are
+> partial. This is not a consumer model and not AGI. Every capability
+> below is measured, and its boundaries are stated.
+
+## Where we are and what's next
+
+**Goal:** SOMA Text v1 (master plan §21). That is one persistent brain a
+non-developer can install, chat with, teach, and trust to retain and
+recover what it learned, within stated resource and safety bounds.
+
+**Latest result:** the R6 circuit-mixing memory brings English prediction
+to 1.92 bits/byte (was 3.20). It beats a frozen order-5 n-gram, and its
+plastic arbitration is causal ([details](docs/r6-circuit-mixing.md)).
+
+**Next, in order** (authoritative list with done-criteria:
+[master plan §22](SOMA_REAL_MODEL_MASTER_PLAN.md#22-exact-next-work-on-resume)):
+
+1. **Trust the result:** re-baseline hashes, score one untouched test book,
+   and drop mechanisms that don't earn their place.
+2. **Answer the SOMA question:** measure forgetting across books, then add
+   a consolidation mechanism that removes recency interference.
+3. **Make it usable:** port forgetting, quarantine, and persistence to the
+   new memory, and serve chat from the Rust engine.
+4. **Scale and ship:** E3 scaling, Micro tier on the engine, human
+   preference ratings, signatures, alpha, then Text v1.
 
 ## Milestone board
 
@@ -19,18 +38,19 @@
 | R1 evidence router | ✅ | default router; 10/10 suites green |
 | R2 event organism | ✅ | 2 encodings learn, controls fail |
 | R3A sequences | ✅ | lag-copy + periodic gates, both adapters |
-| R3B English E0–E2 | ✅ | E2 held-out 0.3995 vs 0.559 bar; compositional transfer carried |
+| R3B English E0–E2 | ✅ | E2 held-out 0.3995 vs 0.559 bar; E3-lite 18 MB |
 | R3C generation | ✅ | 7/7 + 28/28 valid UTF-8, lesion, silence |
 | R3D dialogue | ✅ | 6/6 gates: uptake, correction, retention, release |
 | R3 systematicity | ✅ | novel combos recombine, precision held |
 | R4 continual | ✅ | lifelong 4/4 uptake, conflicts, quarantine |
-| R7 instruction | partial | skills, uncertainty, refusal, tools; human preference floors open |
-| R8 service | partial | CLI/chat/API/doctor work; installer, signatures, clean-machine open |
-| R9 red-team | partial | 7/7 attack gates; telemetry, runbooks, long alpha open |
-| R5 engine | partial | binary format, journal, profiler, Rust spike (~170x) |
-| R6 useful scale | partial | circuit mixing: 0.2406 bits/bit on E2 (was 0.3995), beats order-5 n-gram; Rust engine, 7/7 gates |
-| R10 release | open | needs R5/R6 |
-| R11/R12 multimodal | future | after Text v1 |
+| R5 engine | partial | `.soma` v1, journal, profiler, 2M soak; Rust parity for graph, forward, learning, evidence, detector, circuit mixing. Open: growth on engine, serving, GPU, 72 h soak |
+| R6 useful scale | partial | circuit mixing 0.2406 bits/bit, 7/7 gates; Small floor, factual 8/8, reclamation 4/4. Open: untouched test, consolidation, E3, signed candidate |
+| R7 instruction | partial | skills, uncertainty, refusal, tools. Open: human preference floors |
+| R8 service | partial | CLI, chat, HTTP API, doctor, installer, backup/restore. Open: signatures, downloader, recorded clean-machine run |
+| R9 red-team | partial | 7/7 attack gates, telemetry, runbooks. Open: closed alpha |
+| R10 release | open | needs R5–R9 |
+| R11 vision | first step | 6×6 glyphs through the unchanged core, 7/7 |
+| R12 embodied | first step | simulated cart with a safety controller, 5/5 |
 
 ## Try it (no coding)
 
@@ -58,9 +78,9 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
 
 - `soma/` — organism core (frozen paths) + `events/`, `routing/`,
   `transducers/`, `memory/`, `evaluation/`, `persistence/`, `service/`
-- `engine/soma-engine` — Rust sparse-graph spike with differential tapes
+- `engine/soma-engine` — Rust engine: graph, kernels, and `soma-mixer`
   (`bash engine/tests.sh` builds it and runs every Python/Rust parity gate)
-- `tests/` — 482 unit tests (`python -m unittest discover -s tests`)
+- `tests/` — 496 unit tests (about 25 min) (`python -m unittest discover -s tests`)
 - `r*_benchmark.py` — frozen milestone gates with JSON reports in `reports/`;
   `r6_*_pilot.py` / `*_study.py` / `*_calibration.py` are exploratory R6
   experiments, and `r3b_reference_baselines.py` is a non-gating comparison.
@@ -68,6 +88,17 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
   `reports/r0-baseline/SHA256SUMS` pins their paths.
 - `docs/` — per-milestone records, honest boundaries included
 - `data/` — licensed public-domain corpora with manifests
+
+## Documentation map
+
+| Read this | For |
+|---|---|
+| [`PROJECT.MD`](PROJECT.MD) | Founding vision and design principles (why SOMA exists) |
+| [`SOMA_REAL_MODEL_MASTER_PLAN.md`](SOMA_REAL_MODEL_MASTER_PLAN.md) | **The plan:** architecture contract, milestone status (§16), Text v1 definition of done (§21), ordered next work (§22) |
+| [`SOMA_ENGLISH_DEMO_RUNBOOK.md`](SOMA_ENGLISH_DEMO_RUNBOOK.md) | Procedure and gates for training the English demonstration brain |
+| [`docs/README.md`](docs/README.md) | Index of per-milestone records, ADRs, and operations docs |
+| [`SOMA_SYNTHETIC_KERNEL_HISTORY.md`](SOMA_SYNTHETIC_KERNEL_HISTORY.md) | Historical v8–v15 kernel record (not a plan) |
+| [`CHANGELOG.md`](CHANGELOG.md) | What changed, by release |
 
 ## Honesty section
 
@@ -77,8 +108,8 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
   ([reference baselines](docs/r3b-reference-baselines.md)). The R6
   circuit-mixing memory reaches 0.2406 on the same protocol
   ([docs](docs/r6-circuit-mixing.md)); chat does not use it yet, and its
-  test book was visible during tuning.
-  there is no comprehension, and fluent nonsense is answered from marginals.
+  test book was visible during tuning. There is no comprehension, and
+  fluent nonsense is answered from marginals.
 - Compositional transfer works for taught parts in novel arrangements;
   open-ended semantic generalization is unproven.
 - Stochastic grammar, E3+ scale, GPU engine, and multimodal input are open.

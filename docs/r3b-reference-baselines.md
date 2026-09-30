@@ -46,6 +46,8 @@ consolidation. The organism participates only in the fused/motor runs
 
 ## Suggested next gates (proposal)
 
+*Item 2 is done; item 3 is now master plan §22 step 6.*
+
 1. Report these references in every future E-series result.
 2. Add a gate "beats frozen order-2 byte n-gram", then order 3. (Done for
    the R6 circuit-mixing memory: `r6_circuit_mixing_benchmark.py` gates on

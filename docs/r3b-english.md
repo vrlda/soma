@@ -1,5 +1,13 @@
 # R3B English Developmental Acquisition — E0 Sequence-Memory Breakthrough
 
+> **Current status (2026-09-30):** R3B is complete. E0, E1, E2, and E3-lite
+> pass their gates with `SequenceCircuitMemory` (E2 sealed test 0.3995
+> bits/bit). The stronger R6 successor is `CircuitMixingMemory` (0.2406 on
+> the same protocol, [r6-circuit-mixing.md](r6-circuit-mixing.md)). Also
+> see the [reference baselines](r3b-reference-baselines.md). This file is
+> a log with the newest entries first. Everything below
+> "Historical log" predates the 2026-09-11 breakthrough and is superseded.
+
 ## 2026-09-11 result: the E0 byte-identity wall is crossed
 
 The earlier conclusion that eight-bit composition was an unresolved firewall
@@ -167,6 +175,13 @@ further data without new mechanisms is correctly deprioritized. Full
 - History dependence scoped: within-horizon spread 0.081, beyond 0.0.
 - Lesion: 1.0 vs 0.413 intact. Self-emissions never train (counts frozen).
 - Fuzz-verified: 0 false negatives on 50k strings, 0 dead ends in 200k.
+
+---
+
+## Historical log (before 2026-09-11; superseded, kept as evidence)
+
+The sections below record the motor-path era, including the E0 stop. They
+are not current status.
 
 ## Breakthrough since the E0 stop
 

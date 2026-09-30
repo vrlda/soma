@@ -1,6 +1,6 @@
 # SOMA Real Model Master Plan
 
-**Status:** canonical post-v15 engineering plan  
+**Status:** canonical post-v15 engineering plan. Live milestone status is in Section 16 and the ordered next work in Section 22 (last reviewed 2026-09-30).  
 **Purpose:** take the validated SOMA learning kernel to a downloadable, trainable, continuously learning, prosumer-ready model that accepts human input and produces useful responses  
 **Supersedes:** the scoped roadmap preserved in `SOMA_SYNTHETIC_KERNEL_HISTORY.md`; that file is evidence/history and is not an active plan
 
@@ -108,19 +108,21 @@ Installing the runtime does not create knowledge. Creating a blank brain produce
 
 ## 4. Current baseline and the actual gap
 
-| Area | Present state | Required product state |
-|---|---|---|
-| Inputs | Fixed-width numeric vectors | Universal timestamped event channels connected through transducers |
-| Outputs | Small numeric action | Generic prediction/action events interpreted by output transducers |
-| Learning | Local online updates with delayed scalar reward | Self-supervised acquisition, instruction behavior, explicit correction, and continual online adaptation |
-| Context | Detector thresholds plus protected probes | Calibrated circuit evidence with uncertainty and bounded active identification |
-| Representation | Small graph-derived products | Scalable learned sequence, concept, episodic, and compositional representations |
-| Capacity | Tens of cells and hundreds of synapses | Hardware-budgeted sparse substrate with millions or more effective parameters/connections |
-| Working context | Current recurrent state in a small organism | Bounded active workspace plus selective retrieval from persistent brain state |
-| Runtime | Standard-library Python reference | Separately installed optimized CPU/GPU runtime and adapter host |
-| Persistence | Atomic JSON checkpoint | Downloadable mutable `.soma` brain with chunked, checksummed, migratable state |
-| Evaluation | Synthetic numeric lifetimes | Language quality, continual learning, safety, robustness, and user acceptance |
-| Distribution | Source repository and CLI | Signed packages, model downloader, guided setup, API, documentation, and diagnostics |
+The "At v15" column is the starting point this plan was written against. "Now" is the state as of the last review. Details and evidence are in Section 16.
+
+| Area | At v15 | Now (2026-09-30) | Required product state |
+|---|---|---|---|
+| Inputs | Fixed-width numeric vectors | Versioned event envelopes, channels, clocks; byte, glyph, and cart transducers | Universal timestamped event channels connected through transducers |
+| Outputs | Small numeric action | Constrained UTF-8 generation, schema-constrained tool calls, cart actions | Generic prediction/action events interpreted by output transducers |
+| Learning | Local online updates with delayed scalar reward | Online sequence acquisition, corrections, trust-ranked episodic rules, quarantine | Self-supervised acquisition, instruction behavior, explicit correction, and continual online adaptation |
+| Context | Detector thresholds plus protected probes | Calibrated evidence router is the default | Calibrated circuit evidence with uncertainty and bounded active identification |
+| Representation | Small graph-derived products | Bit suffix tables (service) and byte-context circuit mixing (R6 research, 1.92 bits/byte) | Scalable learned sequence, concept, episodic, and compositional representations |
+| Capacity | Tens of cells and hundreds of synapses | Up to 16.8M budgeted circuits in the language memory; organism still small | Hardware-budgeted sparse substrate with millions or more effective parameters/connections |
+| Working context | Current recurrent state in a small organism | Contract written (`docs/workspace-contract.md`); not yet enforced for language | Bounded active workspace plus selective retrieval from persistent brain state |
+| Runtime | Standard-library Python reference | Python reference; Rust engine with parity for graph, forward, learning, evidence, detector, and circuit mixing; no GPU | Separately installed optimized CPU/GPU runtime and adapter host |
+| Persistence | Atomic JSON checkpoint | Binary `.soma` v1 container with chunk hashes, journal, crash recovery | Downloadable mutable `.soma` brain with chunked, checksummed, migratable state |
+| Evaluation | Synthetic numeric lifetimes | Frozen gates for R1–R12 first steps plus conventional reference baselines | Language quality, continual learning, safety, robustness, and user acceptance |
+| Distribution | Source repository and CLI | CLI, local HTTP API, installer, doctor; unsigned | Signed packages, model downloader, guided setup, API, documentation, and diagnostics |
 
 The first scientific risk is whether a common event-driven SOMA core can acquire representations across more than one domain without task-shaped code. The next is whether its local, structural, continual rules can learn useful language and generation at acceptable sample and compute efficiency. The plan treats both questions as early falsifiable gates rather than assuming success.
 
@@ -684,49 +686,63 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 **Exit gates:** new approved knowledge is usable within a bounded interaction budget; old capabilities stay above retention floors; familiar knowledge is recalled rather than duplicated; poisoned/untrusted text does not update protected state.
 
-### R5 — Scalable brain runtime
+### R5 — Scalable brain runtime — PARTIAL
+
+**Status:** done: binary `.soma` v1, journal and crash recovery, profiler, budgets, tier ceilings, 2M-step soak, and Rust ports with differential parity for the graph, forward, learning, evidence, detector, and circuit-mixing kernels (`docs/r5-engine.md`, `engine/README.md`). Open: structural growth, fingerprints, and probes on the engine; serving from the engine; GPU backend; 72-hour soak; Micro tier on the engine.
 
 **Deliverables:** separately installed production host, CPU backend, first GPU backend, binary `.soma` format, adapter host, differential reference tests, profiler, journal/compactor, sparse activation instrumentation, and memory-budget enforcement.
 
 **Exit gates:** numerical/decision agreement with reference tolerances; crash-safe persistence; target Tiny throughput and memory ceilings; 72-hour learning/inference soak without invariant failure or unbounded growth.
 
-### R6 — Useful trained-brain acquisition
+### R6 — Useful trained-brain acquisition — PARTIAL
+
+**Status:** Small clears the 0.45 floor, factual/provenance 8/8, snapshot resume exact, and reclamation evidence 4/4 (`docs/adr/0006-r6-control-margins-evidence.md`). The old suffix memory was bit-identical to its n-gram control. The circuit-mixing memory is the first language result that clears conventional controls: 0.2406 bits/bit on E2 against 0.2575 for a frozen order-5 n-gram, 7/7 gates (`docs/r6-circuit-mixing.md`). Open: see Section 22 (untouched test, recency interference, E3 scale, Micro on the engine, signed candidate).
 
 **Deliverables:** licensed corpus manifest, versioned text transducer, reproducible developmental trainer, Micro/Tiny/Small scaling runs, conventional controls, and signed candidate `.soma` brain descended from the canonical blank state.
 
 **Exit gates:** scaling trends are positive; Small clears frozen language quality floors, factual/provenance gates, continual adaptation gates, and compute budget; independent reproduction resumes from intermediate snapshots.
 
-### R7 — Instruction and interaction model
+### R7 — Instruction and interaction model — PARTIAL
+
+**Status:** skills, calibrated uncertainty, refusal, and schema-constrained tool calls pass their frozen gates (`docs/r7-instruction.md`). Open: human preference floors; the preference harness exists but only has a synthetic rater.
 
 **Deliverables:** dialogue/instruction curriculum, response policy, corrections, uncertainty expression, refusal behavior, and structured tool-call proposal head.
 
 **Exit gates:** instruction-following and human preference floors pass; correction improves targeted behavior without unacceptable collateral regression; tool syntax validity meets the locked threshold; safety evaluations pass.
 
-### R8 — Prosumer runtime
+### R8 — Prosumer runtime — PARTIAL
+
+**Status:** CLI, chat, local HTTP API, doctor, clone/backup/restore/export/import, installer, presets, and a clean-machine procedure exist (`docs/r8-service.md`). Open: signatures, downloader, updater, a recorded clean-machine run, and serving the R6 memory.
 
 **Deliverables:** runtime installer/updater, blank-brain creator, trained-brain downloader, transducer manager, signatures, daemon, CLI, local API, hardware presets, clone/branch, backup/restore, import/export, doctor, documentation, and brain/model card.
 
 **Exit gates:** fresh users complete install-chat-learn-restart-restore without code or configuration edits; supported systems pass clean-machine tests; interrupted install/update/checkpoint operations recover safely.
 
-### R9 — Closed alpha and adversarial hardening
+### R9 — Closed alpha and adversarial hardening — PARTIAL
+
+**Status:** 7/7 red-team gates, trust ranks, quotas, quarantine, consent-gated telemetry, support bundles, and runbooks (`docs/r9-redteam.md`, `docs/runbooks.md`). Open: a real closed alpha with long-running brains.
 
 **Deliverables:** consented telemetry option, local diagnostic bundles, issue taxonomy, red-team corpus, rollback tooling, migration rehearsal, and support runbooks.
 
 **Exit gates:** no unresolved critical integrity, privacy, tool-boundary, or data-loss defect; long-running alpha models remain recoverable; quality and forgetting stay within declared envelopes.
 
-### R10 — SOMA Text v1 release
+### R10 — SOMA Text v1 release — OPEN
 
 **Deliverables:** signed trained brain artifact(s), separately signed runtime and text transducer packages, reproducible release manifest, public evaluation report, limitations, licenses, upgrade policy, and support documentation.
 
 **Exit gates:** every Text v1 definition-of-done item passes on every supported hardware class. This is the first point at which SOMA is called a consumer/prosumer-ready model.
 
-### R11 — Multimodal perception
+### R11 — Multimodal perception — FIRST STEP
+
+**Status:** 6×6 glyph vision through the unchanged event core, 7/7 gates (`docs/r11-vision.md`). Real images and audio are not started; they follow Text v1.
 
 **Deliverables:** minimally interpreted vision then audio transducers, learned-adapter controls, shared universal event/checkpoint schema, cross-modal developmental training, continual cross-modal evaluation, and privacy controls.
 
 **Exit gates:** perception contributes causal, retained capability beyond text-only and frozen-adapter controls; online adaptation remains bounded and recoverable.
 
-### R12 — Safe action and embodied SOMA
+### R12 — Safe action and embodied SOMA — FIRST STEP
+
+**Status:** simulated 1-D cart with an independent safety controller, 5/5 gates (`docs/r12-embodied.md`). Multi-step planning is the recorded next step; it follows Text v1.
 
 **Deliverables:** production tool boundary, simulator suite, real-time runtime, hardware adapter contract, independent safety controller, and staged robotics qualification.
 
@@ -833,29 +849,36 @@ Perception and embodiment are checked separately under R11 and R12. They are not
 
 ## 22. Exact next work on resume
 
-Resume at R0, then R1. Do not begin a tokenizer or language-specific architecture first.
+This is the single ordered work list. Update it whenever a step closes. The original list (R0 contracts through R2) is complete; it remains in git history.
 
-1. Archive the current 221-test baseline and v8–v15 result hashes.
-2. Write the architecture decision record defining runtime, brain, and transducer as separate artifacts.
-3. Write the versioned universal `Event`, `ActionEvent`, `OutcomeEvent`, channel, logical-clock, and correlation schemas.
-4. Define the blank-brain genesis state and which fields are generic versus acquired.
-5. Define the active-workspace contract and finite limits, explicitly separating it from persistent brain memory.
-6. Specify the binary `.soma` artifact, identity/ancestry, snapshot/delta/journal layers, sharing rules, and migration invariants.
-7. Define the transducer boundary and tests that prevent task intelligence or evaluator information from entering adapters.
-8. Write a versioned `CircuitEvidence` state schema with robust outcome statistics, uncertainty, posterior, calibration bins, and delayed prediction IDs.
-9. Implement a pure evidence calculation with no behavioral control.
-10. Persist it and prove arbitrary-boundary exact replay.
-11. Add shadow-router reports to the existing lifetime benchmarks.
-12. Freeze calibration metrics and acceptance tolerances from development seeds.
-13. Enable evidence-only recall decisions while growth remains disabled.
-14. Add novelty posterior mass and bounded information-gain probing.
-15. Enable independently confirmed growth.
-16. Run the full historical regression and untouched calibration acceptance block.
-17. Make the evidence router default and retain the old router only as a named control.
-18. Begin R2 by implementing the universal event envelope and two non-equivalent minimal domain fixtures.
-19. Only after R2 passes, attach the reversible UTF-8 byte transducer and begin R3 language acquisition.
+**Current goal:** make the R6 circuit-mixing memory a trustworthy, SOMA-native language substrate. Then answer the project's own question with it: does lifetime structural consolidation beat plain accumulation? Then put it behind chat. Scale comes after that.
 
-The first artifacts on resume are therefore the universal architecture contracts; the first behavioral mechanism remains the evidence-state schema and shadow likelihood path. This prevents us from optimizing routing around another domain-specific interface while still directly closing the acknowledged routing gap.
+### Phase A: make the new result trustworthy
+
+1. **Re-baseline integrity.** `scripts/verify_hashes.py` reports 28 mismatches (checked 2026-09-30), in two groups. **Code, tests, and reports (21):** 18 from the R6 preservation commit, plus `soma/memory/sequence.py` (reclamation performance fix, behavior identical), `engine/soma-engine/src/lib.rs`, and `engine/tests.sh`. Two of the reports (`reports/r0-baseline/final-lifetime-v15.json`, `reports/r1-default-final.json`) only mismatch when Git LFS is not installed. **Docs (7):** edited prose files. Re-run each affected frozen benchmark, confirm unchanged results, then rehash (ADR 0006 item 4). Consider unpinning prose docs so documentation edits stop reading as integrity failures. *Done when* verify reports 0 mismatches on a clean LFS checkout and the full suite is green.
+2. **Untouched test book.** The Time Machine test book was visible while tuning circuit mixing. Add one new public-domain book to a v2 manifest as the untouched test and score it exactly once with the frozen configuration. *Done when* `reports/r6-circuit-mixing.json` carries a single-evaluation untouched score.
+3. **Remove or justify neutral mechanisms.** The correction stage is neutral in the final ablation (−0.00004 bits/bit). Decide on validation only. *Done when* every shipped mechanism has a positive ablation or an ADR saying why it stays.
+
+### Phase B: the SOMA question on the language path
+
+4. **Measure retention.** Validation rises 0.2536 → 0.2647 after War and Peace and takes about four books to recover. Add a per-book held-out retention matrix and a book-order permutation to the R6 benchmark. *Done when* forgetting and order sensitivity are frozen metrics.
+5. **Consolidation mechanism.** Protect acquired arbitration and circuits from recency drift, for example fast/slow weight pairs, consolidation of stable weights, or domain-gated weight sets. It must be local, bounded, and use no replay buffer. *Done when* it reduces the War-and-Peace bump and order sensitivity without losing final validation, and an ablation shows it is causal.
+6. **Decide what "organism plasticity" means for language.** Today the `Organism` class is not on the language scoring path; growth, pruning, and plastic arbitration live inside the memory. Either wire organism-level mechanisms into the path with an ablation (Section 21: causal core contribution), or write an ADR that makes the circuit memory the language substrate of the organism. *Done when* the decision is recorded with evidence.
+
+### Phase C: make it usable
+
+7. **Feature parity for the product.** Port exact forgetting (`unobserve`), trust-weighted observation, quarantine, and persistence (binary `.soma` chunk, not JSON) to `CircuitMixingMemory` and its Rust port, with parity tests. *Done when* R4 and R9 gates pass on the new memory.
+8. **Serve from the engine.** Python cannot run a 16M-circuit memory interactively. Host `soma-mixer` in the service (library or daemon), then switch chat and generation to it behind a brain preset. *Done when* R3C generation, R3D dialogue, and R7 instruction gates re-pass on the new memory, and chat latency is published.
+
+### Phase D: scale and ship (R5–R10)
+
+9. **E3 scaling.** Run 100–500 MB through the Rust engine under the runbook's E3 gates (quality per MB, per hour, durable bytes, retention). The spend is now justified: the mechanism separates from controls.
+10. **Micro tier on the engine** under frozen ceilings (ADR 0006 item 3). The GPU backend only if a measured workload needs it.
+11. **R7 human preference floors** with real raters.
+12. **R8 signatures, downloader, and updater;** a recorded clean-machine run; then the signed Small candidate (ADR 0006 item 2).
+13. **R9 closed alpha** with long-running brains, then R10 against Section 21.
+
+Stop/go (Section 20) applies at every step. If Phase B cannot show that consolidation helps, record the negative result before scaling.
 
 ## 23. Final project principle
 

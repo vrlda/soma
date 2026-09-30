@@ -1,5 +1,13 @@
 # SOMA — Self-Organizing Morphogenic Architecture
 
+> **Role of this document:** the founding research vision and design
+> principles. It is not a status report or a work plan. Current status and
+> the ordered next work are in
+> [`SOMA_REAL_MODEL_MASTER_PLAN.md`](SOMA_REAL_MODEL_MASTER_PLAN.md)
+> (Sections 16 and 22). The "Instructions for Codex" section applies to any
+> coding agent. The synthetic-kernel work that pursued its first
+> milestones is recorded in the [history](SOMA_SYNTHETIC_KERNEL_HISTORY.md).
+
 SOMA is an experimental artificial intelligence research project focused on building a fundamentally different kind of learning system from conventional Transformers, LLMs, and fixed-topology neural networks.
 
 The core idea is to explore whether an artificial computational system can behave more like a biological nervous system: continuously learning during its lifetime, changing not only numerical connection strengths but also its own structure.

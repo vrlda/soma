@@ -4,6 +4,13 @@
 **Scope:** train one blank universal SOMA descendant into a small English dialogue demonstration brain on the development MacBook  
 **Not a claim:** this runbook does not assume that present v15 code can learn language or that the resulting demonstration will be consumer-grade
 
+> **Execution status (2026-09-30):** prerequisites (R0–R2) are complete.
+> Stages E0, E1, E2, and E3-lite have passed, as have generation (R3C) and
+> dialogue (R3D). The full 100–500 MB E3 and E4 have not been run. This
+> runbook defines *procedure and gates*. It does not define the work order;
+> that lives in Section 22 of
+> [`SOMA_REAL_MODEL_MASTER_PLAN.md`](SOMA_REAL_MODEL_MASTER_PLAN.md).
+
 ## 1. Demonstration objective
 
 Starting from the canonical blank-brain genesis state, produce a downloadable `.soma` artifact that:
@@ -443,6 +450,10 @@ Reports use exactly these claims:
 Passing a lower level never implies a higher one.
 
 ## 18. Immediate implementation order
+
+*Completed through step 10; step 11 (release brain) remains open. The
+current work order is Section 22 of the master plan. This list is kept as
+the original sequence.*
 
 1. Complete R0 universal contracts.
 2. Complete R1 calibrated evidence routing.

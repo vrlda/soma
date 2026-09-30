@@ -13,6 +13,11 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- Docs tidy: master plan §16 carries live status for R5–R12 and §22 is the
+  single ordered work list with done-criteria. README gains a "what's
+  next" section and a documentation map. New `docs/README.md` index.
+  Superseded content is marked historical; stale engine and dependency
+  facts are corrected.
 - Fix quadratic reclamation scan in `SequenceCircuitMemory` that made
   teaching a service brain take minutes (installer smoke test timed out).
 
