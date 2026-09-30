@@ -86,7 +86,7 @@ impl Default for MixerConfig {
             calibration_limit: 255,
             gate_bit_position: false,
             gate_partial: true,
-            correction: true,
+            correction: false,
             correction_rate: 0.02,
             growth_threshold: 8,
         }

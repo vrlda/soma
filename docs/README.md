@@ -49,6 +49,7 @@ path).
 - [0004](adr/0004-transducer-boundary.md) transducers hold no task intelligence
 - [0005](adr/0005-blank-vs-trained.md) blank vs trained brains
 - [0006](adr/0006-r6-control-margins-evidence.md) R6 control-margin gates superseded by evidence
+- [0007](adr/0007-circuit-mixing-mechanism-audit.md) circuit-mixing mechanism audit; correction stage off by default
 
 ## Operations
 

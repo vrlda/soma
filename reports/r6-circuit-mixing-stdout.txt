@@ -2,37 +2,43 @@
   "ablations": {
     "no_arbitration": {
       "default_better": true,
-      "test": 0.2565592909258393,
-      "validation": 0.2561148528585201,
-      "validation_cost": 0.00997783534065741
-    },
-    "no_correction": {
-      "default_better": false,
-      "test": 0.24736014801977674,
-      "validation": 0.2460922179001654,
-      "validation_cost": -4.4799617697294236e-05
+      "test": 0.26736881527420353,
+      "validation": 0.2663222633958711,
+      "validation_cost": 0.02023004549570573
     },
     "no_growth_gate": {
       "default_better": true,
-      "test": 0.25037918699658984,
-      "validation": 0.24906192484689915,
-      "validation_cost": 0.002924907329036469
+      "test": 0.2506572277765074,
+      "validation": 0.24927006684293684,
+      "validation_cost": 0.003177848942771455
+    },
+    "no_partial_gate": {
+      "default_better": true,
+      "test": 0.24976690911518212,
+      "validation": 0.24894606113925133,
+      "validation_cost": 0.0028538432390859403
     },
     "with_calibration": {
       "default_better": true,
-      "test": 0.25033412805894545,
-      "validation": 0.24888745036623405,
-      "validation_cost": 0.0027504328483713703
+      "test": 0.25060428760945075,
+      "validation": 0.24936428571174915,
+      "validation_cost": 0.003272067811583762
+    },
+    "with_correction": {
+      "default_better": true,
+      "test": 0.24733373709672354,
+      "validation": 0.24613701751786268,
+      "validation_cost": 4.4799617697294236e-05
     }
   },
   "all_passed": true,
   "compact": {
-    "test": 0.24733373709672354,
-    "validation": 0.24613701751786268
+    "test": 0.24736014801977674,
+    "validation": 0.2460922179001654
   },
   "full": {
-    "test": 0.24061206950241443,
-    "validation": 0.23999282520272958
+    "test": 0.24105632686705392,
+    "validation": 0.24022821455502794
   },
   "gates": {
     "arbitration_causal": true,

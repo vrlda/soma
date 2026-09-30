@@ -2,27 +2,33 @@
   "ablations": {
     "no_arbitration": {
       "default_better": true,
-      "test": 0.2565592909258393,
-      "validation": 0.2561148528585201,
-      "validation_cost": 0.00997783534065741
-    },
-    "no_correction": {
-      "default_better": false,
-      "test": 0.24736014801977674,
-      "validation": 0.2460922179001654,
-      "validation_cost": -4.4799617697294236e-05
+      "test": 0.26736881527420353,
+      "validation": 0.2663222633958711,
+      "validation_cost": 0.02023004549570573
     },
     "no_growth_gate": {
       "default_better": true,
-      "test": 0.25037918699658984,
-      "validation": 0.24906192484689915,
-      "validation_cost": 0.002924907329036469
+      "test": 0.2506572277765074,
+      "validation": 0.24927006684293684,
+      "validation_cost": 0.003177848942771455
+    },
+    "no_partial_gate": {
+      "default_better": true,
+      "test": 0.24976690911518212,
+      "validation": 0.24894606113925133,
+      "validation_cost": 0.0028538432390859403
     },
     "with_calibration": {
       "default_better": true,
-      "test": 0.25033412805894545,
-      "validation": 0.24888745036623405,
-      "validation_cost": 0.0027504328483713703
+      "test": 0.25060428760945075,
+      "validation": 0.24936428571174915,
+      "validation_cost": 0.003272067811583762
+    },
+    "with_correction": {
+      "default_better": true,
+      "test": 0.24733373709672354,
+      "validation": 0.24613701751786268,
+      "validation_cost": 4.4799617697294236e-05
     }
   },
   "acquisition_bytes": 11506849,
@@ -30,26 +36,26 @@
   "compact": {
     "arbitration": true,
     "bits_per_bit": {
-      "test": 0.24733373709672354,
-      "validation": 0.24613701751786268
+      "test": 0.24736014801977674,
+      "validation": 0.2460922179001654
     },
     "circuits": 3828442,
     "circuits_created": 56781530,
     "circuits_reclaimed": 52953088,
-    "config": "MixerConfig { orders: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12], max_circuits: 4194304, learning_rate: 0.002, count_limit: 1023, initial_weight: 0.3, reclaim_fraction: 0.125, arbitration: true, halve_above: 1000000, calibration: false, calibration_limit: 255, gate_bit_position: false, gate_partial: true, correction: true, correction_rate: 0.02, growth_threshold: 8 }",
+    "config": "MixerConfig { orders: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12], max_circuits: 4194304, learning_rate: 0.002, count_limit: 1023, initial_weight: 0.3, reclaim_fraction: 0.125, arbitration: true, halve_above: 1000000, calibration: false, calibration_limit: 255, gate_bit_position: false, gate_partial: true, correction: false, correction_rate: 0.02, growth_threshold: 8 }",
     "count_limit": 1023,
     "curve": [
       {
         "bits_per_bit": {
-          "test": 0.24733373709672354,
-          "validation": 0.24613701751786268
+          "test": 0.24736014801977674,
+          "validation": 0.2460922179001654
         },
         "circuits": 3828442,
         "circuits_created": 56781530,
         "circuits_reclaimed": 52953088,
         "cumulative_bytes": 11506849,
-        "elapsed_seconds": 192.111382342,
-        "file": "/tmp/tmpsqqjttmh/acq-13-tomsawyer.bin"
+        "elapsed_seconds": 114.866558838,
+        "file": "/tmp/tmpo76pp1fd/acq-13-tomsawyer.bin"
       }
     ],
     "engine": "soma-mixer",
@@ -69,188 +75,188 @@
       10,
       12
     ],
-    "peak_rss_mb": 416.4765625,
-    "total_seconds": 196.472033375
+    "peak_rss_mb": 400.03125,
+    "total_seconds": 117.011796195
   },
   "full": {
     "arbitration": true,
     "bits_per_bit": {
-      "test": 0.24061206950241443,
-      "validation": 0.23999282520272958
+      "test": 0.24105632686705392,
+      "validation": 0.24022821455502794
     },
     "circuits": 15882794,
     "circuits_created": 28465706,
     "circuits_reclaimed": 12582912,
-    "config": "MixerConfig { orders: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12], max_circuits: 16777216, learning_rate: 0.002, count_limit: 1023, initial_weight: 0.3, reclaim_fraction: 0.125, arbitration: true, halve_above: 1000000, calibration: false, calibration_limit: 255, gate_bit_position: false, gate_partial: true, correction: true, correction_rate: 0.02, growth_threshold: 8 }",
+    "config": "MixerConfig { orders: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12], max_circuits: 16777216, learning_rate: 0.002, count_limit: 1023, initial_weight: 0.3, reclaim_fraction: 0.125, arbitration: true, halve_above: 1000000, calibration: false, calibration_limit: 255, gate_bit_position: false, gate_partial: true, correction: false, correction_rate: 0.02, growth_threshold: 8 }",
     "count_limit": 1023,
     "curve": [
       {
         "bits_per_bit": {
-          "test": 0.27128605519035315,
-          "validation": 0.2738820778733856
+          "test": 0.27245166771994717,
+          "validation": 0.2746037815762941
         },
         "circuits": 2758144,
         "circuits_created": 2758144,
         "circuits_reclaimed": 0,
         "cumulative_bytes": 1234515,
-        "elapsed_seconds": 14.872604138,
-        "file": "/tmp/tmpsqqjttmh/acq-00-moby.bin"
+        "elapsed_seconds": 9.641989467,
+        "file": "/tmp/tmpo76pp1fd/acq-00-moby.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.27005367654891227,
-          "validation": 0.2656927644738873
+          "test": 0.26947114850505866,
+          "validation": 0.26552624327044
         },
         "circuits": 4319504,
         "circuits_created": 4319504,
         "circuits_reclaimed": 0,
         "cumulative_bytes": 1972463,
-        "elapsed_seconds": 30.696132896,
-        "file": "/tmp/tmpsqqjttmh/acq-01-pride.bin"
+        "elapsed_seconds": 18.153985187,
+        "file": "/tmp/tmpo76pp1fd/acq-01-pride.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.26423936650521485,
-          "validation": 0.26341876481173837
+          "test": 0.26127867524257686,
+          "validation": 0.2599672617852442
         },
         "circuits": 6285403,
         "circuits_created": 6285403,
         "circuits_reclaimed": 0,
         "cumulative_bytes": 2843048,
-        "elapsed_seconds": 47.994700489,
-        "file": "/tmp/tmpsqqjttmh/acq-02-dracula.bin"
+        "elapsed_seconds": 27.597349609,
+        "file": "/tmp/tmpo76pp1fd/acq-02-dracula.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.253275852536222,
-          "validation": 0.25212616591042053
+          "test": 0.25359252940199406,
+          "validation": 0.2517705676525388
         },
         "circuits": 7242247,
         "circuits_created": 7242247,
         "circuits_reclaimed": 0,
         "cumulative_bytes": 3264587,
-        "elapsed_seconds": 58.912618308,
-        "file": "/tmp/tmpsqqjttmh/acq-03-frankenstein.bin"
+        "elapsed_seconds": 33.767812423,
+        "file": "/tmp/tmpo76pp1fd/acq-03-frankenstein.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.25537139339474274,
-          "validation": 0.2535561211648092
+          "test": 0.2539453779469867,
+          "validation": 0.2517613853461436
         },
         "circuits": 8539988,
         "circuits_created": 8539988,
         "circuits_reclaimed": 0,
         "cumulative_bytes": 3852331,
-        "elapsed_seconds": 76.915473728,
-        "file": "/tmp/tmpsqqjttmh/acq-04-sherlock.bin"
+        "elapsed_seconds": 44.726292685,
+        "file": "/tmp/tmpo76pp1fd/acq-04-sherlock.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.26480439457479255,
-          "validation": 0.26469264015855926
+          "test": 0.2601798685292778,
+          "validation": 0.2591849844218849
         },
         "circuits": 15890993,
         "circuits_created": 15890993,
         "circuits_reclaimed": 0,
         "cumulative_bytes": 7192121,
-        "elapsed_seconds": 151.959849083,
-        "file": "/tmp/tmpsqqjttmh/acq-05-warpeace.bin"
+        "elapsed_seconds": 89.136964756,
+        "file": "/tmp/tmpo76pp1fd/acq-05-warpeace.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.2521859005763993,
-          "validation": 0.2515053802042028
+          "test": 0.25038079355468074,
+          "validation": 0.24886726576712015
         },
         "circuits": 16624780,
         "circuits_created": 18721932,
         "circuits_reclaimed": 2097152,
         "cumulative_bytes": 8307959,
-        "elapsed_seconds": 181.940906069,
-        "file": "/tmp/tmpsqqjttmh/acq-06-iliad.bin"
+        "elapsed_seconds": 106.167748038,
+        "file": "/tmp/tmpo76pp1fd/acq-06-iliad.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.2517977858673208,
-          "validation": 0.24964174700562752
+          "test": 0.2515086201103618,
+          "validation": 0.24949189377480033
         },
         "circuits": 15357707,
         "circuits_created": 21649163,
         "circuits_reclaimed": 6291456,
         "cumulative_bytes": 9346371,
-        "elapsed_seconds": 211.975738566,
-        "file": "/tmp/tmpsqqjttmh/acq-07-greatexp.bin"
+        "elapsed_seconds": 123.727038613,
+        "file": "/tmp/tmpo76pp1fd/acq-07-greatexp.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.24700492861253034,
-          "validation": 0.24472347300297523
+          "test": 0.2457928200846003,
+          "validation": 0.24337758788444125
         },
         "circuits": 15008377,
         "circuits_created": 23396985,
         "circuits_reclaimed": 8388608,
         "cumulative_bytes": 9937034,
-        "elapsed_seconds": 232.781921137,
-        "file": "/tmp/tmpsqqjttmh/acq-08-huckfinn.bin"
+        "elapsed_seconds": 135.485617657,
+        "file": "/tmp/tmpo76pp1fd/acq-08-huckfinn.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.24807424046238727,
-          "validation": 0.24545275145142176
+          "test": 0.24700258316889814,
+          "validation": 0.24484744963481644
         },
         "circuits": 16361303,
         "circuits_created": 24749911,
         "circuits_reclaimed": 8388608,
         "cumulative_bytes": 10383026,
-        "elapsed_seconds": 248.238469196,
-        "file": "/tmp/tmpsqqjttmh/acq-09-dorian.bin"
+        "elapsed_seconds": 143.733311501,
+        "file": "/tmp/tmpo76pp1fd/acq-09-dorian.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.2475354270522844,
-          "validation": 0.24742179559178604
+          "test": 0.24733122553739223,
+          "validation": 0.24648174241333254
         },
         "circuits": 14979353,
         "circuits_created": 25465113,
         "circuits_reclaimed": 10485760,
         "cumulative_bytes": 10600325,
-        "elapsed_seconds": 261.160018376,
-        "file": "/tmp/tmpsqqjttmh/acq-10-heartdark.bin"
+        "elapsed_seconds": 151.162870298,
+        "file": "/tmp/tmpo76pp1fd/acq-10-heartdark.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.250293053548168,
-          "validation": 0.248822140120327
+          "test": 0.24843754084288716,
+          "validation": 0.2474240604784954
         },
         "circuits": 15625870,
         "circuits_created": 26111630,
         "circuits_reclaimed": 10485760,
         "cumulative_bytes": 10817787,
-        "elapsed_seconds": 272.367437058,
-        "file": "/tmp/tmpsqqjttmh/acq-11-wizardoz.bin"
+        "elapsed_seconds": 156.767402845,
+        "file": "/tmp/tmpo76pp1fd/acq-11-wizardoz.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.24363647089267898,
-          "validation": 0.24250105515265946
+          "test": 0.24253414630802286,
+          "validation": 0.24183515780368695
         },
         "circuits": 16556594,
         "circuits_created": 27042354,
         "circuits_reclaimed": 10485760,
         "cumulative_bytes": 11101215,
-        "elapsed_seconds": 284.230244505,
-        "file": "/tmp/tmpsqqjttmh/acq-12-prince.bin"
+        "elapsed_seconds": 162.708763353,
+        "file": "/tmp/tmpo76pp1fd/acq-12-prince.bin"
       },
       {
         "bits_per_bit": {
-          "test": 0.24061206950241443,
-          "validation": 0.23999282520272958
+          "test": 0.24105632686705392,
+          "validation": 0.24022821455502794
         },
         "circuits": 15882794,
         "circuits_created": 28465706,
         "circuits_reclaimed": 12582912,
         "cumulative_bytes": 11506849,
-        "elapsed_seconds": 301.00156737,
-        "file": "/tmp/tmpsqqjttmh/acq-13-tomsawyer.bin"
+        "elapsed_seconds": 172.157650663,
+        "file": "/tmp/tmpo76pp1fd/acq-13-tomsawyer.bin"
       }
     ],
     "engine": "soma-mixer",
@@ -270,8 +276,8 @@
       10,
       12
     ],
-    "peak_rss_mb": 1625.9765625,
-    "total_seconds": 306.752938841
+    "peak_rss_mb": 1609.5625,
+    "total_seconds": 175.236453442
   },
   "gates": {
     "arbitration_causal": true,
@@ -290,7 +296,7 @@
   "prior_e2_test": 0.39949785257869685,
   "protocol": "r6-circuit-mixing-v1",
   "test_book": "timemachine",
-  "total_seconds": 681.1634998321533,
+  "total_seconds": 499.82851910591125,
   "unigram_test_bar": 0.5635741461079711,
   "validation_book": "jekyll"
 }

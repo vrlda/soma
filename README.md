@@ -15,7 +15,7 @@ non-developer can install, chat with, teach, and trust to retain and
 recover what it learned, within stated resource and safety bounds.
 
 **Latest result:** the R6 circuit-mixing memory brings English prediction
-to 1.92 bits/byte (was 3.20). It beats a frozen order-5 n-gram, and its
+to 1.93 bits/byte (was 3.20). It beats a frozen order-5 n-gram, and its
 plastic arbitration is causal ([details](docs/r6-circuit-mixing.md)). The
 result held on a pre-registered, never-seen test book: 1.90 bits/byte
 against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
@@ -23,9 +23,9 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
 **Next, in order** (authoritative list with done-criteria:
 [master plan §22](SOMA_REAL_MODEL_MASTER_PLAN.md#22-exact-next-work-on-resume)):
 
-1. **Trust the result:** ~~re-baseline hashes~~ (done), ~~score one
-   untouched test book~~ (done: all 3 hypotheses held), then drop
-   mechanisms that don't earn their place.
+1. ~~**Trust the result:**~~ done. Hashes re-baselined, the untouched test
+   held (all 3 hypotheses), and every mechanism now earns its place
+   (ADR 0007).
 2. **Answer the SOMA question:** measure forgetting across books, then add
    a consolidation mechanism that removes recency interference.
 3. **Make it usable:** port forgetting, quarantine, and persistence to the
@@ -47,7 +47,7 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
 | R3 systematicity | ✅ | novel combos recombine, precision held |
 | R4 continual | ✅ | lifelong 4/4 uptake, conflicts, quarantine |
 | R5 engine | partial | `.soma` v1, journal, profiler, 2M soak; Rust parity for graph, forward, learning, evidence, detector, circuit mixing. Open: growth on engine, serving, GPU, 72 h soak |
-| R6 useful scale | partial | circuit mixing 0.2406 bits/bit, 7/7 gates, untouched book 0.2381 (beats order-5 n-gram); Small floor, factual 8/8, reclamation 4/4. Open: consolidation, E3, signed candidate |
+| R6 useful scale | partial | circuit mixing 0.2411 bits/bit, 7/7 gates, untouched book 0.2381 (beats order-5 n-gram); Small floor, factual 8/8, reclamation 4/4. Open: consolidation, E3, signed candidate |
 | R7 instruction | partial | skills, uncertainty, refusal, tools. Open: human preference floors |
 | R8 service | partial | CLI, chat, HTTP API, doctor, installer, backup/restore. Open: signatures, downloader, recorded clean-machine run |
 | R9 red-team | partial | 7/7 attack gates, telemetry, runbooks. Open: closed alpha |
@@ -109,7 +109,7 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
   E2 English (0.3995 bits/bit) sits between a frozen order-1 and order-2
   byte n-gram and behind gzip; a frozen order-5 n-gram reaches 0.258
   ([reference baselines](docs/r3b-reference-baselines.md)). The R6
-  circuit-mixing memory reaches 0.2406 on the same protocol
+  circuit-mixing memory reaches 0.2411 on the same protocol
   ([docs](docs/r6-circuit-mixing.md)) and 0.2381 on a pre-registered
   untouched book; chat does not use it yet. There is no comprehension, and
   fluent nonsense is answered from marginals.

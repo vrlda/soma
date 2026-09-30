@@ -116,7 +116,7 @@ The "At v15" column is the starting point this plan was written against. "Now" i
 | Outputs | Small numeric action | Constrained UTF-8 generation, schema-constrained tool calls, cart actions | Generic prediction/action events interpreted by output transducers |
 | Learning | Local online updates with delayed scalar reward | Online sequence acquisition, corrections, trust-ranked episodic rules, quarantine | Self-supervised acquisition, instruction behavior, explicit correction, and continual online adaptation |
 | Context | Detector thresholds plus protected probes | Calibrated evidence router is the default | Calibrated circuit evidence with uncertainty and bounded active identification |
-| Representation | Small graph-derived products | Bit suffix tables (service) and byte-context circuit mixing (R6 research, 1.92 bits/byte) | Scalable learned sequence, concept, episodic, and compositional representations |
+| Representation | Small graph-derived products | Bit suffix tables (service) and byte-context circuit mixing (R6 research, 1.93 bits/byte) | Scalable learned sequence, concept, episodic, and compositional representations |
 | Capacity | Tens of cells and hundreds of synapses | Up to 16.8M budgeted circuits in the language memory; organism still small | Hardware-budgeted sparse substrate with millions or more effective parameters/connections |
 | Working context | Current recurrent state in a small organism | Contract written (`docs/workspace-contract.md`); not yet enforced for language | Bounded active workspace plus selective retrieval from persistent brain state |
 | Runtime | Standard-library Python reference | Python reference; Rust engine with parity for graph, forward, learning, evidence, detector, and circuit mixing; no GPU | Separately installed optimized CPU/GPU runtime and adapter host |
@@ -696,7 +696,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R6 — Useful trained-brain acquisition — PARTIAL
 
-**Status:** Small clears the 0.45 floor, factual/provenance 8/8, snapshot resume exact, and reclamation evidence 4/4 (`docs/adr/0006-r6-control-margins-evidence.md`). The old suffix memory was bit-identical to its n-gram control. The circuit-mixing memory is the first language result that clears conventional controls: 0.2406 bits/bit on E2 against 0.2575 for a frozen order-5 n-gram, 7/7 gates (`docs/r6-circuit-mixing.md`), confirmed on a pre-registered untouched book (0.2381 vs 0.2588; `docs/r6-untouched-test.md`). Open: see Section 22 (recency interference, E3 scale, Micro on the engine, signed candidate).
+**Status:** Small clears the 0.45 floor, factual/provenance 8/8, snapshot resume exact, and reclamation evidence 4/4 (`docs/adr/0006-r6-control-margins-evidence.md`). The old suffix memory was bit-identical to its n-gram control. The circuit-mixing memory is the first language result that clears conventional controls: 0.2411 bits/bit on E2 (current default) against 0.2575 for a frozen order-5 n-gram, 7/7 gates (`docs/r6-circuit-mixing.md`), confirmed on a pre-registered untouched book (0.2381 vs 0.2588; `docs/r6-untouched-test.md`). Open: see Section 22 (recency interference, E3 scale, Micro on the engine, signed candidate).
 
 **Deliverables:** licensed corpus manifest, versioned text transducer, reproducible developmental trainer, Micro/Tiny/Small scaling runs, conventional controls, and signed candidate `.soma` brain descended from the canonical blank state.
 
@@ -857,7 +857,7 @@ This is the single ordered work list. Update it whenever a step closes. The orig
 
 1. ~~**Re-baseline integrity.**~~ **Done 2026-09-30.** Every frozen benchmark covering changed code was re-run, and the full suite passes (496 tests). Commit 3532e39 is behavior-preserving. The manifest now pins all 274 tracked evidence files and excludes prose; `verify_hashes.py` reports 0 mismatches with Git LFS present. Record: `reports/rebaseline-2026-09-30/README.md`. One carried finding: the v15 archive's learning-disabled control arm does not reproduce on Linux (the gate is unaffected); a macOS re-run could settle it.
 2. ~~**Untouched test book.**~~ **Done 2026-09-30.** Pre-registered, then scored once on Chesterton's *The Man Who Was Thursday*: full circuit mixing 0.2381 bits/bit vs 0.2588 for the frozen order-5 n-gram and 0.4009 for the prior E2 memory; H1–H3 all supported ([docs/r6-untouched-test.md](docs/r6-untouched-test.md), `reports/r6-untouched-test.json`).
-3. **Remove or justify neutral mechanisms.** The correction stage is neutral in the final ablation (−0.00004 bits/bit). Decide on validation only. *Done when* every shipped mechanism has a positive ablation or an ADR saying why it stays.
+3. ~~**Remove or justify neutral mechanisms.**~~ **Done 2026-09-30** ([ADR 0007](docs/adr/0007-circuit-mixing-mechanism-audit.md)). The correction stage is off by default: it is redundant with partial-byte gating, and removing it also reduced recency interference. Every remaining mechanism has a positive validation ablation: arbitration 0.0202, growth gate 0.0032, partial-byte gating 0.0029.
 
 ### Phase B: the SOMA question on the language path
 

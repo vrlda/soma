@@ -15,8 +15,8 @@ Gates:
   G6 bounded: live circuits never exceed the budget.
   G7 arbitration_causal: replacing plastic arbitration with longest-match
      backoff over the same circuits is worse (compact tier).
-Variants (correction off, evidence-gated growth off, count-state
-calibration on) are reported with their measured effect; they are not
+Variants (evidence-gated growth off, partial-byte gating off, count-state
+calibration on, correction stage on) are reported with their measured effect; they are not
 gates. ``default_better`` means the shipped configuration wins.
 """
 
@@ -39,7 +39,8 @@ COMPACT_BUDGET = 1 << 22
 ABLATIONS = (
     ("no_arbitration", {"arbitration": False}),
     ("with_calibration", {"calibration": True}),
-    ("no_correction", {"correction": False}),
+    ("with_correction", {"correction": True}),
+    ("no_partial_gate", {"gate_partial": False}),
     ("no_growth_gate", {"growth_threshold": 0}),
 )
 

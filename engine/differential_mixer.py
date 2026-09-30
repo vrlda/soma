@@ -26,7 +26,7 @@ CONFIGS = (
     {"max_circuits": 4096, "arbitration": False, "calibration": False, "correction": False,
      "halve_above": 2, "count_limit": 60, "orders": [0, 1, 2, 3]},
     {"max_circuits": 16384, "gate_partial": False, "gate_bit_position": True,
-     "growth_threshold": 0, "learning_rate": 0.015},
+     "growth_threshold": 0, "learning_rate": 0.015, "correction": True},
 )
 
 

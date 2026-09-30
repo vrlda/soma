@@ -14,12 +14,14 @@ book scale:
   times, so capacity goes where experience says structure exists.
 - Reclamation under a hard budget: weakest (fewest visits, then oldest)
   circuits are removed in batches.
-- Plastic calibration.  Each order learns what a count state (n0, n1)
-  actually predicts, instead of assuming a fixed estimator.
+- Plastic calibration (optional, off by default).  Each order learns what
+  a count state (n0, n1) actually predicts; with non-forgetting counts its
+  table is too sparse to help (docs/adr/0007).
 - Plastic arbitration.  Every active circuit contributes log-odds evidence;
   a unit with delta-rule weights combines them.  The weight set is gated by
   how many circuits exist and by the partial byte.
-- A final correction stage keyed by the previous byte and partial byte.
+- A final correction stage keyed by the previous byte and partial byte
+  (optional, off by default: redundant with partial-byte gating, ADR 0007).
 
 Frozen scoring (``learn=False``) neither grows circuits nor changes any
 plastic table.  ``engine/soma-engine/src/mixer.rs`` is the production port;
@@ -85,7 +87,7 @@ class CircuitMixingMemory(object):
                  learning_rate=0.002, count_limit=1023, initial_weight=0.3,
                  reclaim_fraction=0.125, arbitration=True, halve_above=1000000,
                  calibration=False, calibration_limit=255, gate_bit_position=False,
-                 gate_partial=True, correction=True, correction_rate=0.02,
+                 gate_partial=True, correction=False, correction_rate=0.02,
                  growth_threshold=8):
         self.orders = tuple(int(order) for order in orders)
         if not self.orders or list(self.orders) != sorted(set(self.orders)):
