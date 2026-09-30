@@ -861,8 +861,8 @@ This is the single ordered work list. Update it whenever a step closes. The orig
 
 ### Phase B: the SOMA question on the language path
 
-4. **Measure retention.** Validation rises 0.2536 → 0.2647 after War and Peace and takes about four books to recover. Add a per-book held-out retention matrix and a book-order permutation to the R6 benchmark. *Done when* forgetting and order sensitivity are frozen metrics.
-5. **Consolidation mechanism.** Protect acquired arbitration and circuits from recency drift, for example fast/slow weight pairs, consolidation of stable weights, or domain-gated weight sets. It must be local, bounded, and use no replay buffer. *Done when* it reduces the War-and-Peace bump and order sensitivity without losing final validation, and an ablation shows it is causal.
+4. ~~**Measure retention.**~~ **Done 2026-09-30** ([docs/r6-retention.md](docs/r6-retention.md), `r6_retention_benchmark.py`). Baseline: mean forgetting 0.0060 bits/bit over four book orders, order spread 0.0053. Two thirds of the forgetting persists at full budget, so plastic drift, not reclamation, is the main cause.
+5. **Consolidation mechanism.** Baseline to beat: `reports/r6-retention.json`. Protect acquired arbitration and circuits from recency drift, for example fast/slow weight pairs, consolidation of stable weights, or domain-gated weight sets. It must be local, bounded, and use no replay buffer. *Done when* it reduces the War-and-Peace bump and order sensitivity without losing final validation, and an ablation shows it is causal.
 6. **Decide what "organism plasticity" means for language.** Today the `Organism` class is not on the language scoring path; growth, pruning, and plastic arbitration live inside the memory. Either wire organism-level mechanisms into the path with an ablation (Section 21: causal core contribution), or write an ADR that makes the circuit memory the language substrate of the organism. *Done when* the decision is recorded with evidence.
 
 ### Phase C: make it usable

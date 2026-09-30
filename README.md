@@ -26,8 +26,9 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
 1. ~~**Trust the result:**~~ done. Hashes re-baselined, the untouched test
    held (all 3 hypotheses), and every mechanism now earns its place
    (ADR 0007).
-2. **Answer the SOMA question:** measure forgetting across books, then add
-   a consolidation mechanism that removes recency interference.
+2. **Answer the SOMA question:** ~~measure forgetting across books~~ (done:
+   0.0060 bits/bit mean forgetting, 0.0053 order spread, mostly from
+   plastic drift), then add a consolidation mechanism that reduces it.
 3. **Make it usable:** port forgetting, quarantine, and persistence to the
    new memory, and serve chat from the Rust engine.
 4. **Scale and ship:** E3 scaling, Micro tier on the engine, human

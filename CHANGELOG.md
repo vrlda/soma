@@ -13,6 +13,9 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- `r6_retention_benchmark.py`: retention matrix and book-order sensitivity
+  for circuit mixing. Baseline mean forgetting 0.0060 bits/bit, order spread
+  0.0053. Two thirds of the forgetting persists without budget pressure.
 - Mechanism audit (ADR 0007): the circuit-mixing correction stage is off by
   default (redundant with partial-byte gating; it also amplified recency
   interference). Every remaining mechanism has a positive ablation. E2
