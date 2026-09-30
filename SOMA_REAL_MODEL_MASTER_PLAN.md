@@ -856,7 +856,7 @@ This is the single ordered work list. Update it whenever a step closes. The orig
 ### Phase A: make the new result trustworthy
 
 1. ~~**Re-baseline integrity.**~~ **Done 2026-09-30.** Every frozen benchmark covering changed code was re-run, and the full suite passes (496 tests). Commit 3532e39 is behavior-preserving. The manifest now pins all 274 tracked evidence files and excludes prose; `verify_hashes.py` reports 0 mismatches with Git LFS present. Record: `reports/rebaseline-2026-09-30/README.md`. One carried finding: the v15 archive's learning-disabled control arm does not reproduce on Linux (the gate is unaffected); a macOS re-run could settle it.
-2. **Untouched test book.** The Time Machine test book was visible while tuning circuit mixing. Add one new public-domain book to a v2 manifest as the untouched test and score it exactly once with the frozen configuration. *Done when* `reports/r6-circuit-mixing.json` carries a single-evaluation untouched score.
+2. **Untouched test book.** The Time Machine test book was visible while tuning circuit mixing. **Pre-registered 2026-09-30** ([docs/r6-untouched-test.md](docs/r6-untouched-test.md)): Chesterton's *The Man Who Was Thursday* (PG #1695), a frozen configuration, five comparisons, and three hypotheses. `r6_untouched_test.py` scores it once and refuses a second run. **Blocked:** the environment's network policy denies `www.gutenberg.org`. *Done when* `reports/r6-untouched-test.json` exists.
 3. **Remove or justify neutral mechanisms.** The correction stage is neutral in the final ablation (−0.00004 bits/bit). Decide on validation only. *Done when* every shipped mechanism has a positive ablation or an ADR saying why it stays.
 
 ### Phase B: the SOMA question on the language path

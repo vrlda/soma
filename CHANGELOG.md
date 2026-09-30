@@ -13,6 +13,10 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- Pre-registered untouched test for R6 circuit mixing
+  (`docs/r6-untouched-test.md`, `r6_untouched_test.py`): the book, frozen
+  configuration, comparisons, and hypotheses are fixed before scoring;
+  single-evaluation guard; editions with ASCII quotes are refused.
 - Integrity re-baseline: all frozen benchmarks covering changed code re-run
   and matched (`reports/rebaseline-2026-09-30/`); manifest policy is now
   "pin all tracked evidence, not prose" via `scripts/update_hashes.py`;
