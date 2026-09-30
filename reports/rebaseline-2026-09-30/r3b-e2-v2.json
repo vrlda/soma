@@ -1,0 +1,508 @@
+{
+  "all_passed": true,
+  "checkpoint_protocol": "r3b-e1-checkpoint-v1",
+  "curve": [
+    {
+      "books_done": [
+        "moby"
+      ],
+      "circuits": 52839,
+      "circuits_created": 52839,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 1234515,
+      "elapsed_seconds": 128.9355607032776,
+      "peak_rss_mb": 662.125,
+      "validation_bits_per_bit": 0.40092487501884283
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride"
+      ],
+      "circuits": 55770,
+      "circuits_created": 55770,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 1972463,
+      "elapsed_seconds": 218.95465397834778,
+      "peak_rss_mb": 662.125,
+      "validation_bits_per_bit": 0.3976111714964701
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula"
+      ],
+      "circuits": 60005,
+      "circuits_created": 60005,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 2843048,
+      "elapsed_seconds": 328.3274083137512,
+      "peak_rss_mb": 662.125,
+      "validation_bits_per_bit": 0.3973484542266203
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein"
+      ],
+      "circuits": 60596,
+      "circuits_created": 60596,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 3264587,
+      "elapsed_seconds": 384.2888677120209,
+      "peak_rss_mb": 662.125,
+      "validation_bits_per_bit": 0.39621888344378053
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock"
+      ],
+      "circuits": 62102,
+      "circuits_created": 62102,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 3852331,
+      "elapsed_seconds": 457.72371435165405,
+      "peak_rss_mb": 662.125,
+      "validation_bits_per_bit": 0.3959235117025142
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock",
+        "warpeace"
+      ],
+      "circuits": 67233,
+      "circuits_created": 67233,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 7192121,
+      "elapsed_seconds": 842.35524725914,
+      "peak_rss_mb": 1810.65234375,
+      "validation_bits_per_bit": 0.39970328150986667
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock",
+        "warpeace",
+        "iliad"
+      ],
+      "circuits": 72642,
+      "circuits_created": 72642,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 8307959,
+      "elapsed_seconds": 980.536539554596,
+      "peak_rss_mb": 1810.65234375,
+      "validation_bits_per_bit": 0.399816806218529
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock",
+        "warpeace",
+        "iliad",
+        "greatexp"
+      ],
+      "circuits": 73054,
+      "circuits_created": 73054,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 9346371,
+      "elapsed_seconds": 1108.5274386405945,
+      "peak_rss_mb": 1810.65234375,
+      "validation_bits_per_bit": 0.39932409677968583
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock",
+        "warpeace",
+        "iliad",
+        "greatexp",
+        "huckfinn"
+      ],
+      "circuits": 73667,
+      "circuits_created": 73667,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 9937034,
+      "elapsed_seconds": 1185.408142566681,
+      "peak_rss_mb": 1810.65234375,
+      "validation_bits_per_bit": 0.3983932946170371
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock",
+        "warpeace",
+        "iliad",
+        "greatexp",
+        "huckfinn",
+        "dorian"
+      ],
+      "circuits": 73840,
+      "circuits_created": 73840,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 10383026,
+      "elapsed_seconds": 1245.4330036640167,
+      "peak_rss_mb": 1810.65234375,
+      "validation_bits_per_bit": 0.39842293261812023
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock",
+        "warpeace",
+        "iliad",
+        "greatexp",
+        "huckfinn",
+        "dorian",
+        "heartdark"
+      ],
+      "circuits": 73911,
+      "circuits_created": 73911,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 10600325,
+      "elapsed_seconds": 1279.5217106342316,
+      "peak_rss_mb": 1810.65234375,
+      "validation_bits_per_bit": 0.3984434259136839
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock",
+        "warpeace",
+        "iliad",
+        "greatexp",
+        "huckfinn",
+        "dorian",
+        "heartdark",
+        "wizardoz"
+      ],
+      "circuits": 74016,
+      "circuits_created": 74016,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 10817787,
+      "elapsed_seconds": 1311.999181985855,
+      "peak_rss_mb": 1810.65234375,
+      "validation_bits_per_bit": 0.3985372566868515
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock",
+        "warpeace",
+        "iliad",
+        "greatexp",
+        "huckfinn",
+        "dorian",
+        "heartdark",
+        "wizardoz",
+        "prince"
+      ],
+      "circuits": 74417,
+      "circuits_created": 74417,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 11101215,
+      "elapsed_seconds": 1351.82457113266,
+      "peak_rss_mb": 1810.65234375,
+      "validation_bits_per_bit": 0.39825424949183
+    },
+    {
+      "books_done": [
+        "moby",
+        "pride",
+        "dracula",
+        "frankenstein",
+        "sherlock",
+        "warpeace",
+        "iliad",
+        "greatexp",
+        "huckfinn",
+        "dorian",
+        "heartdark",
+        "wizardoz",
+        "prince",
+        "tomsawyer"
+      ],
+      "circuits": 74783,
+      "circuits_created": 74783,
+      "circuits_reclaimed": 0,
+      "cumulative_bytes": 11506849,
+      "elapsed_seconds": 1405.515282869339,
+      "peak_rss_mb": 1810.65234375,
+      "validation_bits_per_bit": 0.397916863706248
+    }
+  ],
+  "final_circuits": 74783,
+  "final_circuits_created": 74783,
+  "final_circuits_reclaimed": 0,
+  "gates": {
+    "beats_test_bar": true,
+    "beats_validation_bar": true,
+    "bounded": true,
+    "causal": true,
+    "improves_with_data": true
+  },
+  "lesion_bits_per_bit": 1.0,
+  "manifest": {
+    "acquisition_bytes": 11506849,
+    "books": [
+      {
+        "boilerplate_stripped": true,
+        "bytes": 1234515,
+        "license": "public-domain",
+        "name": "moby",
+        "partition": "acquisition",
+        "path": "data/e1/moby.txt",
+        "raw_bytes": 1234613,
+        "raw_sha256": "547de799c1643ef231cc1efe45ffccefcb876ff3fe8f2206e7488529ad08f999",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "e01f2428c963b986a45982512a39329dc0cc5403297c61eea8f6625b229025c2",
+        "source_url": "https://www.gutenberg.org/files/2701/2701-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 737948,
+        "license": "public-domain",
+        "name": "pride",
+        "partition": "acquisition",
+        "path": "data/e1/pride.txt",
+        "raw_bytes": 738046,
+        "raw_sha256": "81300b79e8a8d65ac530a97578417d06137e3bbc90622a10a65e5036183d2500",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "0ab24fe06fdc27186e8d424a24bf8f9e3f8a6132a1bc4c4b8c36e35379ddc9a6",
+        "source_url": "https://www.gutenberg.org/files/1342/1342-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 870585,
+        "license": "public-domain",
+        "name": "dracula",
+        "partition": "acquisition",
+        "path": "data/e1/dracula.txt",
+        "raw_bytes": 870683,
+        "raw_sha256": "8cf05c0f0ac5b282d84f2fb36dbccd744bdb5bce7b5612438a63b43cbe27b472",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "39635ffff9a13fd0686bd747d56d91b742d8cdcdb3a281f670f3e6dd934be840",
+        "source_url": "https://www.gutenberg.org/files/345/345-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 421539,
+        "license": "public-domain",
+        "name": "frankenstein",
+        "partition": "acquisition",
+        "path": "data/e1/frankenstein.txt",
+        "raw_bytes": 421633,
+        "raw_sha256": "06c37d2c52d208d3d81eb12c3b10b5edbd7728b73554325ddceadbe2fb427e77",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "e4de648365332d0fc5e58096a0e80c208b1dad9cb743e0b141f165d3891457a1",
+        "source_url": "https://www.gutenberg.org/files/84/84-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 587744,
+        "license": "public-domain",
+        "name": "sherlock",
+        "partition": "acquisition",
+        "path": "data/e1/sherlock.txt",
+        "raw_bytes": 607504,
+        "raw_sha256": "b9c105a5c0cf9fcb37c7d0211658851ed56074519c9455d15e20f04c0c5a3174",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "040229380ebfe5c5501c87ac10b61b69db6d032511579d8f8522ba58d334abf6",
+        "source_url": "https://www.gutenberg.org/files/1661/1661-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 3339790,
+        "license": "public-domain",
+        "name": "warpeace",
+        "partition": "acquisition",
+        "path": "data/e1/warpeace.txt",
+        "raw_bytes": 3359405,
+        "raw_sha256": "e4bcf9042609b62c7de72a6f1b311f54c412943a9d641b7efcf79a464b5f31c8",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "c5a59cf61c83c9d4984142da546559b36e52934e9813a9d5b4983ef7bf1770f4",
+        "source_url": "https://www.gutenberg.org/files/2600/2600-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 1115838,
+        "license": "public-domain",
+        "name": "iliad",
+        "partition": "acquisition",
+        "path": "data/e1/iliad.txt",
+        "raw_bytes": 1115936,
+        "raw_sha256": "5f9ee65e3bbdab82debafa18f941e60ef9f96ff69929ee23ecaff48d9ede7b48",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "a17747e97fa39b57c1bd033da19c72bed1d4398c932b3393706663395e9da310",
+        "source_url": "https://www.gutenberg.org/files/6130/6130-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 1038412,
+        "license": "public-domain",
+        "name": "greatexp",
+        "partition": "acquisition",
+        "path": "data/e1/greatexp.txt",
+        "raw_bytes": 1038512,
+        "raw_sha256": "48dd8f292e68ff2856675a60b48bcd80b1ebe6ed58ac3e6f91a2bb2400f1e345",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "b4d904271d13efba000bd2676b6e08d8dd8e1d6ee626ab3263e7a2a99da452be",
+        "source_url": "https://www.gutenberg.org/files/1400/1400-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 590663,
+        "license": "public-domain",
+        "name": "huckfinn",
+        "partition": "acquisition",
+        "path": "data/e1/huckfinn.txt",
+        "raw_bytes": 590757,
+        "raw_sha256": "871bff91213ee10c95a7e05a84ca5de423ff7cd0a4dd4aafc8bea992acd6d1da",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "a682ac3488daaa23659f3c9ee1650e6b957847b017fdff25015a94534e5fdd1b",
+        "source_url": "https://www.gutenberg.org/files/76/76-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 445992,
+        "license": "public-domain",
+        "name": "dorian",
+        "partition": "acquisition",
+        "path": "data/e1/dorian.txt",
+        "raw_bytes": 446090,
+        "raw_sha256": "7782dd93e6a457979ef451735c9fe4bd666968c314859d545f0d27a8c9b86aa2",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "0d335f2c699bcace3b3a0f019caa9d8a07d518a84769da0add94037702bc5a42",
+        "source_url": "https://www.gutenberg.org/files/174/174-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 217299,
+        "license": "public-domain",
+        "name": "heartdark",
+        "partition": "acquisition",
+        "path": "data/e1/heartdark.txt",
+        "raw_bytes": 217397,
+        "raw_sha256": "a04c398b03d13046c7df526bbdf2a213e31122319ab32f453310e5dcfeac1f39",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "108d7c3d9336ddad3fc0222879e3d84a081a0b60942d90308b2b79f9137a203a",
+        "source_url": "https://www.gutenberg.org/files/219/219-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 217462,
+        "license": "public-domain",
+        "name": "wizardoz",
+        "partition": "acquisition",
+        "path": "data/e1/wizardoz.txt",
+        "raw_bytes": 217558,
+        "raw_sha256": "28f216c60a662e8e4464f8ecdfafaa41842ff5c197664807884caa0cc2e21a54",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "030c676246c49c6607fbfbedf32fa9e73646cb1907762c75234cf76ef5884e14",
+        "source_url": "https://www.gutenberg.org/files/55/55-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 283428,
+        "license": "public-domain",
+        "name": "prince",
+        "partition": "acquisition",
+        "path": "data/e1/prince.txt",
+        "raw_bytes": 283526,
+        "raw_sha256": "fa1d336fe2a4f76c256088085c3e8fab7caae7110632f0f6e084bfba24c074ec",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "2c1c65024a905c7f36c05445aa0bfd54278208c21fbf2bdcfcb0275fd777651e",
+        "source_url": "https://www.gutenberg.org/files/1232/1232-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 405634,
+        "license": "public-domain",
+        "name": "tomsawyer",
+        "partition": "acquisition",
+        "path": "data/e1/tomsawyer.txt",
+        "raw_bytes": 405783,
+        "raw_sha256": "fe74f3e43a7c0a0d0189b40ce966ce73795559b63076ccc0ea2e8ba2b9a9b213",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "0e13e7dbe1a7793a95ce75528a3f248b363697e31124b783febea5636b9fea76",
+        "source_url": "https://www.gutenberg.org/files/74/74-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 141077,
+        "license": "public-domain",
+        "name": "jekyll",
+        "partition": "validation",
+        "path": "data/e1/jekyll.txt",
+        "raw_bytes": 141171,
+        "raw_sha256": "34b5f8b36387fe472ce79b8cdab75d4b97783265a7f71e5729dc5b9a3dc14818",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "da754027e8adc6132bfa5941dd3d0d2bc9c964da3c2a24bb0bce6bd75daab80a",
+        "source_url": "https://www.gutenberg.org/files/43/43-0.txt"
+      },
+      {
+        "boilerplate_stripped": true,
+        "bytes": 181481,
+        "license": "public-domain",
+        "name": "timemachine",
+        "partition": "test",
+        "path": "data/e1/timemachine.txt",
+        "raw_bytes": 181575,
+        "raw_sha256": "507f5cca3fa0b2bac1d7e6daac24852564639d62a8b9247a7f714511a0b8e032",
+        "retrieved_utc": "2026-09-11",
+        "sha256": "888a3187b384dd9a841f3c0f326630d568398c77771a8ff263279a7e59d3e088",
+        "source_url": "https://www.gutenberg.org/files/35/35-0.txt"
+      }
+    ],
+    "test_bytes": 181481,
+    "validation_bytes": 141077
+  },
+  "max_circuits": 131072,
+  "max_order": 16,
+  "peak_rss_mb": 1810.65234375,
+  "protocol": "r3b-e1-v2",
+  "resume": {
+    "end_book": 14,
+    "envelope": false,
+    "initial_bytes": 0,
+    "source": null,
+    "start_book": 0
+  },
+  "state_bytes": 8677962,
+  "test_bar": 0.5635741461079711,
+  "test_bits_per_bit": 0.399497487115718,
+  "test_book": "timemachine",
+  "total_seconds": 1424.4197375774384,
+  "validation_bar": 0.5689482545149174
+}

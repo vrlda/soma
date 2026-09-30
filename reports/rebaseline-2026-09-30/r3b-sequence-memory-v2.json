@@ -1,0 +1,100 @@
+{
+  "acquisition_bytes_used": 127072,
+  "all_passed": true,
+  "byte_unigram_bits_per_bit": 0.596758218361832,
+  "corpus": "data/e0/alice.txt",
+  "gates": {
+    "beats_byte_unigram": true,
+    "bounded": true,
+    "causal_lesion_fails_gate": true,
+    "state_valid": true
+  },
+  "lesion_reports": [
+    {
+      "accuracy": 0.44046036937756683,
+      "accuracy_intra": 0.4940045238694823,
+      "accuracy_msb": 0.06564833833053962,
+      "bits": 1016575,
+      "bits_per_bit": 1.0,
+      "circuits": 37134,
+      "circuits_created": 37134,
+      "circuits_reclaimed": 0,
+      "learning": true,
+      "max_order": 16,
+      "mean_reward": 0.5,
+      "mean_selected_order": 15.931233799768831,
+      "mode": "sequence_memory_lesion",
+      "partition": 0,
+      "seed": 0
+    },
+    {
+      "accuracy": 0.4434751224542408,
+      "accuracy_intra": 0.494343224833243,
+      "accuracy_msb": 0.08736902895800676,
+      "bits": 96975,
+      "bits_per_bit": 1.0,
+      "circuits": 37134,
+      "circuits_created": 37134,
+      "circuits_reclaimed": 0,
+      "learning": false,
+      "max_order": 16,
+      "mean_reward": 0.5,
+      "mean_selected_order": 15.980933230213973,
+      "mode": "sequence_memory_lesion",
+      "partition": 1,
+      "seed": 0
+    }
+  ],
+  "manifest": {
+    "acquisition_bytes": 127072,
+    "documents": 13,
+    "license": "public-domain",
+    "test_bytes": 11782,
+    "test_sha256": "14005372aaf864d1aef667e5c13e3d8a666dfd900b90359a1d50da862b356e29",
+    "validation_bytes": 12122
+  },
+  "max_circuits": 131072,
+  "max_order": 16,
+  "memory": {
+    "circuits": 37134,
+    "circuits_created": 37134,
+    "circuits_reclaimed": 0
+  },
+  "protocol": "r3b-e0-sequence-circuit-v2",
+  "reports": [
+    {
+      "accuracy": 0.875560583331284,
+      "accuracy_intra": 0.8608910134187142,
+      "accuracy_msb": 0.9782483808264671,
+      "bits": 1016575,
+      "bits_per_bit": 0.3833978655957987,
+      "circuits": 37134,
+      "circuits_created": 37134,
+      "circuits_reclaimed": 0,
+      "learning": true,
+      "max_order": 16,
+      "mean_reward": 0.8281320693566282,
+      "mean_selected_order": 15.931233799768831,
+      "mode": "sequence_memory",
+      "partition": 0,
+      "seed": 0
+    },
+    {
+      "accuracy": 0.877184841453983,
+      "accuracy_intra": 0.8631413958092724,
+      "accuracy_msb": 0.975497071198746,
+      "bits": 96975,
+      "bits_per_bit": 0.37509488116237544,
+      "circuits": 37134,
+      "circuits_created": 37134,
+      "circuits_reclaimed": 0,
+      "learning": false,
+      "max_order": 16,
+      "mean_reward": 0.8356542093248379,
+      "mean_selected_order": 15.980933230213973,
+      "mode": "sequence_memory",
+      "partition": 1,
+      "seed": 0
+    }
+  ]
+}

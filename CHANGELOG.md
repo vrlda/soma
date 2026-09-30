@@ -13,6 +13,10 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- Integrity re-baseline: all frozen benchmarks covering changed code re-run
+  and matched (`reports/rebaseline-2026-09-30/`); manifest policy is now
+  "pin all tracked evidence, not prose" via `scripts/update_hashes.py`;
+  274 files pinned, 0 mismatches.
 - Docs tidy: master plan §16 carries live status for R5–R12 and §22 is the
   single ordered work list with done-criteria. README gains a "what's
   next" section and a documentation map. New `docs/README.md` index.

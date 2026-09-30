@@ -1,0 +1,24 @@
+{
+  "all_passed": true,
+  "byte_unigram_bits_per_bit": 0.596758218361832,
+  "corpus": "data/e0/alice.txt",
+  "fused_e0": 0.3750936613810348,
+  "fused_probe_msb": 0.21155456517683874,
+  "gates": {
+    "causal": true,
+    "fallback": true,
+    "parity": true
+  },
+  "lesion_e0": 0.994063327328934,
+  "manifest": {
+    "acquisition_bytes": 127072,
+    "documents": 13,
+    "license": "public-domain",
+    "test_bytes": 11782,
+    "test_sha256": "14005372aaf864d1aef667e5c13e3d8a666dfd900b90359a1d50da862b356e29",
+    "validation_bytes": 12122
+  },
+  "memory_e0": 0.37509488116237544,
+  "memory_probe_msb": 0.3316931246240115,
+  "protocol": "r3b-fused-v2"
+}

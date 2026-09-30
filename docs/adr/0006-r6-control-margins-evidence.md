@@ -33,7 +33,7 @@
      expectations must be set from R6b, not from beating an identical table).
   2. Signed `.soma` Small candidate (blocked on R8 signatures/downloader).
   3. Micro-tier qualification on the production (Rust) engine under frozen ceilings.
-  4. Worktree re-baselining: 17 r0-baseline hash mismatches from in-progress R6 work
+  4. (CLOSED 2026-09-30, see reports/rebaseline-2026-09-30/README.md) Worktree re-baselining: 17 r0-baseline hash mismatches from in-progress R6 work
      (additive-only + authorized surgery) must be reviewed and rehashed at commit time.
 - Test: `tests/test_r6_reclamation.py` (4/4), `reports/r6-reclamation.json` all_passed,
   `reports/r6-tier.json` (Small floor + resume evidence), `reports/r6-factual.json` (8/8).

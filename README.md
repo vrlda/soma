@@ -21,8 +21,9 @@ plastic arbitration is causal ([details](docs/r6-circuit-mixing.md)).
 **Next, in order** (authoritative list with done-criteria:
 [master plan §22](SOMA_REAL_MODEL_MASTER_PLAN.md#22-exact-next-work-on-resume)):
 
-1. **Trust the result:** re-baseline hashes, score one untouched test book,
-   and drop mechanisms that don't earn their place.
+1. **Trust the result:** ~~re-baseline hashes~~ (done: 0 mismatches, all
+   gates reproduced), score one untouched test book, and drop mechanisms
+   that don't earn their place.
 2. **Answer the SOMA question:** measure forgetting across books, then add
    a consolidation mechanism that removes recency interference.
 3. **Make it usable:** port forgetting, quarantine, and persistence to the
@@ -80,7 +81,7 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
   `transducers/`, `memory/`, `evaluation/`, `persistence/`, `service/`
 - `engine/soma-engine` — Rust engine: graph, kernels, and `soma-mixer`
   (`bash engine/tests.sh` builds it and runs every Python/Rust parity gate)
-- `tests/` — 496 unit tests (about 25 min) (`python -m unittest discover -s tests`)
+- `tests/` — 496 unit tests (about 7 min) (`python -m unittest discover -s tests`)
 - `r*_benchmark.py` — frozen milestone gates with JSON reports in `reports/`;
   `r6_*_pilot.py` / `*_study.py` / `*_calibration.py` are exploratory R6
   experiments, and `r3b_reference_baselines.py` is a non-gating comparison.
