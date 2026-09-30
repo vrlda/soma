@@ -58,6 +58,21 @@ class WittenBellByteModel(object):
                 types[context] += 1
         return self
 
+    def add(self, data):
+        """Incrementally learn one more document; equivalent to ``fit``."""
+        data = bytes(data)
+        for length in range(1, self.max_order + 2):
+            grams = self.grams[length]
+            totals = self.context_totals[length - 1]
+            types = self.context_types[length - 1]
+            for start in range(len(data) - length + 1):
+                gram = data[start:start + length]
+                if not grams[gram]:
+                    types[gram[:-1]] += 1
+                grams[gram] += 1
+                totals[gram[:-1]] += 1
+        return self
+
     def probability(self, context, symbol, order=None):
         """P(symbol | last ``order`` bytes of context)."""
         order = self.max_order if order is None else min(int(order), self.max_order)
