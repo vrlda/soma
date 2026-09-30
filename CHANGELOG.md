@@ -13,6 +13,10 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- ADR 0009: the circuit memory is the organism's language substrate (master
+  plan step 6). Organism plasticity rejoins the language path only via a
+  pre-declared experiment. Adds a domain-neutrality test on a non-text
+  Markov byte process.
 - Consolidation (ADR 0008): per-weight-set metaplasticity is the default
   in circuit mixing. Forgetting −15%, order spread −25%, final validation
   better in every book order; E2 full test 0.2406. Adds

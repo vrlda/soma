@@ -28,8 +28,9 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
    (ADR 0007).
 2. **Answer the SOMA question:** ~~measure forgetting~~ and ~~consolidate~~
    (done: metaplasticity cut forgetting 15% and order spread 25% while
-   improving every final score; [record](docs/r6-consolidation.md)). Next:
-   decide whether organism-level plasticity belongs on the language path.
+   improving every final score; [record](docs/r6-consolidation.md)). The
+   circuit memory is now the organism's recorded language substrate
+   ([ADR 0009](docs/adr/0009-language-substrate.md)).
 3. **Make it usable:** port forgetting, quarantine, and persistence to the
    new memory, and serve chat from the Rust engine.
 4. **Scale and ship:** E3 scaling, Micro tier on the engine, human

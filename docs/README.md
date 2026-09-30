@@ -31,9 +31,10 @@ R3C generation is recorded inside [r3b-english.md](r3b-english.md).
 ## R6 development pilots (non-gating)
 
 These are development-only mechanism experiments. None of them qualifies
-R6, and none changes the locked reports. They are relevant to master plan
-§22 step 6 (whether organism-level plasticity belongs on the language
-path).
+R6, and none changes the locked reports. They were the evidence for
+[ADR 0009](adr/0009-language-substrate.md), which keeps organism-level
+plasticity off the language path until a pre-declared experiment earns it
+a place.
 
 - [r6-english-event-pilot.md](r6-english-event-pilot.md), [r6-english-lag-pilot.md](r6-english-lag-pilot.md): English through the organism event path.
 - [r6-temporal-composition-pilot.md](r6-temporal-composition-pilot.md), [r6-temporal-composition-pilot-v4.md](r6-temporal-composition-pilot-v4.md): leave-one-combination-out temporal composition.
@@ -51,6 +52,7 @@ path).
 - [0006](adr/0006-r6-control-margins-evidence.md) R6 control-margin gates superseded by evidence
 - [0007](adr/0007-circuit-mixing-mechanism-audit.md) circuit-mixing mechanism audit; correction stage off by default
 - [0008](adr/0008-metaplasticity-consolidation.md) metaplasticity is the default consolidation mechanism
+- [0009](adr/0009-language-substrate.md) the circuit memory is the organism's language substrate
 
 ## Operations
 

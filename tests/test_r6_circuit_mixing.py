@@ -106,6 +106,31 @@ class CircuitMixingMemoryTests(unittest.TestCase):
         self.assertEqual(before, memory.weights)
         self.assertGreater(len(memory.circuits), 0)
 
+    def test_learns_a_non_text_byte_process(self):
+        # Domain neutrality (ADR 0009): a seeded order-2 Markov chain over
+        # 16 arbitrary byte values, with no text structure at all.
+        import math
+        import random
+        rng = random.Random(9)
+        symbols = rng.sample(range(256), 16)
+        table = {}
+        history, stream = [symbols[0], symbols[1]], []
+        for _ in range(12000):
+            key = tuple(history[-2:])
+            if key not in table:
+                table[key] = rng.sample(symbols, 3)
+            nxt = rng.choice(table[key])
+            stream.append(nxt)
+            history.append(nxt)
+        data = bytes(stream)
+        train, held_out = data[:10000], data[10000:]
+        counts = {b: train.count(b) for b in set(train)}
+        unigram = -sum(math.log2(counts.get(b, 0.5) / len(train)) for b in held_out) / (8 * len(held_out))
+        memory = CircuitMixingMemory(max_circuits=1 << 18)
+        memory.observe_bytes(train)
+        memory.reset_history()
+        self.assertLess(memory.score_bytes(held_out), 0.6 * unigram)
+
     def test_probabilities_stay_inside_floor(self):
         memory = CircuitMixingMemory(max_circuits=1 << 14)
         for byte in b"\x00\xff" * 200:

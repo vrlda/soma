@@ -831,7 +831,7 @@ All boxes must be checked in one release candidate:
 - [ ] Learned changes survive restart, backup, restore, and supported upgrades.
 - [ ] Threshold-driven context selection has been replaced by calibrated circuit evidence.
 - [ ] Routing uncertainty, novelty, probes, and growth are independently measured and bounded.
-- [ ] The SOMA core has causal language contribution beyond retrieval and decoder controls.
+- [ ] The SOMA core has causal language contribution beyond retrieval and decoder controls. *(Interpretation: ADR 0009. Core = event core plus memory subsystems.)*
 - [ ] Continual learning beats the frozen/no-learning model on locked changing streams.
 - [ ] Retention, interference, and capacity remain inside published limits.
 - [ ] The active workspace, retrieval bandwidth, total storage, and per-event active fraction have published finite limits.
@@ -863,7 +863,7 @@ This is the single ordered work list. Update it whenever a step closes. The orig
 
 4. ~~**Measure retention.**~~ **Done 2026-09-30** ([docs/r6-retention.md](docs/r6-retention.md), `r6_retention_benchmark.py`). Baseline: mean forgetting 0.0060 bits/bit over four book orders, order spread 0.0053. Two thirds of the forgetting persists at full budget, so plastic drift, not reclamation, is the main cause.
 5. ~~**Consolidation mechanism.**~~ **Done 2026-09-30** ([docs/r6-consolidation.md](docs/r6-consolidation.md), [ADR 0008](docs/adr/0008-metaplasticity-consolidation.md)). Per-weight-set metaplasticity (τ = 1e5) cut forgetting 15% and order spread 25%, and improved final validation in every book order. It halves weight drift. The other candidates tried were rejected; all are recorded. Still open: circuit loss under budget pressure.
-6. **Decide what "organism plasticity" means for language.** Today the `Organism` class is not on the language scoring path; growth, pruning, and plastic arbitration live inside the memory. Either wire organism-level mechanisms into the path with an ablation (Section 21: causal core contribution), or write an ADR that makes the circuit memory the language substrate of the organism. *Done when* the decision is recorded with evidence.
+6. ~~**Decide what "organism plasticity" means for language.**~~ **Done 2026-09-30** ([ADR 0009](docs/adr/0009-language-substrate.md)). The circuit memory is the organism's sequence-prediction memory subsystem and the Text v1 language substrate. The organism motor path scores 0.994 on E0, adds about 1e-6 when fused, and hit a recorded stop condition; the memory's SOMA mechanisms are each causal and domain-neutral. Re-entry for organism plasticity is a pre-declared experiment. First candidate: context-detector routing of arbitration banks.
 
 ### Phase C: make it usable
 
