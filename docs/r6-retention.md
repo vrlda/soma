@@ -18,9 +18,12 @@ baseline numbers that step 5 (consolidation) must improve.
 - **Diagnostic:** the canonical order again at the full budget, where
   reclamation is rare.
 
-A frozen count-based n-gram scores zero on both metrics by construction:
-its counts commute. These numbers therefore measure the plastic and
-budgeted mechanisms.
+A frozen count-based n-gram has zero *order* sensitivity by construction:
+its counts commute. It is **not** free of forgetting, though. Trained book
+by book, it loses 0.00043 per book to dilution, as later books average into
+shared statistics. (An earlier version of this page wrongly claimed zero.)
+That 0.00043 is the floor for any accumulating model. Everything above it
+comes from the plastic and budgeted mechanisms.
 
 ## Baseline (current default configuration, 2026-09-30)
 
@@ -52,7 +55,15 @@ Units are bits per bit; 0.006 ≈ 0.05 bits per byte.
   compact score (0.2467 vs 0.2461) because the probes are withheld from
   training.
 
-## Target for step 5
+## Step 5 result
+
+Metaplasticity (ADR 0008) reduced mean forgetting from 0.0060 to 0.0051
+and order spread from 0.0053 to 0.0040, and it improved final validation
+in all four orders (`reports/r6-retention-metaplasticity.json`). See
+[r6-consolidation.md](r6-consolidation.md). The baseline below remains the
+record of the pre-consolidation model.
+
+## Target for step 5 (as set before the work)
 
 A consolidation mechanism should lower mean forgetting (0.0060) and order
 spread (0.0053) without worsening final canonical validation (0.2467). It

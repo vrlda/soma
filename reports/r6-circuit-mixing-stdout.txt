@@ -4,41 +4,47 @@
       "default_better": true,
       "test": 0.26736881527420353,
       "validation": 0.2663222633958711,
-      "validation_cost": 0.02023004549570573
+      "validation_cost": 0.02056220549060389
     },
     "no_growth_gate": {
       "default_better": true,
-      "test": 0.2506572277765074,
-      "validation": 0.24927006684293684,
-      "validation_cost": 0.003177848942771455
+      "test": 0.25028083001149304,
+      "validation": 0.24907255836193146,
+      "validation_cost": 0.00331250045666423
+    },
+    "no_metaplasticity": {
+      "default_better": true,
+      "test": 0.24736014801977674,
+      "validation": 0.2460922179001654,
+      "validation_cost": 0.0003321599948981624
     },
     "no_partial_gate": {
       "default_better": true,
-      "test": 0.24976690911518212,
-      "validation": 0.24894606113925133,
-      "validation_cost": 0.0028538432390859403
+      "test": 0.24923666321829163,
+      "validation": 0.24832566468712225,
+      "validation_cost": 0.0025656067818550232
     },
     "with_calibration": {
       "default_better": true,
-      "test": 0.25060428760945075,
-      "validation": 0.24936428571174915,
-      "validation_cost": 0.003272067811583762
+      "test": 0.25015514925254123,
+      "validation": 0.24891038780720492,
+      "validation_cost": 0.0031503299019376985
     },
     "with_correction": {
-      "default_better": true,
-      "test": 0.24733373709672354,
-      "validation": 0.24613701751786268,
-      "validation_cost": 4.4799617697294236e-05
+      "default_better": false,
+      "test": 0.24676744261035255,
+      "validation": 0.24567946953862682,
+      "validation_cost": -8.058836664040503e-05
     }
   },
   "all_passed": true,
   "compact": {
-    "test": 0.24736014801977674,
-    "validation": 0.2460922179001654
+    "test": 0.24694761739391113,
+    "validation": 0.24576005790526723
   },
   "full": {
-    "test": 0.24105632686705392,
-    "validation": 0.24022821455502794
+    "test": 0.2405639049680668,
+    "validation": 0.2398502739503863
   },
   "gates": {
     "arbitration_causal": true,

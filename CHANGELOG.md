@@ -13,6 +13,11 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- Consolidation (ADR 0008): per-weight-set metaplasticity is the default
+  in circuit mixing. Forgetting −15%, order spread −25%, final validation
+  better in every book order; E2 full test 0.2406. Adds
+  `r6_forgetting_diagnostics.py` (weight vs circuit decomposition, n-gram
+  dilution floor). Rejected candidates are recorded.
 - `r6_retention_benchmark.py`: retention matrix and book-order sensitivity
   for circuit mixing. Baseline mean forgetting 0.0060 bits/bit, order spread
   0.0053. Two thirds of the forgetting persists without budget pressure.

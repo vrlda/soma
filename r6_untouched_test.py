@@ -77,6 +77,9 @@ FROZEN_CONFIG = {
     "correction": True,
     "correction_rate": 0.02,
     "growth_threshold": 8,
+    # Metaplasticity did not exist when this test was scored; 0 is the
+    # constant-rate behavior that was actually evaluated.
+    "plasticity_tau": 0.0,
 }
 FULL_BUDGET = 1 << 24
 COMPACT_BUDGET = 1 << 22

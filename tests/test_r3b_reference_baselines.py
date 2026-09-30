@@ -29,6 +29,18 @@ class WittenBellByteModelTests(unittest.TestCase):
         self.assertTrue(math.isfinite(self.model.bits_per_byte(b"\xff\x00", 3)))
 
 
+class IncrementalFitTests(unittest.TestCase):
+    def test_add_matches_fit(self):
+        documents = [b"the cat sat. ", b"a dog ran on the mat. ", b"the end"]
+        batch = WittenBellByteModel(3).fit(documents)
+        incremental = WittenBellByteModel(3)
+        for document in documents:
+            incremental.add(document)
+        self.assertEqual(batch.grams, incremental.grams)
+        self.assertEqual(batch.context_totals, incremental.context_totals)
+        self.assertEqual(batch.context_types, incremental.context_types)
+
+
 class CompressorTests(unittest.TestCase):
     def test_primed_xz_benefits_from_seen_text(self):
         prime = b"a line of public text that repeats. " * 200

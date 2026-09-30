@@ -31,5 +31,23 @@ class RetentionMetricTests(unittest.TestCase):
         self.assertEqual(metrics["matrix"][2], [0.60, 0.45, 0.30])
 
 
+
+class ForgettingDecompositionTests(unittest.TestCase):
+    def test_weight_and_circuit_parts_sum_to_total(self):
+        from r6_forgetting_diagnostics import decompose
+        order = ["a", "b"]
+        result = {
+            "curve": [{"bits_per_bit": {"probe:a": 0.30, "probe:b": 0.50}},
+                      {"bits_per_bit": {"probe:a": 0.34, "probe:b": 0.28}}],
+            "bits_per_bit": {"probe:a": 0.34, "probe:b": 0.28},
+            "snapshot_scores": {"probe:a": 0.31, "probe:b": 0.28},
+        }
+        parts = decompose(order, result)
+        self.assertAlmostEqual(parts["books"]["a"]["total"], 0.04)
+        self.assertAlmostEqual(parts["books"]["a"]["weights"], 0.03)
+        self.assertAlmostEqual(parts["books"]["a"]["circuits"], 0.01)
+        self.assertAlmostEqual(parts["mean_total"], parts["mean_weights"] + parts["mean_circuits"])
+
+
 if __name__ == "__main__":
     unittest.main()

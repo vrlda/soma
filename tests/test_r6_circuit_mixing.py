@@ -85,6 +85,27 @@ class CircuitMixingMemoryTests(unittest.TestCase):
             scores[arbitration] = memory.score_bytes(held_out)
         self.assertLess(scores[True], scores[False])
 
+    def test_metaplasticity_slows_well_used_weight_sets(self):
+        text = alice(0, 2000)
+        fast = CircuitMixingMemory(max_circuits=1 << 16, plasticity_tau=0.0)
+        slow = CircuitMixingMemory(max_circuits=1 << 16, plasticity_tau=50.0)
+        fast.observe_bytes(text)
+        slow.observe_bytes(text)
+        self.assertEqual(sum(fast.weight_updates), sum(slow.weight_updates))
+        drift = lambda memory: sum(abs(w - memory.initial_weight)
+                                   for row in memory.weights for w in row)
+        self.assertLess(drift(slow), drift(fast))
+        with self.assertRaises(ValueError):
+            CircuitMixingMemory(plasticity_tau=-1.0)
+
+    def test_frozen_arbitration_stops_weight_learning(self):
+        memory = CircuitMixingMemory(max_circuits=1 << 16, freeze_arbitration_after=800)
+        memory.observe_bytes(alice(0, 100))
+        before = [list(row) for row in memory.weights]
+        memory.observe_bytes(alice(100, 400))
+        self.assertEqual(before, memory.weights)
+        self.assertGreater(len(memory.circuits), 0)
+
     def test_probabilities_stay_inside_floor(self):
         memory = CircuitMixingMemory(max_circuits=1 << 14)
         for byte in b"\x00\xff" * 200:

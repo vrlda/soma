@@ -69,6 +69,12 @@ pub struct MixerConfig {
     /// only when the next shorter context's circuit has at least this many
     /// visits (0 = always grow).
     pub growth_threshold: u32,
+    /// Metaplasticity: a weight set's rate is learning_rate * tau / (tau + n)
+    /// after n updates of that set (0 = constant rate).
+    pub plasticity_tau: f64,
+    /// Diagnostic: arbitration weights stop learning after this many
+    /// events (0 = never).
+    pub freeze_arbitration_after: u64,
 }
 
 impl Default for MixerConfig {
@@ -89,6 +95,8 @@ impl Default for MixerConfig {
             correction: false,
             correction_rate: 0.02,
             growth_threshold: 8,
+            plasticity_tau: 100_000.0,
+            freeze_arbitration_after: 0,
         }
     }
 }
@@ -141,6 +149,7 @@ fn bit_position(partial: u32) -> usize {
 pub struct CircuitMixingMemory {
     pub config: MixerConfig,
     pub weights: Vec<Vec<f64>>,
+    pub weight_updates: Vec<u64>,
     pub circuits: KeyMap<Circuit>,
     pub history: Vec<u8>,
     pub partial: u32,
@@ -204,6 +213,7 @@ impl CircuitMixingMemory {
             Vec::new()
         };
         CircuitMixingMemory {
+            weight_updates: vec![0; weights.len()],
             weights,
             circuits: KeyMap::default(),
             history: Vec::new(),
@@ -334,9 +344,18 @@ impl CircuitMixingMemory {
         }
         if learn {
             let target = bit as f64;
-            if self.config.arbitration {
+            let frozen = self.config.freeze_arbitration_after > 0
+                && self.events_seen >= self.config.freeze_arbitration_after;
+            if self.config.arbitration && !frozen {
                 let error = target - self.mixed;
-                let rate = self.config.learning_rate;
+                let tau = self.config.plasticity_tau;
+                let updates = self.weight_updates[self.gate];
+                self.weight_updates[self.gate] = updates + 1;
+                let rate = if tau > 0.0 {
+                    self.config.learning_rate * tau / (tau + updates as f64)
+                } else {
+                    self.config.learning_rate
+                };
                 let weights = &mut self.weights[self.gate];
                 for (index, value) in self.inputs.iter().enumerate() {
                     weights[index] += rate * error * value;

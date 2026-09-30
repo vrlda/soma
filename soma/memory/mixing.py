@@ -20,6 +20,10 @@ book scale:
 - Plastic arbitration.  Every active circuit contributes log-odds evidence;
   a unit with delta-rule weights combines them.  The weight set is gated by
   how many circuits exist and by the partial byte.
+- Metaplasticity.  Each weight set's learning rate falls with its own
+  experience, rate = learning_rate * tau / (tau + updates), so well-practiced
+  arbitration consolidates while rarely used sets stay plastic.  This cuts
+  forgetting across books (docs/r6-consolidation.md).
 - A final correction stage keyed by the previous byte and partial byte
   (optional, off by default: redundant with partial-byte gating, ADR 0007).
 
@@ -88,7 +92,7 @@ class CircuitMixingMemory(object):
                  reclaim_fraction=0.125, arbitration=True, halve_above=1000000,
                  calibration=False, calibration_limit=255, gate_bit_position=False,
                  gate_partial=True, correction=False, correction_rate=0.02,
-                 growth_threshold=8):
+                 growth_threshold=8, plasticity_tau=100000.0, freeze_arbitration_after=0):
         self.orders = tuple(int(order) for order in orders)
         if not self.orders or list(self.orders) != sorted(set(self.orders)):
             raise ValueError("orders must be unique, ascending, and nonempty")
@@ -115,6 +119,11 @@ class CircuitMixingMemory(object):
         levels = len(self.orders) + 1
         per_level = 256 if self.gate_partial else (8 if self.gate_bit_position else 1)
         self.weights = [[self.initial_weight] * levels for _ in range(levels * per_level)]
+        self.plasticity_tau = float(plasticity_tau)
+        if not math.isfinite(self.plasticity_tau) or self.plasticity_tau < 0.0:
+            raise ValueError("plasticity tau must be finite and nonnegative")
+        self.freeze_arbitration_after = int(freeze_arbitration_after)
+        self.weight_updates = [0] * len(self.weights)
         # Plastic tables start at their analytic values; entries are created
         # lazily here (the Rust port preallocates the same values).
         self.calibration = [{} for _ in self.orders]
@@ -229,11 +238,19 @@ class CircuitMixingMemory(object):
         keys, visits, states, inputs, gate, mixed, correction, _ = self._pending
         if learn:
             target = float(bit)
-            if self.arbitration:
+            frozen = (self.freeze_arbitration_after > 0
+                      and self.events_seen >= self.freeze_arbitration_after)
+            if self.arbitration and not frozen:
                 error = target - mixed
+                updates = self.weight_updates[gate]
+                self.weight_updates[gate] = updates + 1
+                if self.plasticity_tau > 0.0:
+                    rate = self.learning_rate * self.plasticity_tau / (self.plasticity_tau + updates)
+                else:
+                    rate = self.learning_rate
                 weights = self.weights[gate]
                 for index, value in enumerate(inputs):
-                    weights[index] += self.learning_rate * error * value
+                    weights[index] += rate * error * value
             if self.use_calibration:
                 for index, state in enumerate(states):
                     if state is None:

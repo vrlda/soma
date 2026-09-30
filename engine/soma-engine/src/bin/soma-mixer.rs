@@ -66,6 +66,12 @@ fn config_from(value: &serde_json::Value) -> MixerConfig {
     if let Some(v) = value.get("gate_partial").and_then(|v| v.as_bool()) {
         config.gate_partial = v;
     }
+    if let Some(v) = value.get("plasticity_tau").and_then(|v| v.as_f64()) {
+        config.plasticity_tau = v;
+    }
+    if let Some(v) = value.get("freeze_arbitration_after").and_then(|v| v.as_u64()) {
+        config.freeze_arbitration_after = v;
+    }
     if let Some(v) = value.get("correction_rate").and_then(|v| v.as_f64()) {
         config.correction_rate = v;
     }
@@ -117,6 +123,14 @@ fn main() {
         }
     }
     let every = job.get("eval_every_file").and_then(|v| v.as_bool()).unwrap_or(false);
+    // Diagnostic: snapshot_evals[i] names the eval to score at the end with
+    // the final circuits but the arbitration weights saved after train[i].
+    let snapshot_evals: Vec<String> = job
+        .get("snapshot_evals")
+        .and_then(|v| v.as_array())
+        .map(|a| a.iter().map(|p| p.as_str().unwrap_or("").to_string()).collect())
+        .unwrap_or_default();
+    let mut snapshots: Vec<Vec<Vec<f64>>> = Vec::new();
 
     let started = Instant::now();
     let mut memory = CircuitMixingMemory::new(config);
@@ -128,6 +142,9 @@ fn main() {
         cumulative += data.len() as u64;
         memory.reset_history();
         memory.observe_bytes(&data, true);
+        if !snapshot_evals.is_empty() {
+            snapshots.push(memory.weights.clone());
+        }
         if every || index + 1 == train.len() {
             let mut scratch = BTreeMap::new();
             let scores = evaluate(&mut memory, &evals, &BTreeMap::new(), &mut scratch);
@@ -143,6 +160,20 @@ fn main() {
         }
     }
     let final_scores = evaluate(&mut memory, &evals, &traces, &mut trace_out);
+    let mut snapshot_scores = BTreeMap::new();
+    if !snapshot_evals.is_empty() {
+        let final_weights = memory.weights.clone();
+        for (index, name) in snapshot_evals.iter().enumerate() {
+            if let (Some(weights), Some(data)) = (snapshots.get(index), evals.get(name)) {
+                memory.weights = weights.clone();
+                memory.reset_history();
+                let score = memory.score_bytes(data, false, None);
+                snapshot_scores.insert(name.clone(), score);
+            }
+        }
+        memory.weights = final_weights;
+        memory.reset_history();
+    }
     let report = serde_json::json!({
         "engine": "soma-mixer",
         "orders": memory.config.orders,
@@ -157,6 +188,7 @@ fn main() {
         "circuits_reclaimed": memory.circuits_reclaimed,
         "weights": memory.weights,
         "bits_per_bit": final_scores,
+        "snapshot_scores": snapshot_scores,
         "curve": curve,
         "trace": trace_out,
         "total_seconds": started.elapsed().as_secs_f64(),

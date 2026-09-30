@@ -86,6 +86,10 @@ def main():
     parser.add_argument("--out", default="reports/r6-retention.json")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--no-build", action="store_true")
+    parser.add_argument("--config", default="{}",
+                        help="development: JSON merged into every run's engine config")
+    parser.add_argument("--runs", default=None,
+                        help="development: comma-separated subset of run labels")
     args = parser.parse_args()
     if not args.no_build:
         build_engine()
@@ -111,9 +115,13 @@ def main():
 
         runs = [(label, order, COMPACT_BUDGET) for label, order in orders_for(names).items()]
         runs.append(("canonical_full_budget", list(names), FULL_BUDGET))
+        if args.runs:
+            wanted = set(args.runs.split(","))
+            runs = [run for run in runs if run[0] in wanted]
+        overrides = json.loads(args.config)
         with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
             futures = {
-                label: pool.submit(run_engine, {"max_circuits": budget},
+                label: pool.submit(run_engine, dict(overrides, max_circuits=budget),
                                    [train_paths[name] for name in order], evals, True)
                 for label, order, budget in runs}
             raw = {label: future.result() for label, future in futures.items()}
@@ -129,10 +137,18 @@ def main():
         results[label] = metrics
     compact_labels = [label for label, _, budget in runs if budget == COMPACT_BUDGET]
     finals = [results[label]["final_validation"] for label in compact_labels]
+    if args.runs or overrides:
+        summary = {label: {"mean_forgetting": results[label]["mean_forgetting"],
+                           "final_validation": results[label]["final_validation"]}
+                   for label in results}
+        print(json.dumps({"config": overrides, "runs": summary}, sort_keys=True))
+        if args.out == "reports/r6-retention.json":
+            return 0
     report = {
         "protocol": PROTOCOL,
         "manifest": args.manifest,
         "probe_bytes": PROBE_BYTES,
+        "engine_config_overrides": overrides,
         "trained_bytes": sum(len(train) for _, train, _ in split),
         "runs": results,
         "summary": {
