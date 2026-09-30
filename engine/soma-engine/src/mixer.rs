@@ -60,6 +60,8 @@ pub struct MixerConfig {
     pub calibration_limit: u32,
     /// Arbitration weight sets also gated by bit position in the byte.
     pub gate_bit_position: bool,
+    /// Arbitration weight sets gated by the partial byte (256 per level).
+    pub gate_partial: bool,
     /// Final correction stage over (previous byte, partial byte, evidence).
     pub correction: bool,
     pub correction_rate: f64,
@@ -72,20 +74,21 @@ pub struct MixerConfig {
 impl Default for MixerConfig {
     fn default() -> Self {
         MixerConfig {
-            orders: vec![0, 1, 2, 3, 4, 5, 6],
+            orders: vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12],
             max_circuits: 1 << 22,
-            learning_rate: 0.015,
-            count_limit: 60,
+            learning_rate: 0.002,
+            count_limit: 1023,
             initial_weight: 0.3,
             reclaim_fraction: 0.125,
             arbitration: true,
-            halve_above: 2,
-            calibration: false,
+            halve_above: 1_000_000,
+            calibration: true,
             calibration_limit: 255,
             gate_bit_position: false,
-            correction: false,
+            gate_partial: true,
+            correction: true,
             correction_rate: 0.02,
-            growth_threshold: 0,
+            growth_threshold: 8,
         }
     }
 }
@@ -167,7 +170,13 @@ impl CircuitMixingMemory {
         assert!(config.orders.windows(2).all(|w| w[0] < w[1]), "orders ascending");
         assert!(*config.orders.last().unwrap() <= MAX_ORDER, "order above maximum");
         assert!(config.max_circuits >= 256 * n, "circuit budget is too small");
-        let gates = (n + 1) * if config.gate_bit_position { 8 } else { 1 };
+        let gates = (n + 1) * if config.gate_partial {
+            256
+        } else if config.gate_bit_position {
+            8
+        } else {
+            1
+        };
         let weights = vec![vec![config.initial_weight; n + 1]; gates];
         let side = config.count_limit as usize + 1;
         let calibration = if config.calibration {
@@ -259,7 +268,9 @@ impl CircuitMixingMemory {
         self.inputs[n] = 1.0;
         let mut total = 0.0;
         if self.config.arbitration {
-            self.gate = if self.config.gate_bit_position {
+            self.gate = if self.config.gate_partial {
+                present * 256 + self.partial as usize
+            } else if self.config.gate_bit_position {
                 present * 8 + bit_position(self.partial)
             } else {
                 present
@@ -381,7 +392,7 @@ impl CircuitMixingMemory {
                 if *other > halve_above {
                     *other = (*other + 1) / 2;
                 }
-                circuit.visits += 1;
+                circuit.visits = circuit.visits.saturating_add(1);
                 circuit.last_used = step;
             }
         }

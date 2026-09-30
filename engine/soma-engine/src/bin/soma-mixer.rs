@@ -63,6 +63,9 @@ fn config_from(value: &serde_json::Value) -> MixerConfig {
     if let Some(v) = value.get("growth_threshold").and_then(|v| v.as_u64()) {
         config.growth_threshold = v as u32;
     }
+    if let Some(v) = value.get("gate_partial").and_then(|v| v.as_bool()) {
+        config.gate_partial = v;
+    }
     if let Some(v) = value.get("correction_rate").and_then(|v| v.as_f64()) {
         config.correction_rate = v;
     }
