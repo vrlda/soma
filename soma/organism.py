@@ -606,19 +606,31 @@ class Organism:
         self.validate()
 
     def enable_sequence_memory(self, symbols, max_order=16, max_circuits=131072,
-                               min_support=2, prior=0.5) -> None:
+                               min_support=2, prior=0.5, kind="suffix",
+                               mixing_config=None) -> None:
         """Enable brain-owned ordered-event prediction over declared symbols.
 
         Symbols are opaque labels declared by the harness (transducer domain);
         the brain learns their sequential structure and nothing else.  Inert
-        until enabled: legacy regimes never carry sequence state.
+        until enabled: legacy regimes never carry sequence state.  ``kind``
+        "suffix" is the original SequenceCircuitMemory; "mixing" is the
+        CircuitMixingMemory language substrate (ADR 0009), binary symbols
+        only, configured by ``mixing_config``.
         """
-        from .memory.sequence import SequenceCircuitMemory
         if self.sequence_memory is not None:
             raise ValueError("sequence memory is already enabled")
-        memory = SequenceCircuitMemory(tuple(symbols), max_order=max_order,
-                                       max_circuits=max_circuits,
-                                       min_support=min_support, prior=prior)
+        if kind == "mixing":
+            from .memory.mixing import CircuitMixingMemory
+            if tuple(symbols) != (0, 1):
+                raise ValueError("circuit mixing memory predicts binary symbols (0, 1)")
+            memory = CircuitMixingMemory(**dict(mixing_config or {}))
+        elif kind == "suffix":
+            from .memory.sequence import SequenceCircuitMemory
+            memory = SequenceCircuitMemory(tuple(symbols), max_order=max_order,
+                                           max_circuits=max_circuits,
+                                           min_support=min_support, prior=prior)
+        else:
+            raise ValueError("unknown sequence memory kind: %s" % kind)
         self.sequence_memory = memory
         self.sequence_memory_symbols = tuple(symbols)
         self.validate()
@@ -6300,8 +6312,12 @@ class Organism:
             organism.sequence_memory = None
             organism.sequence_memory_symbols = None
         else:
-            from .memory.sequence import SequenceCircuitMemory
-            organism.sequence_memory = SequenceCircuitMemory.from_state_dict(sequence_payload)
+            if isinstance(sequence_payload, dict) and sequence_payload.get("kind") == "circuit-mixing":
+                from .memory.mixing import CircuitMixingMemory
+                organism.sequence_memory = CircuitMixingMemory.from_state_dict(sequence_payload)
+            else:
+                from .memory.sequence import SequenceCircuitMemory
+                organism.sequence_memory = SequenceCircuitMemory.from_state_dict(sequence_payload)
             symbols = state.get("sequence_memory_symbols")
             organism.sequence_memory_symbols = tuple(symbols) if symbols is not None else tuple(organism.sequence_memory.symbols)
             if tuple(organism.sequence_memory.symbols) != tuple(organism.sequence_memory_symbols):

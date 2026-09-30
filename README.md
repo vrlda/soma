@@ -31,8 +31,10 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
    improving every final score; [record](docs/r6-consolidation.md)). The
    circuit memory is now the organism's recorded language substrate
    ([ADR 0009](docs/adr/0009-language-substrate.md)).
-3. **Make it usable:** port forgetting, quarantine, and persistence to the
-   new memory, and serve chat from the Rust engine.
+3. **Make it usable:** ~~port quarantine, trust weighting, and
+   persistence~~ (done: R4 6/6 and R9 7/7 on the new memory; state files
+   byte-identical across Python and Rust), then serve chat from the Rust
+   engine.
 4. **Scale and ship:** E3 scaling, Micro tier on the engine, human
    preference ratings, signatures, alpha, then Text v1.
 

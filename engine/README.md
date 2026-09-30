@@ -11,7 +11,7 @@ Every ported kernel has a Python reference and a differential harness.
 | Hebbian and actor learning updates | `neuron.rs` | `differential_learn.py` | bitwise |
 | R1 evidence router functions | `evidence.rs` | `differential_evidence.py` | ~5e-14 (libm) |
 | CUSUM detector update | `detector.rs` | `differential_detector.py` | ~1e-15 |
-| Circuit-mixing language memory (`soma/memory/mixing.py`) | `mixer.rs`, `soma-mixer` | `differential_mixer.py` | bitwise |
+| Circuit-mixing language memory (`soma/memory/mixing.py`), including trust-weighted learning and `SOMAMIX1` state | `mixer.rs`, `soma-mixer` | `differential_mixer.py` | bitwise; saved state byte-identical |
 
 Not ported yet: fingerprints, probes, and organism structural growth
 (Python-side by design until the next engine milestone), serving from the

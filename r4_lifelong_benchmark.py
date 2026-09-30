@@ -15,7 +15,7 @@ from soma.evaluation.dialogue import fresh_dialogue, respond, teach_fact
 from soma.evaluation.english import (
     bit_stream, bits_per_bit, load_corpus, partition_documents, split_chapters,
 )
-from soma.memory import EpisodicBuffer, SequenceCircuitMemory
+from soma.memory import CircuitMixingMemory, EpisodicBuffer, SequenceCircuitMemory
 
 FACTS = (
     ("USER alpha means first AGENT noted ", "USER alpha means ", "first"),
@@ -58,12 +58,17 @@ def ask(background, dialogue, episodic, question):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--corpus", default="data/e0/alice.txt")
+    parser.add_argument("--memory", choices=("suffix", "mixing"), default="suffix",
+                        help="background memory; 'mixing' writes reports/r4-lifelong-mixing.json")
     args = parser.parse_args()
 
     data = load_corpus(args.corpus)
     acquisition, validation, _, manifest = partition_documents(split_chapters(data), 0)
-    background = SequenceCircuitMemory((0, 1), max_order=16, max_circuits=131072,
-                                       min_support=2, prior=0.5)
+    if args.memory == "mixing":
+        background = CircuitMixingMemory(max_circuits=1 << 20)
+    else:
+        background = SequenceCircuitMemory((0, 1), max_order=16, max_circuits=131072,
+                                           min_support=2, prior=0.5)
     bits, _ = bit_stream(acquisition)
     for symbol in bits[:-1]:
         background.observe(symbol)
@@ -96,7 +101,7 @@ def main():
         if starts_with(ask(background, dialogue, episodic, question), answer))
     final_bits = heldout_bits(background, validation)
     result = {
-        "protocol": "r4-lifelong-v1",
+        "protocol": "r4-lifelong-v1" if args.memory == "suffix" else "r4-lifelong-v1-mixing",
         "corpus": args.corpus,
         "manifest": manifest,
         "uptake": uptake,
@@ -118,7 +123,8 @@ def main():
     }
     result["all_passed"] = all(result["gates"].values())
     print(json.dumps(result, indent=2, sort_keys=True))
-    with open("reports/r4-lifelong.json", "w") as handle:
+    out = "reports/r4-lifelong.json" if args.memory == "suffix" else "reports/r4-lifelong-mixing.json"
+    with open(out, "w") as handle:
         json.dump(result, handle, indent=2, sort_keys=True)
     return 0 if result["all_passed"] else 1
 

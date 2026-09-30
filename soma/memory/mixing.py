@@ -32,8 +32,11 @@ plastic table.  ``engine/soma-engine/src/mixer.rs`` is the production port;
 ``engine/differential_mixer.py`` checks exact parity.
 """
 
+import json
 import math
+import struct
 
+MAGIC = b"SOMAMIX1"
 ORDER_SHIFT = 56
 EXACT_ORDER = 6
 MAX_ORDER = 32
@@ -82,10 +85,26 @@ def _bit_position(partial):
     return partial.bit_length() - 1
 
 
+def fnv1a64(data):
+    digest = FNV_OFFSET
+    for byte in data:
+        digest = ((digest ^ byte) * FNV_PRIME) & U64
+    return digest
+
+
+_FLOAT_FIELDS = ("learning_rate", "initial_weight", "reclaim_fraction", "correction_rate",
+                 "plasticity_tau")
+_INT_FIELDS = ("max_circuits", "count_limit", "halve_above", "calibration_limit",
+               "growth_threshold", "freeze_arbitration_after")
+_BOOL_FIELDS = ("arbitration", "calibration", "gate_bit_position", "gate_partial", "correction")
+
+
 class CircuitMixingMemory(object):
     """Online bit prediction over growing byte-context circuits."""
 
     VERSION = 1
+    symbols = (0, 1)
+    symbol_index = {0: 0, 1: 1}
 
     def __init__(self, orders=(0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12), max_circuits=1 << 22,
                  learning_rate=0.002, count_limit=1023, initial_weight=0.3,
@@ -228,11 +247,46 @@ class CircuitMixingMemory(object):
             del self.circuits[key]
         self.circuits_reclaimed += len(taken)
 
-    def observe(self, bit, learn=True):
-        """Consume one bit; learn updates circuits, growth, and plastic tables."""
+    def distribution(self):
+        """``({0: p0, 1: p1}, order)`` like ``SequenceCircuitMemory``.
+
+        ``order`` is the length in bits of the longest context with a live
+        circuit (whole bytes times 8 plus bits seen of the current byte), so
+        callers that require byte-scale evidence keep their meaning.
+        """
+        probability = self.predict()
+        visits = self._pending[1]
+        order = 0
+        for index in range(len(self.orders) - 1, -1, -1):
+            if visits[index] > 0:
+                order = self.orders[index] * 8 + _bit_position(self.partial)
+                break
+        return {0: 1.0 - probability, 1: probability}, order
+
+    def probability(self, symbol):
+        if symbol not in self.symbol_index:
+            raise ValueError("unknown sequence symbol")
+        return self.distribution()[0][symbol]
+
+    def validate(self):
+        if len(self.circuits) > self.max_circuits:
+            raise AssertionError("circuit budget exceeded")
+        if not 1 <= self.partial < 256 or len(self.history) > max(1, self.orders[-1]):
+            raise AssertionError("history state is invalid")
+        return True
+
+    def observe(self, bit, learn=True, weight=1):
+        """Consume one bit; learn updates circuits, growth, and plastic tables.
+
+        ``weight`` (a positive integer) scales only the count increment, as
+        trusted or approved sources do in ``SequenceCircuitMemory``; the
+        arbitration and calibration updates happen once.
+        """
         bit = int(bit)
         if bit not in (0, 1):
             raise ValueError("bit must be 0 or 1")
+        if isinstance(weight, bool) or not isinstance(weight, int) or weight < 1:
+            raise ValueError("weight must be a positive integer")
         if self._pending is None:
             self.predict()
         keys, visits, states, inputs, gate, mixed, correction, _ = self._pending
@@ -278,8 +332,7 @@ class CircuitMixingMemory(object):
                     self.circuits[key] = circuit
                     self.circuits_created += 1
                 other = 1 - bit
-                if circuit[bit] < self.count_limit:
-                    circuit[bit] += 1
+                circuit[bit] = min(self.count_limit, circuit[bit] + weight)
                 if circuit[other] > self.halve_above:
                     circuit[other] = (circuit[other] + 1) // 2
                 circuit[2] = min(U32_MAX, circuit[2] + 1)
@@ -314,6 +367,114 @@ class CircuitMixingMemory(object):
                 count += 1
                 self.observe(bit, learn=learn)
         return total / max(1, count)
+
+    def dumps(self):
+        """Canonical binary state (``SOMAMIX1``); byte-identical to the Rust port."""
+        header = {name: int(getattr(self, name)) for name in _INT_FIELDS}
+        header.update({name: bool(getattr(self, "use_" + name if name in ("calibration", "correction")
+                                          else name)) for name in _BOOL_FIELDS})
+        header.update({
+            "version": self.VERSION,
+            "orders": list(self.orders),
+            "events_seen": self.events_seen,
+            "circuits_created": self.circuits_created,
+            "circuits_reclaimed": self.circuits_reclaimed,
+            "partial": self.partial,
+            "history": list(self.history),
+        })
+        encoded = json.dumps(header, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        parts = [MAGIC, struct.pack("<I", len(encoded)), encoded,
+                 struct.pack("<5d", *(getattr(self, name) for name in _FLOAT_FIELDS))]
+        rows, cols = len(self.weights), len(self.weights[0])
+        parts.append(struct.pack("<II", rows, cols))
+        parts.append(struct.pack("<%dd" % (rows * cols), *(w for row in self.weights for w in row)))
+        parts.append(struct.pack("<%dQ" % rows, *self.weight_updates))
+        parts.append(struct.pack("<Q", len(self.circuits)))
+        for key in sorted(self.circuits):
+            n0, n1, visits, last_used = self.circuits[key]
+            parts.append(struct.pack("<QIIIQ", key, n0, n1, visits, last_used))
+        calibration = sorted((index, n0, n1, entry[0], entry[1])
+                             for index, table in enumerate(self.calibration)
+                             for (n0, n1), entry in table.items() if entry[1] > 0)
+        parts.append(struct.pack("<Q", len(calibration)))
+        for index, n0, n1, p, count in calibration:
+            parts.append(struct.pack("<IIIdI", index, n0, n1, p, count))
+        default_row = [squash((j - 16.0) * 0.5) for j in range(CORRECTION_BUCKETS)]
+        rows_out = sorted((slot, row) for slot, row in self.correction.items() if row != default_row)
+        parts.append(struct.pack("<Q", len(rows_out)))
+        for slot, row in rows_out:
+            parts.append(struct.pack("<I%dd" % CORRECTION_BUCKETS, slot, *row))
+        body = b"".join(parts)
+        return body + struct.pack("<Q", fnv1a64(body))
+
+    @classmethod
+    def loads(cls, data):
+        data = bytes(data)
+        if len(data) < 20 or data[:8] != MAGIC:
+            raise ValueError("not a SOMAMIX1 state")
+        body, footer = data[:-8], data[-8:]
+        if struct.unpack("<Q", footer)[0] != fnv1a64(body):
+            raise ValueError("SOMAMIX1 checksum mismatch")
+        offset = 8
+        (length,) = struct.unpack_from("<I", body, offset)
+        offset += 4
+        header = json.loads(body[offset:offset + length].decode("utf-8"))
+        offset += length
+        if header.get("version") != cls.VERSION:
+            raise ValueError("unsupported SOMAMIX1 version")
+        floats = struct.unpack_from("<5d", body, offset)
+        offset += 40
+        config = {name: header[name] for name in _INT_FIELDS + _BOOL_FIELDS}
+        config.update(dict(zip(_FLOAT_FIELDS, floats)))
+        memory = cls(orders=header["orders"], **config)
+        rows, cols = struct.unpack_from("<II", body, offset)
+        offset += 8
+        if (rows, cols) != (len(memory.weights), len(memory.weights[0])):
+            raise ValueError("SOMAMIX1 weight shape mismatch")
+        flat = struct.unpack_from("<%dd" % (rows * cols), body, offset)
+        offset += 8 * rows * cols
+        memory.weights = [list(flat[r * cols:(r + 1) * cols]) for r in range(rows)]
+        memory.weight_updates = list(struct.unpack_from("<%dQ" % rows, body, offset))
+        offset += 8 * rows
+        (count,) = struct.unpack_from("<Q", body, offset)
+        offset += 8
+        for _ in range(count):
+            key, n0, n1, visits, last_used = struct.unpack_from("<QIIIQ", body, offset)
+            offset += 28
+            memory.circuits[key] = [n0, n1, visits, last_used]
+        (count,) = struct.unpack_from("<Q", body, offset)
+        offset += 8
+        for _ in range(count):
+            index, n0, n1, p, entries = struct.unpack_from("<IIIdI", body, offset)
+            offset += 24
+            memory.calibration[index][(n0, n1)] = [p, entries]
+        (count,) = struct.unpack_from("<Q", body, offset)
+        offset += 8
+        for _ in range(count):
+            values = struct.unpack_from("<I%dd" % CORRECTION_BUCKETS, body, offset)
+            offset += 4 + 8 * CORRECTION_BUCKETS
+            memory.correction[values[0]] = list(values[1:])
+        if offset != len(body):
+            raise ValueError("SOMAMIX1 trailing bytes")
+        memory.events_seen = header["events_seen"]
+        memory.circuits_created = header["circuits_created"]
+        memory.circuits_reclaimed = header["circuits_reclaimed"]
+        memory.partial = header["partial"]
+        memory.history = bytearray(header["history"])
+        memory.validate()
+        return memory
+
+    def state_dict(self):
+        """JSON-embeddable form for organism checkpoints (binary state, base64)."""
+        import base64
+        return {"kind": "circuit-mixing", "somamix_b64": base64.b64encode(self.dumps()).decode("ascii")}
+
+    @classmethod
+    def from_state_dict(cls, payload):
+        import base64
+        if not isinstance(payload, dict) or payload.get("kind") != "circuit-mixing":
+            raise ValueError("not a circuit-mixing state")
+        return cls.loads(base64.b64decode(payload["somamix_b64"]))
 
     def summary(self):
         return {

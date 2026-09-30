@@ -2,7 +2,8 @@
 //!
 //! Job: {"config": {...MixerConfig fields...}, "train": [path, ...],
 //!       "eval": {"name": path, ...}, "eval_every_file": bool,
-//!       "trace": {"name": n}}. Each file is one document: history resets
+//!       "trace": {"name": n}, "train_weights": [w, ...],
+//!       "load_state": path, "save_state": path}. Each file is one document: history resets
 //! at its start. Evaluation is frozen (learn=false) and leaves circuits and
 //! weights untouched.
 
@@ -133,7 +134,13 @@ fn main() {
     let mut snapshots: Vec<Vec<Vec<f64>>> = Vec::new();
 
     let started = Instant::now();
-    let mut memory = CircuitMixingMemory::new(config);
+    let mut memory = match job.get("load_state").and_then(|v| v.as_str()) {
+        Some(path) => {
+            let data = std::fs::read(path).expect("load_state file");
+            CircuitMixingMemory::loads(&data).expect("valid SOMAMIX1 state")
+        }
+        None => CircuitMixingMemory::new(config),
+    };
     let mut curve = Vec::new();
     let mut cumulative: u64 = 0;
     let mut trace_out = BTreeMap::new();
@@ -141,7 +148,19 @@ fn main() {
         let data = std::fs::read(path).expect("train file");
         cumulative += data.len() as u64;
         memory.reset_history();
-        memory.observe_bytes(&data, true);
+        let weight = job
+            .get("train_weights")
+            .and_then(|v| v.as_array())
+            .and_then(|a| a.get(index))
+            .and_then(|v| v.as_u64())
+            .unwrap_or(1) as u32;
+        memory.observe_bytes_weighted(&data, true, weight);
+        // Save the post-training state before any evaluation resets history.
+        if index + 1 == train.len() {
+            if let Some(path) = job.get("save_state").and_then(|v| v.as_str()) {
+                std::fs::write(path, memory.dumps()).expect("save_state file");
+            }
+        }
         if !snapshot_evals.is_empty() {
             snapshots.push(memory.weights.clone());
         }

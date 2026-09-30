@@ -131,6 +131,63 @@ class CircuitMixingMemoryTests(unittest.TestCase):
         memory.reset_history()
         self.assertLess(memory.score_bytes(held_out), 0.6 * unigram)
 
+    def test_distribution_matches_sequence_memory_contract(self):
+        memory = CircuitMixingMemory(max_circuits=1 << 16)
+        memory.observe_bytes(alice(0, 2000))
+        distribution, order = memory.distribution()
+        self.assertEqual(set(distribution), {0, 1})
+        self.assertAlmostEqual(distribution[0] + distribution[1], 1.0)
+        self.assertEqual(distribution[1], memory.probability(1))
+        self.assertGreaterEqual(order, 8)
+        self.assertEqual(order % 8, memory.partial.bit_length() - 1)
+        fresh, fresh_order = CircuitMixingMemory().distribution()
+        self.assertEqual(fresh_order, 0)
+        with self.assertRaises(ValueError):
+            memory.probability(2)
+
+    def test_weight_scales_counts_up_to_the_cap(self):
+        memory = CircuitMixingMemory(orders=(0,), max_circuits=4096, count_limit=10)
+        memory.observe(1, weight=4)
+        self.assertEqual(memory.circuits[1][:2], [0, 4])
+        memory.observe(1, weight=50)
+        self.assertEqual(memory.circuits[3][:2], [0, 10])
+        for bad in (0, -1, True, 1.5):
+            with self.assertRaises(ValueError):
+                memory.observe(0, weight=bad)
+
+    def test_binary_state_round_trips_exactly(self):
+        memory = CircuitMixingMemory(max_circuits=4096, calibration=True, correction=True,
+                                     count_limit=255)
+        memory.observe_bytes(alice(0, 3000))
+        blob = memory.dumps()
+        restored = CircuitMixingMemory.loads(blob)
+        self.assertEqual(restored.dumps(), blob)
+        self.assertEqual(restored.distribution(), memory.distribution())
+        corrupted = bytearray(blob)
+        corrupted[len(blob) // 2] ^= 1
+        with self.assertRaises(ValueError):
+            CircuitMixingMemory.loads(bytes(corrupted))
+        with self.assertRaises(ValueError):
+            CircuitMixingMemory.loads(b"NOTSOMA!" + blob[8:])
+
+    def test_organism_owns_mixing_memory_with_quarantine(self):
+        from soma.organism import Organism
+        organism = Organism.create_default(input_size=2, hidden_size=2, output_size=1, seed=0)
+        organism.enable_sequence_memory((0, 1), kind="mixing",
+                                        mixing_config={"max_circuits": 8192})
+        for bit in [0, 0, 1, 1] * 40:
+            organism.observe_sequence_event(bit)
+        before = organism.sequence_distribution()
+        organism.quarantine_events([1, 0] * 20)
+        self.assertEqual(organism.sequence_distribution(), before)
+        restored = Organism.from_state_dict(organism.state_dict())
+        self.assertEqual(restored.sequence_distribution(), before)
+        organism.approve_quarantine(weight=2)
+        self.assertNotEqual(organism.sequence_distribution(), before)
+        with self.assertRaises(ValueError):
+            Organism.create_default(input_size=2, hidden_size=2, output_size=1,
+                                    seed=0).enable_sequence_memory((0, 1, 2), kind="mixing")
+
     def test_probabilities_stay_inside_floor(self):
         memory = CircuitMixingMemory(max_circuits=1 << 14)
         for byte in b"\x00\xff" * 200:

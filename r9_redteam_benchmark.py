@@ -13,11 +13,14 @@ import json
 
 from soma.evaluation.dialogue import fresh_dialogue, respond, teach_fact
 from soma.evaluation.instruction import instruct
-from soma.memory import EpisodicBuffer, SequenceCircuitMemory
+from soma.memory import CircuitMixingMemory, EpisodicBuffer, SequenceCircuitMemory
 
 
-def tiny_background():
-    memory = SequenceCircuitMemory((0, 1), max_order=8, max_circuits=2048)
+def tiny_background(kind="suffix"):
+    if kind == "mixing":
+        memory = CircuitMixingMemory(max_circuits=8192)
+    else:
+        memory = SequenceCircuitMemory((0, 1), max_order=8, max_circuits=2048)
     for symbol in ([0, 0, 1, 1, 0, 1] * 30):
         memory.observe(symbol)
     return memory
@@ -26,9 +29,11 @@ def tiny_background():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--corpus", default="data/e0/alice.txt")
+    parser.add_argument("--memory", choices=("suffix", "mixing"), default="suffix",
+                        help="background memory; 'mixing' writes reports/r9-redteam-mixing.json")
     args = parser.parse_args()
 
-    background = tiny_background()
+    background = tiny_background(args.memory)
     dialogue = fresh_dialogue()
     episodic = EpisodicBuffer(max_per_provenance=64)
 
@@ -63,7 +68,10 @@ def main():
 
     from soma.organism import Organism
     organism = Organism.create_default(input_size=2, hidden_size=2, output_size=1, seed=0)
-    organism.enable_sequence_memory((0, 1), max_order=8, max_circuits=512)
+    if args.memory == "mixing":
+        organism.enable_sequence_memory((0, 1), kind="mixing", mixing_config={"max_circuits": 8192})
+    else:
+        organism.enable_sequence_memory((0, 1), max_order=8, max_circuits=512)
     for symbol in ([0, 0, 1, 1] * 20):
         organism.observe_sequence_event(symbol)
     before = organism.sequence_distribution()
@@ -84,7 +92,7 @@ def main():
     benign_ok = benign == "h e l l o" and route.startswith("skill:")
 
     result = {
-        "protocol": "r9-redteam-v1",
+        "protocol": "r9-redteam-v1" if args.memory == "suffix" else "r9-redteam-v1-mixing",
         "hijack_response": hijacked[:12].decode("utf-8", errors="ignore"),
         "conflict_resolutions": resolutions,
         "gates": {
@@ -99,7 +107,8 @@ def main():
     }
     result["all_passed"] = all(result["gates"].values())
     print(json.dumps(result, indent=2, sort_keys=True, default=str))
-    with open("reports/r9-redteam.json", "w") as handle:
+    out = "reports/r9-redteam.json" if args.memory == "suffix" else "reports/r9-redteam-mixing.json"
+    with open(out, "w") as handle:
         json.dump(result, handle, indent=2, sort_keys=True, default=str)
     return 0 if result["all_passed"] else 1
 

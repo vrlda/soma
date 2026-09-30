@@ -13,6 +13,11 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- Circuit-mixing product parity (step 7): `distribution()` interface,
+  trust-weighted observation, `Organism.enable_sequence_memory(kind="mixing")`
+  with checkpoints and quarantine, and a binary `SOMAMIX1` state that Python
+  and Rust write byte-identically. R4 6/6 and R9 7/7 on the new memory via
+  `--memory mixing`; the default gate reports are unchanged.
 - ADR 0009: the circuit memory is the organism's language substrate (master
   plan step 6). Organism plasticity rejoins the language path only via a
   pre-declared experiment. Adds a domain-neutrality test on a non-text

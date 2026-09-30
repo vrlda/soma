@@ -141,6 +141,46 @@ pub fn circuit_key(order: u32, history: &[u8], partial: u32) -> u64 {
 }
 
 const CORRECTION_BUCKETS: usize = 33;
+pub const STATE_MAGIC: &[u8; 8] = b"SOMAMIX1";
+const STATE_VERSION: u64 = 1;
+
+pub fn fnv1a64(data: &[u8]) -> u64 {
+    let mut digest: u64 = 0xcbf29ce484222325;
+    for &byte in data {
+        digest ^= byte as u64;
+        digest = digest.wrapping_mul(0x100000001b3);
+    }
+    digest
+}
+
+fn default_correction_row() -> Vec<f64> {
+    (0..CORRECTION_BUCKETS).map(|j| squash((j as f64 - 16.0) * 0.5)).collect()
+}
+
+struct Reader<'a> {
+    data: &'a [u8],
+    offset: usize,
+}
+
+impl<'a> Reader<'a> {
+    fn take(&mut self, count: usize) -> Result<&'a [u8], String> {
+        if self.offset + count > self.data.len() {
+            return Err("SOMAMIX1 truncated".to_string());
+        }
+        let slice = &self.data[self.offset..self.offset + count];
+        self.offset += count;
+        Ok(slice)
+    }
+    fn u32(&mut self) -> Result<u32, String> {
+        Ok(u32::from_le_bytes(self.take(4)?.try_into().unwrap()))
+    }
+    fn u64(&mut self) -> Result<u64, String> {
+        Ok(u64::from_le_bytes(self.take(8)?.try_into().unwrap()))
+    }
+    fn f64(&mut self) -> Result<f64, String> {
+        Ok(f64::from_le_bytes(self.take(8)?.try_into().unwrap()))
+    }
+}
 
 fn bit_position(partial: u32) -> usize {
     (31 - partial.leading_zeros()) as usize
@@ -338,7 +378,14 @@ impl CircuitMixingMemory {
     }
 
     pub fn observe(&mut self, bit: u32, learn: bool) {
+        self.observe_weighted(bit, learn, 1);
+    }
+
+    /// `weight` scales only the count increment (trusted/approved sources);
+    /// arbitration and calibration update once, as in the Python reference.
+    pub fn observe_weighted(&mut self, bit: u32, learn: bool, weight: u32) {
         assert!(bit <= 1, "bit must be 0 or 1");
+        assert!(weight >= 1, "weight must be positive");
         if !self.pending {
             self.predict();
         }
@@ -405,9 +452,7 @@ impl CircuitMixingMemory {
                 } else {
                     (&mut circuit.n0, &mut circuit.n1)
                 };
-                if *own < limit {
-                    *own += 1;
-                }
+                *own = own.saturating_add(weight).min(limit);
                 if *other > halve_above {
                     *other = (*other + 1) / 2;
                 }
@@ -428,6 +473,206 @@ impl CircuitMixingMemory {
         self.events_seen += 1;
         self.pending = false;
     }
+    /// Canonical binary state, byte-identical to `CircuitMixingMemory.dumps`.
+    pub fn dumps(&self) -> Vec<u8> {
+        let c = &self.config;
+        let header = serde_json::json!({
+            "version": STATE_VERSION,
+            "orders": c.orders,
+            "max_circuits": c.max_circuits,
+            "count_limit": c.count_limit,
+            "halve_above": c.halve_above,
+            "calibration_limit": c.calibration_limit,
+            "growth_threshold": c.growth_threshold,
+            "freeze_arbitration_after": c.freeze_arbitration_after,
+            "arbitration": c.arbitration,
+            "calibration": c.calibration,
+            "gate_bit_position": c.gate_bit_position,
+            "gate_partial": c.gate_partial,
+            "correction": c.correction,
+            "events_seen": self.events_seen,
+            "circuits_created": self.circuits_created,
+            "circuits_reclaimed": self.circuits_reclaimed,
+            "partial": self.partial,
+            "history": self.history,
+        });
+        let encoded = serde_json::to_vec(&header).unwrap();
+        let mut out = Vec::new();
+        out.extend_from_slice(STATE_MAGIC);
+        out.extend_from_slice(&(encoded.len() as u32).to_le_bytes());
+        out.extend_from_slice(&encoded);
+        for value in [c.learning_rate, c.initial_weight, c.reclaim_fraction, c.correction_rate, c.plasticity_tau] {
+            out.extend_from_slice(&value.to_le_bytes());
+        }
+        let rows = self.weights.len();
+        let cols = self.weights[0].len();
+        out.extend_from_slice(&(rows as u32).to_le_bytes());
+        out.extend_from_slice(&(cols as u32).to_le_bytes());
+        for row in &self.weights {
+            for value in row {
+                out.extend_from_slice(&value.to_le_bytes());
+            }
+        }
+        for updates in &self.weight_updates {
+            out.extend_from_slice(&updates.to_le_bytes());
+        }
+        let mut keys: Vec<u64> = self.circuits.keys().copied().collect();
+        keys.sort_unstable();
+        out.extend_from_slice(&(keys.len() as u64).to_le_bytes());
+        for key in keys {
+            let circuit = &self.circuits[&key];
+            out.extend_from_slice(&key.to_le_bytes());
+            out.extend_from_slice(&circuit.n0.to_le_bytes());
+            out.extend_from_slice(&circuit.n1.to_le_bytes());
+            out.extend_from_slice(&circuit.visits.to_le_bytes());
+            out.extend_from_slice(&circuit.last_used.to_le_bytes());
+        }
+        let side = c.count_limit as usize + 1;
+        let mut calibration = Vec::new();
+        for (index, table) in self.calibration.iter().enumerate() {
+            for (state, entry) in table.iter().enumerate() {
+                if entry.1 > 0 {
+                    calibration.push((index as u32, (state / side) as u32, (state % side) as u32, entry.0, entry.1));
+                }
+            }
+        }
+        out.extend_from_slice(&(calibration.len() as u64).to_le_bytes());
+        for (index, n0, n1, p, count) in calibration {
+            out.extend_from_slice(&index.to_le_bytes());
+            out.extend_from_slice(&n0.to_le_bytes());
+            out.extend_from_slice(&n1.to_le_bytes());
+            out.extend_from_slice(&p.to_le_bytes());
+            out.extend_from_slice(&count.to_le_bytes());
+        }
+        let default_row = default_correction_row();
+        let mut rows_out = Vec::new();
+        if c.correction {
+            for slot in 0..65536usize {
+                let row = &self.correction[slot * CORRECTION_BUCKETS..(slot + 1) * CORRECTION_BUCKETS];
+                if row != default_row.as_slice() {
+                    rows_out.push((slot as u32, row));
+                }
+            }
+        }
+        out.extend_from_slice(&(rows_out.len() as u64).to_le_bytes());
+        for (slot, row) in rows_out {
+            out.extend_from_slice(&slot.to_le_bytes());
+            for value in row {
+                out.extend_from_slice(&value.to_le_bytes());
+            }
+        }
+        let checksum = fnv1a64(&out);
+        out.extend_from_slice(&checksum.to_le_bytes());
+        out
+    }
+
+    pub fn loads(data: &[u8]) -> Result<Self, String> {
+        if data.len() < 20 || &data[..8] != STATE_MAGIC {
+            return Err("not a SOMAMIX1 state".to_string());
+        }
+        let (body, footer) = data.split_at(data.len() - 8);
+        if u64::from_le_bytes(footer.try_into().unwrap()) != fnv1a64(body) {
+            return Err("SOMAMIX1 checksum mismatch".to_string());
+        }
+        let mut reader = Reader { data: body, offset: 8 };
+        let length = reader.u32()? as usize;
+        let header: serde_json::Value =
+            serde_json::from_slice(reader.take(length)?).map_err(|e| e.to_string())?;
+        let int = |name: &str| header.get(name).and_then(|v| v.as_u64()).ok_or(format!("missing {}", name));
+        let flag = |name: &str| header.get(name).and_then(|v| v.as_bool()).ok_or(format!("missing {}", name));
+        if int("version")? != STATE_VERSION {
+            return Err("unsupported SOMAMIX1 version".to_string());
+        }
+        let orders: Vec<u32> = header["orders"].as_array().ok_or("missing orders")?
+            .iter().map(|v| v.as_u64().unwrap_or(0) as u32).collect();
+        let config = MixerConfig {
+            orders,
+            max_circuits: int("max_circuits")? as usize,
+            learning_rate: reader.f64()?,
+            count_limit: int("count_limit")? as u32,
+            initial_weight: reader.f64()?,
+            reclaim_fraction: reader.f64()?,
+            arbitration: flag("arbitration")?,
+            halve_above: int("halve_above")? as u32,
+            calibration: flag("calibration")?,
+            calibration_limit: int("calibration_limit")? as u32,
+            gate_bit_position: flag("gate_bit_position")?,
+            gate_partial: flag("gate_partial")?,
+            correction: flag("correction")?,
+            correction_rate: reader.f64()?,
+            growth_threshold: int("growth_threshold")? as u32,
+            plasticity_tau: reader.f64()?,
+            freeze_arbitration_after: int("freeze_arbitration_after")?,
+        };
+        let mut memory = CircuitMixingMemory::new(config);
+        let rows = reader.u32()? as usize;
+        let cols = reader.u32()? as usize;
+        if rows != memory.weights.len() || cols != memory.weights[0].len() {
+            return Err("SOMAMIX1 weight shape mismatch".to_string());
+        }
+        for row in memory.weights.iter_mut() {
+            for value in row.iter_mut() {
+                *value = reader.f64()?;
+            }
+        }
+        for updates in memory.weight_updates.iter_mut() {
+            *updates = reader.u64()?;
+        }
+        let count = reader.u64()? as usize;
+        memory.circuits.reserve(count);
+        for _ in 0..count {
+            let key = reader.u64()?;
+            let circuit = Circuit {
+                n0: reader.u32()?,
+                n1: reader.u32()?,
+                visits: reader.u32()?,
+                last_used: reader.u64()?,
+            };
+            memory.circuits.insert(key, circuit);
+        }
+        let side = memory.config.count_limit as usize + 1;
+        let count = reader.u64()? as usize;
+        for _ in 0..count {
+            let index = reader.u32()? as usize;
+            let n0 = reader.u32()? as usize;
+            let n1 = reader.u32()? as usize;
+            let p = reader.f64()?;
+            let entries = reader.u32()?;
+            let table = memory.calibration.get_mut(index).ok_or("calibration index out of range")?;
+            let entry = table.get_mut(n0 * side + n1).ok_or("calibration state out of range")?;
+            *entry = (p, entries);
+        }
+        let count = reader.u64()? as usize;
+        for _ in 0..count {
+            let slot = reader.u32()? as usize;
+            if slot >= 65536 || memory.correction.is_empty() {
+                return Err("correction row out of range".to_string());
+            }
+            for j in 0..CORRECTION_BUCKETS {
+                memory.correction[slot * CORRECTION_BUCKETS + j] = reader.f64()?;
+            }
+        }
+        if reader.offset != body.len() {
+            return Err("SOMAMIX1 trailing bytes".to_string());
+        }
+        memory.events_seen = int("events_seen")?;
+        memory.circuits_created = int("circuits_created")?;
+        memory.circuits_reclaimed = int("circuits_reclaimed")?;
+        memory.partial = int("partial")? as u32;
+        memory.history = header["history"].as_array().ok_or("missing history")?
+            .iter().map(|v| v.as_u64().unwrap_or(0) as u8).collect();
+        Ok(memory)
+    }
+
+    pub fn observe_bytes_weighted(&mut self, data: &[u8], learn: bool, weight: u32) {
+        for &byte in data {
+            for shift in (0..8).rev() {
+                self.predict();
+                self.observe_weighted(((byte >> shift) & 1) as u32, learn, weight);
+            }
+        }
+    }
+
     pub fn observe_bytes(&mut self, data: &[u8], learn: bool) {
         for &byte in data {
             for shift in (0..8).rev() {

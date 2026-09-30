@@ -867,7 +867,7 @@ This is the single ordered work list. Update it whenever a step closes. The orig
 
 ### Phase C: make it usable
 
-7. **Feature parity for the product.** Port exact forgetting (`unobserve`), trust-weighted observation, quarantine, and persistence (binary `.soma` chunk, not JSON) to `CircuitMixingMemory` and its Rust port, with parity tests. *Done when* R4 and R9 gates pass on the new memory.
+7. ~~**Feature parity for the product.**~~ **Done 2026-09-30** ([docs/r6-product-parity.md](docs/r6-product-parity.md)). The distribution interface, trust-weighted observation, organism ownership with quarantine and checkpoints, and a binary `SOMAMIX1` state that Python and Rust write byte-identically. R4 passes 6/6 and R9 7/7 on the new memory. Exact forgetting stays at the episodic layer, the only one the product forgets at; statistical unforgetting cannot be exact with capped counts and plastic weights.
 8. **Serve from the engine.** Python cannot run a 16M-circuit memory interactively. Host `soma-mixer` in the service (library or daemon), then switch chat and generation to it behind a brain preset. *Done when* R3C generation, R3D dialogue, and R7 instruction gates re-pass on the new memory, and chat latency is published.
 
 ### Phase D: scale and ship (R5–R10)
