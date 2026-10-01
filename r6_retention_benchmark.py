@@ -36,6 +36,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from r6_circuit_mixing_benchmark import COMPACT_BUDGET, FULL_BUDGET, build_engine, run_engine
 from soma.evaluation.english import load_verified_book_corpus
+from soma.memory.mixing import LEGACY_DEFAULTS
 
 PROTOCOL = "r6-retention-v1"
 PROBE_BYTES = 32768
@@ -121,7 +122,7 @@ def main():
         overrides = json.loads(args.config)
         with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
             futures = {
-                label: pool.submit(run_engine, dict(overrides, max_circuits=budget),
+                label: pool.submit(run_engine, dict(LEGACY_DEFAULTS, max_circuits=budget, **overrides),
                                    [train_paths[name] for name in order], evals, True)
                 for label, order, budget in runs}
             raw = {label: future.result() for label, future in futures.items()}

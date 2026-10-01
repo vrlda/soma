@@ -92,6 +92,10 @@ def fnv1a64(data):
     return digest
 
 
+# Defaults before r6-retention-policy-v1 (2026-10-01, docs/r6-retention-policy.md).
+# Scripts behind reports frozen earlier merge these in so they reproduce.
+LEGACY_DEFAULTS = {"reclaim_fraction": 0.125, "growth_pressure": 0}
+
 _FLOAT_FIELDS = ("learning_rate", "initial_weight", "reclaim_fraction", "correction_rate",
                  "plasticity_tau")
 _INT_FIELDS = ("max_circuits", "count_limit", "halve_above", "calibration_limit",
@@ -108,11 +112,11 @@ class CircuitMixingMemory(object):
 
     def __init__(self, orders=(0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12), max_circuits=1 << 22,
                  learning_rate=0.002, count_limit=1023, initial_weight=0.3,
-                 reclaim_fraction=0.125, arbitration=True, halve_above=1000000,
+                 reclaim_fraction=0.03, arbitration=True, halve_above=1000000,
                  calibration=False, calibration_limit=255, gate_bit_position=False,
                  gate_partial=True, correction=False, correction_rate=0.02,
                  growth_threshold=8, plasticity_tau=100000.0, freeze_arbitration_after=0,
-                 growth_pressure=0):
+                 growth_pressure=8):
         self.orders = tuple(int(order) for order in orders)
         if not self.orders or list(self.orders) != sorted(set(self.orders)):
             raise ValueError("orders must be unique, ascending, and nonempty")

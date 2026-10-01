@@ -5,7 +5,8 @@ Trains both on the same bytes under several configurations (tight budgets
 force reclamation; hashed long orders; each mechanism toggled; the second
 document at trust weight 3), then scores held-out bytes frozen and compares
 every per-bit probability, the arbitration weights, the structural counters,
-the saved SOMAMIX1 state bytes, and Rust scoring from Python's saved state.
+the saved SOMAMIX1 state bytes, Rust scoring from Python's saved state, and
+the state after both continue learning from it.
 """
 
 import json
@@ -89,6 +90,16 @@ def run_pair(config, train, held_out, directory):
                  "trace": {"held_out": 8 * len(held_out)}}
     cross = json.loads(subprocess.run([BINARY], input=json.dumps(cross_job), check=True,
                                       capture_output=True, text=True).stdout)
+    # Continued learning after a load: both sides resume Python's saved state.
+    resumed_state = os.path.join(directory, "resumed.somamix")
+    subprocess.run([BINARY], input=json.dumps({"load_state": python_state, "train": [eval_path],
+                                               "eval": {}, "save_state": resumed_state}),
+                   check=True, capture_output=True, text=True)
+    resumed = CircuitMixingMemory.loads(state)
+    resumed.reset_history()
+    _observe_weighted(resumed, held_out, 1)
+    with open(resumed_state, "rb") as handle:
+        resume_identical = handle.read() == resumed.dumps()
     gaps = [abs(a - b) for a, b in zip(trace, rust["trace"]["held_out"])]
     cross_gaps = [abs(a - b) for a, b in zip(trace, cross["trace"]["held_out"])]
     weight_gap = max(abs(a - b) for mine, theirs in zip(memory.weights, rust["weights"])
@@ -107,6 +118,7 @@ def run_pair(config, train, held_out, directory):
         "worst_weight_gap": weight_gap,
         "state_bytes": len(state),
         "state_identical": state_identical,
+        "resume_identical": resume_identical,
         "python_reload_identical": reloaded_trace == trace,
         "circuits_reclaimed": memory.circuits_reclaimed,
         "counters_match": counters_match,
@@ -124,7 +136,8 @@ def main():
     result["all_passed"] = all(
         case["counters_match"] and case["worst_probability_gap"] <= TOLERANCE
         and case["worst_weight_gap"] <= TOLERANCE and case["worst_cross_load_gap"] <= TOLERANCE
-        and case["state_identical"] and case["python_reload_identical"] for case in cases)
+        and case["state_identical"] and case["python_reload_identical"]
+        and case["resume_identical"] for case in cases)
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result["all_passed"] else 1
 

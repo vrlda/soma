@@ -90,7 +90,7 @@ impl Default for MixerConfig {
             learning_rate: 0.002,
             count_limit: 1023,
             initial_weight: 0.3,
-            reclaim_fraction: 0.125,
+            reclaim_fraction: 0.03,
             arbitration: true,
             halve_above: 1_000_000,
             calibration: false,
@@ -102,7 +102,7 @@ impl Default for MixerConfig {
             growth_threshold: 8,
             plasticity_tau: 100_000.0,
             freeze_arbitration_after: 0,
-            growth_pressure: 0,
+            growth_pressure: 8,
         }
     }
 }
@@ -645,7 +645,7 @@ impl CircuitMixingMemory {
             growth_threshold: int("growth_threshold")? as u32,
             plasticity_tau: reader.f64()?,
             freeze_arbitration_after: int("freeze_arbitration_after")?,
-            growth_pressure: 0,
+            growth_pressure: header.get("growth_pressure").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
         };
         let mut memory = CircuitMixingMemory::new(config);
         let rows = reader.u32()? as usize;

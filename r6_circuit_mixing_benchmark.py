@@ -30,6 +30,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from soma.evaluation.english import byte_unigram_cross_bits, load_verified_book_corpus
+from soma.memory.mixing import LEGACY_DEFAULTS
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 BINARY = os.path.join(ROOT, "engine", "soma-engine", "target", "release", "soma-mixer")
@@ -103,11 +104,12 @@ def main():
                        for index, (name, data) in enumerate(acquisition)]
         eval_paths = {"validation": write("validation", validation[1]),
                       "test": write("test", test[1])}
-        runs = [("full", {"max_circuits": FULL_BUDGET}, True),
-                ("compact", {"max_circuits": COMPACT_BUDGET}, False)]
+        # Frozen reports predate the retention-policy defaults; pin the old ones.
+        runs = [("full", dict(LEGACY_DEFAULTS, max_circuits=FULL_BUDGET), True),
+                ("compact", dict(LEGACY_DEFAULTS, max_circuits=COMPACT_BUDGET), False)]
         if not args.skip_ablations:
             for name, change in ABLATIONS:
-                config = dict(change, max_circuits=COMPACT_BUDGET)
+                config = dict(LEGACY_DEFAULTS, max_circuits=COMPACT_BUDGET, **change)
                 runs.append((name, config, False))
         with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
             futures = {name: pool.submit(run_engine, config, train_paths, eval_paths, every)

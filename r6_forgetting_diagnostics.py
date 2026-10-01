@@ -27,6 +27,7 @@ from r3b_reference_baselines import WittenBellByteModel
 from r6_circuit_mixing_benchmark import COMPACT_BUDGET, FULL_BUDGET, build_engine, run_engine
 from r6_retention_benchmark import orders_for, retention_metrics, split_probes
 from soma.evaluation.english import load_verified_book_corpus
+from soma.memory.mixing import LEGACY_DEFAULTS
 
 PROTOCOL = "r6-forgetting-diagnostics-v1"
 SETTINGS = (
@@ -102,7 +103,7 @@ def main():
 
         def run(setting):
             label, budget, tau = setting
-            job_config = {"max_circuits": budget, "plasticity_tau": tau}
+            job_config = dict(LEGACY_DEFAULTS, max_circuits=budget, plasticity_tau=tau)
             return label, run_engine(job_config, train_paths, evals, True,
                                      snapshot_evals=snapshot)
 

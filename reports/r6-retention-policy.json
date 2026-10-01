@@ -1,0 +1,156 @@
+{
+  "adopt_candidate": true,
+  "candidate": {
+    "growth_pressure": 8,
+    "reclaim_fraction": 0.03
+  },
+  "hypotheses": {
+    "H1_A_e1_2_16": true,
+    "H1_B_e2_2_20": true,
+    "H1_C_e2_2_22": true,
+    "H1_E_e3full_2_24": true,
+    "H2_D_e2_2_24": true
+  },
+  "non_inferiority": 0.0005,
+  "protocol": "r6-retention-policy-v1",
+  "results": {
+    "A_e1_2_16": {
+      "baseline": {
+        "circuits": 59210,
+        "circuits_reclaimed": 27639808,
+        "config": {
+          "max_circuits": 65536
+        },
+        "peak_rss_mb": 57.73828125,
+        "sealed": 0.35050310299446724,
+        "seconds": 22.948415279388428,
+        "validation_dev": 0.3294276642308086
+      },
+      "candidate": {
+        "circuits": 64001,
+        "circuits_reclaimed": 28406734,
+        "config": {
+          "growth_pressure": 8,
+          "max_circuits": 65536,
+          "reclaim_fraction": 0.03
+        },
+        "peak_rss_mb": 57.67578125,
+        "sealed": 0.3436503239887041,
+        "seconds": 31.132890462875366,
+        "validation_dev": 0.3223013207908083
+      },
+      "difference": -0.006852779005763143
+    },
+    "B_e2_2_20": {
+      "baseline": {
+        "circuits": 1042660,
+        "circuits_reclaimed": 71958528,
+        "config": {
+          "max_circuits": 1048576
+        },
+        "peak_rss_mb": 131.265625,
+        "sealed": 0.28515304643502837,
+        "seconds": 154.83794689178467,
+        "validation_dev": 0.2607067960901926
+      },
+      "candidate": {
+        "circuits": 1018258,
+        "circuits_reclaimed": 53885841,
+        "config": {
+          "growth_pressure": 8,
+          "max_circuits": 1048576,
+          "reclaim_fraction": 0.03
+        },
+        "peak_rss_mb": 131.42578125,
+        "sealed": 0.2808532543548781,
+        "seconds": 170.06698274612427,
+        "validation_dev": 0.2561882166201752
+      },
+      "difference": -0.004299792080150244
+    },
+    "C_e2_2_22": {
+      "baseline": {
+        "circuits": 3828442,
+        "circuits_reclaimed": 52953088,
+        "config": {
+          "max_circuits": 4194304
+        },
+        "peak_rss_mb": 400.48046875,
+        "sealed": 0.2705372265419093,
+        "seconds": 214.66134905815125,
+        "validation_dev": 0.24576005790526723
+      },
+      "candidate": {
+        "circuits": 4156350,
+        "circuits_reclaimed": 25669116,
+        "config": {
+          "growth_pressure": 8,
+          "max_circuits": 4194304,
+          "reclaim_fraction": 0.03
+        },
+        "peak_rss_mb": 400.390625,
+        "sealed": 0.2692583972112575,
+        "seconds": 219.83028173446655,
+        "validation_dev": 0.24449864740903415
+      },
+      "difference": -0.0012788293306518206
+    },
+    "D_e2_2_24": {
+      "baseline": {
+        "circuits": 15882794,
+        "circuits_reclaimed": 12582912,
+        "config": {
+          "max_circuits": 16777216
+        },
+        "peak_rss_mb": 1590.625,
+        "sealed": 0.2658045602080645,
+        "seconds": 273.2611849308014,
+        "validation_dev": 0.2398502739503863
+      },
+      "candidate": {
+        "circuits": 16480282,
+        "circuits_reclaimed": 6543108,
+        "config": {
+          "growth_pressure": 8,
+          "max_circuits": 16777216,
+          "reclaim_fraction": 0.03
+        },
+        "peak_rss_mb": 1590.66796875,
+        "sealed": 0.26557134311526837,
+        "seconds": 276.99139523506165,
+        "validation_dev": 0.23945873980533786
+      },
+      "difference": -0.0002332170927961119
+    },
+    "E_e3full_2_24": {
+      "baseline": {
+        "circuits": 15658250,
+        "circuits_reclaimed": 595591168,
+        "config": {
+          "max_circuits": 16777216
+        },
+        "peak_rss_mb": 1591.03515625,
+        "sealed": 0.23497264188839806,
+        "seconds": 2611.688857793808,
+        "validation_dev": 0.22555945274253225
+      },
+      "candidate": {
+        "circuits": 16645538,
+        "circuits_reclaimed": 386043372,
+        "config": {
+          "growth_pressure": 8,
+          "max_circuits": 16777216,
+          "reclaim_fraction": 0.03
+        },
+        "peak_rss_mb": 1590.48828125,
+        "sealed": 0.23287892962363435,
+        "seconds": 2799.1272118091583,
+        "validation_dev": 0.22399656236966933
+      },
+      "difference": -0.0020937122647637085
+    }
+  },
+  "sealed_book": "pg76222",
+  "sealed_manifest": "reports/e3u-manifest.json",
+  "total_seconds": 2807.6473050117493
+}

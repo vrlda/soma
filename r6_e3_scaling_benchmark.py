@@ -24,6 +24,7 @@ import time
 
 from r6_circuit_mixing_benchmark import build_engine, run_engine
 from soma.evaluation.english import load_verified_book_corpus
+from soma.memory.mixing import LEGACY_DEFAULTS
 
 PROTOCOL = "r6-e3-scaling-v1"
 MANIFEST = "reports/e3-full-manifest.json"
@@ -63,7 +64,7 @@ def main():
         for label, budget in BUDGETS:
             state = os.path.join(directory, label + ".somamix")
             began = time.time()
-            report = run_engine({"max_circuits": budget}, train_paths, evals,
+            report = run_engine(dict(LEGACY_DEFAULTS, max_circuits=budget), train_paths, evals,
                                 every_file=False, extra={"eval_interval": EVAL_INTERVAL,
                                                          "save_state": state})
             results[label] = {

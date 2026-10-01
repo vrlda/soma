@@ -17,6 +17,7 @@ import tempfile
 import time
 
 from r6_circuit_mixing_benchmark import build_engine, run_engine
+from soma.memory.mixing import LEGACY_DEFAULTS
 from r6_tier_benchmark import (CANONICAL_MANIFEST_SHA256, CANONICAL_MANIFEST_TOTALS,
                                _canonical_manifest_match, _slope, load_verified_manifest)
 
@@ -47,7 +48,7 @@ def main():
         build_engine()
     manifest, parts = load_verified_manifest(args.manifest)
     canonical = _canonical_manifest_match(manifest)
-    config = {"max_circuits": BUDGET}
+    config = dict(LEGACY_DEFAULTS, max_circuits=BUDGET)  # v1 ran before the policy change
     with tempfile.TemporaryDirectory() as directory:
         def write(name, data):
             path = os.path.join(directory, name + ".bin")

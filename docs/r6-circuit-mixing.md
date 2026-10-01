@@ -22,7 +22,8 @@ are reclaimed, but nothing learns *which* circuits to trust.
 |---|---|
 | Byte-aligned circuits | context = 0..12 preceding whole bytes + bits seen of the current byte (orders 0–8, 10, 12; ≤6 bytes exact, longer hashed to 48 bits) |
 | Evidence-gated growth | a longer-context circuit is created only after its parent context has 8 visits |
-| Hard budget + reclamation | fewest-visits-then-oldest circuits are removed in 12.5% batches |
+| Hard budget + reclamation | fewest-visits-then-oldest circuits are removed in 3% batches (12.5% before [r6-retention-policy](r6-retention-policy.md); the results below use 12.5%) |
+| Pressure-adaptive growth | once reclamation runs, a new circuit's parent needs 8 × (frontier + 1) visits, where frontier is the most visits in the last reclaimed batch (default since r6-retention-policy; off in the results below) |
 | Plastic arbitration | every active circuit contributes log-odds evidence; delta-rule weights, one set per (circuits present × partial byte) |
 | Metaplasticity | each weight set's rate falls with its own experience: lr × τ/(τ + updates), τ = 1e5 ([ADR 0008](adr/0008-metaplasticity-consolidation.md)) |
 | Count-state calibration | available, **off by default** (hurts: +0.0033) |

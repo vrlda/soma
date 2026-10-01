@@ -16,6 +16,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from r6_circuit_mixing_benchmark import build_engine, run_engine
 from soma.evaluation.english import load_verified_book_corpus
+from soma.memory.mixing import LEGACY_DEFAULTS
 
 PROTOCOL = "r6-retention-policy-v1"
 CANDIDATE = {"reclaim_fraction": 0.03, "growth_pressure": 8}
@@ -69,7 +70,7 @@ def main():
 
         def job(spec):
             name, manifest, budget, arm = spec
-            config = {"max_circuits": budget}
+            config = dict(LEGACY_DEFAULTS, max_circuits=budget)  # baseline = pre-v1 defaults
             if arm == "candidate":
                 config.update(CANDIDATE)
             began = time.time()

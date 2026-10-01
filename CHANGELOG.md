@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Retention under budget pressure (`r6-retention-policy-v1`, pre-registered,
+  sealed untouched book pg76222): new defaults `reclaim_fraction` 0.03 and
+  `growth_pressure` 8 (pressure-adaptive growth), in Python and Rust.
+  Sealed-book gains are −0.0069 at 2^16, −0.0043 at 2^20, −0.0013 at 2^22,
+  and −0.0021 for E3-full at 2^24; neutral at E2 2^24. Old states load
+  unchanged. `LEGACY_DEFAULTS` pins earlier frozen reports. Fixed: Rust
+  `loads` dropped a saved `growth_pressure`. Parity now covers continued
+  learning after a load.
 - E3-full scaling (step 9, pre-registered): on 108 MB, Jekyll validation
   is 0.2256 at 2^24 circuits (E3-lite 0.2350) and 0.2189 at 2^26 (6.5 GB
   RAM). More data and more capacity both help.

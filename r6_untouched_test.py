@@ -77,6 +77,8 @@ FROZEN_CONFIG = {
     "correction": True,
     "correction_rate": 0.02,
     "growth_threshold": 8,
+    # Did not exist when this test was scored (r6-retention-policy-v1 later).
+    "growth_pressure": 0,
     # Metaplasticity did not exist when this test was scored; 0 is the
     # constant-rate behavior that was actually evaluated.
     "plasticity_tau": 0.0,

@@ -1,8 +1,9 @@
 # R6 retention under budget pressure: pre-registration
 
 Protocol `r6-retention-policy-v1` (`r6_retention_policy_benchmark.py`).
-**Status: pre-registered; not yet run.** The git history timestamps this
-file, the harness, and the sealed book before the run.
+**Status: run 2026-10-01; all hypotheses hold; adopted as the default.**
+The git history timestamps this file, the harness, and the sealed book
+before the run.
 
 ## Question
 
@@ -47,3 +48,38 @@ The scripts behind frozen reports then pin the old values, so those
 reports still reproduce. If any part fails, defaults stay and the
 result is recorded either way. The run takes about 45 minutes on four
 cores.
+
+## Result (`reports/r6-retention-policy.json`)
+
+Sealed book pg76222, bits/bit, each scored once:
+
+| Setting | Baseline | Candidate | Difference | Jekyll (dev) baseline → candidate |
+|---|---|---|---|---|
+| A E1, 2^16 | 0.3505 | 0.3437 | **−0.0069** | 0.3294 → 0.3223 |
+| B E2, 2^20 | 0.2852 | 0.2809 | **−0.0043** | 0.2607 → 0.2562 |
+| C E2, 2^22 | 0.2705 | 0.2693 | **−0.0013** | 0.2458 → 0.2445 |
+| D E2, 2^24 | 0.2658 | 0.2656 | −0.0002 (≤ +0.0005 required) | 0.2399 → 0.2395 |
+| E E3-full, 2^24 | 0.2350 | 0.2329 | **−0.0021** | 0.2256 → 0.2240 |
+
+H1 holds in A, B, C, and E. H2 holds in D. The gains on the sealed book
+match the dev sweeps closely, which suggests the Jekyll tuning did not
+overfit this mechanism. The cost is up to 11% more training time under
+heavy pressure (A: 22 → 31 s; E: 2611 → 2799 s). Peak RSS is unchanged.
+The baseline's Jekyll numbers equal the earlier frozen reports (0.2399,
+0.2458, 0.2256), which serves as a reproduction check.
+
+**Second finding: data scaling generalizes.** At the same 2^24 budget,
+training on E3-full instead of E2 improves the sealed book by 0.031
+(0.2658 → 0.2350 baseline). That is the clean, never-seen-book version of
+the E3 result in [r6-e3-scaling.md](r6-e3-scaling.md).
+
+**Adoption.** The defaults are now `reclaim_fraction` 0.03 and
+`growth_pressure` 8 in both `soma/memory/mixing.py` and the Rust port.
+`LEGACY_DEFAULTS` holds the old values, and the scripts behind earlier
+frozen reports merge it in. States saved before the change have no
+`growth_pressure` field and load with it off, so existing brains behave
+as before. Parity: `engine/differential_mixer.py` now also checks that
+continued learning after a load is byte-identical in both languages. That
+check found and fixed a Rust bug in which `loads` dropped a saved
+`growth_pressure`. No result was affected, because no run had loaded such
+a state.
