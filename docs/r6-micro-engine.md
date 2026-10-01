@@ -110,3 +110,22 @@ stands. The reason given for choosing 2^16 was wrong, though: 2^17 records
 take 3.67 MB, and that budget would also have fit under 4 MiB. Any later
 Micro protocol should take the largest power of two whose bound fits,
 computed with 28 bytes. That is 2^17.
+
+## v2 pre-registration (`r6_micro_engine_v2_benchmark.py`)
+
+These changes from v1 were fixed before any v2 run:
+
+- **Budget 2^17.** This is the largest power of two whose state bound fits
+  4 MiB with the correct 28-byte record (erratum above).
+- **Current defaults.** This includes the retention policy adopted from
+  [r6-retention-policy.md](r6-retention-policy.md).
+- **Like-with-like resume.** The timed run and both resume halves train
+  without interleaved evaluation. The checkpoint curve comes from a
+  separate run that evaluates after every book. The timed run scores
+  validation and test once at the end.
+- **Same gates and thresholds as v1.** The peak-state bound is the final
+  state plus 28 bytes for every circuit slot still free.
+
+The decision rule is unchanged. If every gate passes, ADR 0006 item 3
+closes. If the effect gates fail again, Micro stays a diagnostic tier and
+the failure is recorded.
