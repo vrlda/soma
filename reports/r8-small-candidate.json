@@ -1,0 +1,82 @@
+{
+  "all_passed": true,
+  "artifact": {
+    "bytes": 466466017,
+    "path": "soma-small-candidate.soma",
+    "sha256": "2db80d835f5f1816c51603b5f733e3aa3a7ec803f2cb6b70ed71f9f05b35a7fd"
+  },
+  "ceilings": {
+    "cold_turn_seconds": 60.0,
+    "engine_rss_mb": 8192,
+    "warm_turn_median_seconds": 2.0
+  },
+  "gates": {
+    "H1_beats_e2_trained_same_config": true,
+    "H2_beats_order5_ngram_by_margin": true,
+    "P1_engine_rss": true,
+    "P2_cold_turn": true,
+    "P3_warm_turn_median": true,
+    "P4_resume_identical": true,
+    "P5_signed_round_trip": true,
+    "P6_replies_nonempty": true
+  },
+  "lineage": {
+    "blank_memory_sha256": "0b48a1062ad95d2de6bfdfb895c056c74aba61c8c39f8b1f7af26b5ca64c353a",
+    "books": 233,
+    "bytes": 108359679,
+    "corpus_manifest": "reports/e3-full-manifest.json",
+    "corpus_manifest_sha256": "331c7dc65c790b39273bb7099d4cbdd4c2937f0d75c1ee78c547fd55de5e338c",
+    "engine_config": {
+      "defaults": "retention-policy-v1",
+      "max_circuits": 16777216
+    },
+    "memory_sha256": "c402091901f647782ec6ff0ed1d029ed11b8376b662cc2909490f3d98f31336e",
+    "runs": [
+      {
+        "circuits": 16645538,
+        "circuits_created": 402688910,
+        "circuits_reclaimed": 386043372,
+        "events_seen": 866877432,
+        "peak_rss_mb": 1646.79296875,
+        "total_seconds": 2734.190008145
+      }
+    ],
+    "seconds": 2736.403071641922,
+    "split_after_book": null
+  },
+  "ngram_margin": 0.02,
+  "product": {
+    "cold_turn_seconds": 7.0352866649627686,
+    "engine_rss_mb": 1503.5859375,
+    "replies": [
+      "and there are no command",
+      "I am not afraid of him, ",
+      "before he could get out ",
+      "I have done me a little ",
+      "of a good many things th",
+      "I am not afraid of him, "
+    ],
+    "warm_turn_median_seconds": 0.49118494987487793,
+    "warm_turn_seconds": [
+      0.44589996337890625,
+      0.49118494987487793,
+      0.6695828437805176,
+      0.40937352180480957,
+      0.6267750263214111
+    ]
+  },
+  "protocol": "r8-small-candidate-v1",
+  "scores": {
+    "byte_unigram_e3full": 0.5680826824781785,
+    "candidate": 0.21614331721573946,
+    "control_e2_same_config": 0.2343418438603384,
+    "ngram_order5_e2": 0.2574457687891387
+  },
+  "sealed_book": "pg78576",
+  "sealed_bytes": 206961,
+  "signed_round_trip": {
+    "memory_identical": true,
+    "signature": "verified"
+  },
+  "split_lineage_memory_sha256": "c402091901f647782ec6ff0ed1d029ed11b8376b662cc2909490f3d98f31336e"
+}

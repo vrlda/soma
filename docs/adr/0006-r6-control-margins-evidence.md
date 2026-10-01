@@ -32,6 +32,8 @@
   1. Full 100MB E3 scaling run (spend justified only after mechanism work; static-gain
      expectations must be set from R6b, not from beating an identical table).
   2. Signed `.soma` Small candidate (blocked on R8 signatures/downloader).
+     (2026-10-01: signatures and downloader exist; the candidate is built and passes 8/8
+     pre-registered gates on sealed book pg78576 (docs/r8-small-candidate.md). It is unsigned until the owner's release key signs it.)
   3. Micro-tier qualification on the production (Rust) engine under frozen ceilings.
      (2026-10-01, docs/r6-micro-engine.md: resource ceilings now pass on the engine,
      35 MB / 19.5 s / 1.98 MB; pre-registered v1 still fails on effect, since the budget saturates on book 1.)

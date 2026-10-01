@@ -52,7 +52,7 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
 | R3 systematicity | ✅ | novel combos recombine, precision held |
 | R4 continual | ✅ | lifelong 4/4 uptake, conflicts, quarantine |
 | R5 engine | partial | `.soma` v1, journal, profiler, 2M soak; Rust parity for graph, forward, learning, evidence, detector, circuit mixing; serves chat. Open: growth on engine, GPU, 72 h soak |
-| R6 useful scale | partial | circuit mixing 0.2406 bits/bit, 7/7 gates, metaplastic consolidation, untouched book 0.2381 (beats order-5 n-gram); E3-full 108 MB: 0.2189 validation at 2^26 circuits; Micro fits on the engine (35 MB, 19.5 s); Small floor, factual 8/8, reclamation 4/4. Open: retention under budget pressure, signed candidate |
+| R6 useful scale | partial | circuit mixing 0.2406 bits/bit, 7/7 gates, metaplastic consolidation, untouched book 0.2381 (beats order-5 n-gram); E3-full 108 MB: 0.2189 validation at 2^26 circuits; Micro fits on the engine (35 MB, 19.5 s); Small candidate 0.2161 on a sealed book, 8/8 gates; Small floor, factual 8/8, reclamation 4/4. Open: owner-signed release of the candidate, human ratings |
 | R7 instruction | partial | skills, uncertainty, refusal, tools. Open: human preference floors |
 | R8 service | partial | CLI, chat, HTTP API, doctor, installer, backup/restore; engine-served circuit-mixing brains. Open: signatures, downloader, recorded clean-machine run |
 | R9 red-team | partial | 7/7 attack gates, telemetry, runbooks. Open: closed alpha |

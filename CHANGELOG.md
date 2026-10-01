@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Small candidate brain (`r8-small-candidate-v1`, pre-registered, sealed
+  book pg78576): 0.2161 bits/bit (1.73 bits/byte) against 0.2343 for the
+  same config on E2 and 0.2574 for an order-5 n-gram. All 8 gates pass,
+  including 0.49 s chat at 1.5 GB RSS and byte-identical resume.
+  `scripts/build_small_candidate.py` rebuilds it.
+- Chat on large engine brains: a turn takes 0.38–0.5 s, down from 4–5 s.
+  The running engine is reused and an unchanged memory is hard-linked,
+  not rewritten.
 - Signed distribution (`docs/r8-signing.md`): standard-library Ed25519
   (RFC 8032 vectors; byte-identical to OpenSSL), `key-generate`,
   `key-trust`, `sign`, `verify`, `brain-download` (verified before
