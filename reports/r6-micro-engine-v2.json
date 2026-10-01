@@ -1,0 +1,60 @@
+{
+  "all_passed": false,
+  "budget": 131072,
+  "ceilings": {
+    "rss_mb": 512,
+    "seconds": 180,
+    "state_bytes": 4194304
+  },
+  "control_no_arbitration": {
+    "margin": -0.00026363429902254154,
+    "test": 0.303162485578106,
+    "validation": 0.3006868472872369
+  },
+  "gates": {
+    "at_least_three_checkpoints": true,
+    "canonical_manifest": true,
+    "control_margin": false,
+    "endpoint_gain": true,
+    "resume_exact": true,
+    "rss_within_ceiling": true,
+    "slope": true,
+    "state_within_ceiling": true,
+    "time_within_ceiling": true
+  },
+  "harness_peak_rss_mb": 39.81640625,
+  "manifest": "reports/e1-manifest.json",
+  "model": {
+    "circuits": 130322,
+    "circuits_reclaimed": 26336536,
+    "curve_validation": [
+      0.30473003205115484,
+      0.3020850510275311,
+      0.3055631735695784,
+      0.29718542950203447,
+      0.3009504815862594
+    ],
+    "endpoint_gain": 0.0037795504648954203,
+    "peak_rss_mb": 28.55078125,
+    "peak_state_bound_bytes": 3990068,
+    "slope": -0.0012458722455287452,
+    "state_bytes": 3969068,
+    "test": 0.3028838716347746,
+    "validation": 0.3009504815862594,
+    "wall_seconds": 29.809377431869507
+  },
+  "protocol": "r6-micro-engine-v2",
+  "reference": {
+    "byte_unigram_test": 0.5620325638503956,
+    "small_tier_test": 0.3976182720750115
+  },
+  "resume": {
+    "split_after_book": 2,
+    "state_identical": true
+  },
+  "thresholds": {
+    "control_margin": 0.001,
+    "endpoint_gain": 0.002,
+    "slope": -0.0001
+  }
+}

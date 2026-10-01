@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Micro v2 (`r6_micro_engine_v2_benchmark.py`, pre-registered): 8/9. Resume
+  and effect pass; arbitration ties its no-arbitration control at this
+  scale (−0.0003) once evidence-gated growth is on. Micro stays diagnostic.
 - Retention under budget pressure (`r6-retention-policy-v1`, pre-registered,
   sealed untouched book pg76222): new defaults `reclaim_fraction` 0.03 and
   `growth_pressure` 8 (pressure-adaptive growth), in Python and Rust.

@@ -1,7 +1,7 @@
 # R6 Micro tier on the engine: pre-registration
 
 Master plan §22 step 10, [ADR 0006](adr/0006-r6-control-margins-evidence.md)
-remaining item 3. **Status: run 2026-10-01; v1 fails (6/9 gates).** Resources pass by a wide
+remaining item 3. **Status: v1 fails (6/9); v2 fails (8/9, control margin).** Resources pass by a wide
 margin. The memory saturates its budget on the first book, so it stops
 improving with data. The git history timestamps the protocol before the run.
 
@@ -129,3 +129,44 @@ These changes from v1 were fixed before any v2 run:
 The decision rule is unchanged. If every gate passes, ADR 0006 item 3
 closes. If the effect gates fail again, Micro stays a diagnostic tier and
 the failure is recorded.
+
+## v2 result (`reports/r6-micro-engine-v2.json`)
+
+| Gate | Result | Value |
+|---|---|---|
+| canonical manifest | pass | |
+| state ≤ 4 MiB | pass | 3.97 MB final, 3.99 MB peak bound (ceiling 4.19 MB) |
+| RSS ≤ 512 MiB | pass | 29 MB |
+| time ≤ 180 s | pass | 29.8 s |
+| resume byte-identical | **pass** | like with like |
+| ≥ 3 checkpoints | pass | 5 |
+| endpoint gain ≥ 0.002 | **pass** | 0.0038 |
+| slope ≤ −0.0001 | **pass** | −0.0012 |
+| control margin ≥ 0.001 | **fail** | −0.0003 (control 0.3007, model 0.3010) |
+
+Validation by book: 0.3047, 0.3021, 0.3056, 0.2972, 0.3010. Test is 0.3029
+(v1: 0.3297; locked Small tier: 0.3976).
+
+**Why the control caught up** (development runs after the result,
+Jekyll validation, arbitration / no-arbitration control):
+
+| Setting | Old defaults | New defaults |
+|---|---|---|
+| E1, 2^16 | 0.3294 / 0.3343 | 0.3223 / 0.3227 |
+| E1, 2^17 | 0.3070 / 0.3121 | 0.3010 / 0.3007 |
+| E2, 2^20 | 0.2607 / 0.2806 | 0.2562 / 0.2614 |
+
+The pressure-adaptive growth gate keeps only well-evidenced long contexts,
+so longest-match backoff becomes reliable. At Micro scale, that was most
+of what plastic arbitration contributed. The control gains 0.0114 from
+the policy and arbitration gains 0.006. With more data and budget,
+arbitration still matters (0.0052 at E2 2^20). The "control" is no longer
+a conventional predictor either, because it shares the evidence-gated
+growth and the new reclamation. The gate is scored as written anyway.
+
+**Decision.** v2 fails, and Micro stays a diagnostic tier. The resource
+ceilings, the resume, and the effect gates all pass on the engine. What
+fails is that, at 4 MiB on 3.9 MB of text, plastic arbitration adds
+nothing measurable over evidence-gated structure. That is a finding about
+the mechanism, not a defect to tune away: no v3 will be cut to pass this
+gate.
