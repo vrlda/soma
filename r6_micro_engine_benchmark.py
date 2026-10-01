@@ -27,6 +27,8 @@ CEILINGS = {"state_bytes": 4 * 1024 * 1024, "rss_mb": 512, "seconds": 180}
 THRESHOLDS = {"endpoint_gain": 0.002, "slope": -0.0001, "control_margin": 0.001}
 REFERENCE = {"small_tier_test": 0.3976182720750115, "byte_unigram_test": 0.5620325638503956}
 DIAGNOSTIC_BUDGET = 512
+ORDERS = 11  # default orders 0-8, 10, 12
+MIN_BUDGET = 256 * ORDERS  # the memory refuses smaller budgets
 
 
 def _timed(config, train, evals, extra=None):
@@ -72,7 +74,19 @@ def main():
             resume_exact = handle.read() == full_bytes
 
         control, _ = _timed(dict(config, arbitration=False), train, evals)
-        diagnostic, diagnostic_seconds = _timed({"max_circuits": DIAGNOSTIC_BUDGET}, train, evals)
+        if DIAGNOSTIC_BUDGET >= MIN_BUDGET:
+            diagnostic, diagnostic_seconds = _timed({"max_circuits": DIAGNOSTIC_BUDGET},
+                                                    train, evals)
+            diagnostic_report = {
+                "validation": diagnostic["bits_per_bit"]["validation"],
+                "test": diagnostic["bits_per_bit"]["test"],
+                "peak_rss_mb": diagnostic["peak_rss_mb"],
+                "wall_seconds": diagnostic_seconds,
+            }
+        else:
+            diagnostic_report = {"infeasible": "budget %d is below the memory's minimum of "
+                                               "256 x %d orders = %d" % (
+                                                   DIAGNOSTIC_BUDGET, ORDERS, MIN_BUDGET)}
 
     curve = [point["bits_per_bit"]["validation"] for point in model["curve"]]
     state_bytes = len(full_bytes)
@@ -119,12 +133,7 @@ def main():
             "test": control["bits_per_bit"]["test"],
             "margin": control_validation - validation,
         },
-        "diagnostic_512_circuits": {
-            "validation": diagnostic["bits_per_bit"]["validation"],
-            "test": diagnostic["bits_per_bit"]["test"],
-            "peak_rss_mb": diagnostic["peak_rss_mb"],
-            "wall_seconds": diagnostic_seconds,
-        },
+        "diagnostic_512_circuits": diagnostic_report,
         "resume": {"split_after_book": split, "state_identical": resume_exact},
         "harness_peak_rss_mb": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0,
         "gates": gates,

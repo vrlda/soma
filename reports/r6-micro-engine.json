@@ -1,0 +1,70 @@
+{
+  "all_passed": false,
+  "budget": 65536,
+  "ceilings": {
+    "rss_mb": 512,
+    "seconds": 180,
+    "state_bytes": 4194304
+  },
+  "control_no_arbitration": {
+    "margin": 0.004849279843785914,
+    "test": 0.3338101059023855,
+    "validation": 0.3342769440745945
+  },
+  "diagnostic_512_circuits": {
+    "infeasible": "budget 512 is below the memory's minimum of 256 x 11 orders = 2816"
+  },
+  "gates": {
+    "at_least_three_checkpoints": true,
+    "canonical_manifest": true,
+    "control_margin": true,
+    "endpoint_gain": false,
+    "resume_exact": false,
+    "rss_within_ceiling": true,
+    "slope": false,
+    "state_within_ceiling": true,
+    "time_within_ceiling": true
+  },
+  "harness_peak_rss_mb": 32.51171875,
+  "manifest": "reports/e1-manifest.json",
+  "manifest_canonical_sha256": "bb3eec0d2e42e762967169153bb0f007c47e102770a0c97150502df307a04d5b",
+  "manifest_totals": {
+    "acquisition_bytes": 3852331,
+    "test_bytes": 181481,
+    "validation_bytes": 141077
+  },
+  "model": {
+    "circuits": 59210,
+    "circuits_reclaimed": 27639808,
+    "curve_validation": [
+      0.3279217912877416,
+      0.3266262092924712,
+      0.3310614760492969,
+      0.3254969091723657,
+      0.3294276642308086
+    ],
+    "endpoint_gain": -0.001505872943066977,
+    "engine_seconds": 19.488994307,
+    "peak_rss_mb": 35.23828125,
+    "peak_state_bound_bytes": 2180322,
+    "slope": 0.00018824457660284176,
+    "state_bytes": 1977890,
+    "test": 0.3296955664460032,
+    "validation": 0.3294276642308086,
+    "wall_seconds": 19.50357484817505
+  },
+  "protocol": "r6-micro-engine-v1",
+  "reference": {
+    "byte_unigram_test": 0.5620325638503956,
+    "small_tier_test": 0.3976182720750115
+  },
+  "resume": {
+    "split_after_book": 2,
+    "state_identical": false
+  },
+  "thresholds": {
+    "control_margin": 0.001,
+    "endpoint_gain": 0.002,
+    "slope": -0.0001
+  }
+}

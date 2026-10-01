@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Micro tier on the engine (`r6_micro_engine_benchmark.py`, pre-registered):
+  35 MB RSS, 19.5 s, 1.98 MB state, all within the frozen ceilings the
+  Python reference failed. v1 still fails 6/9: a 2^16 budget saturates on
+  the first book, so it does not improve with more data, and the resume
+  comparison mixed evaluation into one side. Recorded as failed.
+- E3-full corpus (`scripts/build_e3_full_corpus.py`): 206 new public-domain
+  books chosen by a fixed seeded rule, 108.4 MB acquisition, hash manifest.
 - Stop tracking build output: `engine/soma-engine/target/` (3,518 files of
   macOS binaries that could not run on Linux), `__pycache__`, `*.pyc`,
   `.DS_Store`.

@@ -1,8 +1,9 @@
 # R6 Micro tier on the engine: pre-registration
 
 Master plan §22 step 10, [ADR 0006](adr/0006-r6-control-margins-evidence.md)
-remaining item 3. **Status: pre-registered; not yet run.** The git history
-timestamps this file before the run.
+remaining item 3. **Status: run 2026-10-01; v1 fails (6/9 gates).** Resources pass by a wide
+margin. The memory saturates its budget on the first book, so it stops
+improving with data. The git history timestamps the protocol before the run.
 
 ## Why
 
@@ -49,3 +50,55 @@ memory fits the smallest tier.
 Reported, not gated: test bits/bit next to the locked Small result
 (0.3976) and the byte unigram (0.5620); harness Python RSS; the 512-circuit
 diagnostic.
+
+**Amendment (2026-10-01, before any gated number was read):** the
+512-circuit diagnostic cannot run. The memory refuses budgets below
+256 × orders (2,816 for the 11 default orders), and the first attempt
+stopped there. The report records the diagnostic as infeasible. No
+replacement budget was chosen, and the gates are unchanged.
+
+## Result (`reports/r6-micro-engine.json`)
+
+| Gate | Result | Value |
+|---|---|---|
+| canonical manifest | pass | |
+| state ≤ 4 MiB | pass | 1.98 MB final, 2.10 MB peak bound |
+| RSS ≤ 512 MiB | pass | 35 MB (the Python reference used 966 MB) |
+| time ≤ 180 s | pass | 19.5 s (the Python reference took 278 s) |
+| resume byte-identical | **fail** | see below |
+| ≥ 3 checkpoints | pass | 5 |
+| endpoint gain ≥ 0.002 | **fail** | −0.0015 |
+| slope ≤ −0.0001 | **fail** | +0.00019 |
+| control margin ≥ 0.001 | pass | 0.0048 (control 0.3343) |
+
+Validation by book: 0.3279, 0.3266, 0.3311, 0.3255, 0.3294. Test is 0.3297,
+against 0.3976 for the locked Small tier on the same data and 0.5620 for
+the byte unigram.
+
+**What failed and why.**
+
+- **Effect (real).** 2^16 circuits fill on the first book, and
+  27.6M circuits were reclaimed over 3.85 MB. After that, each book mostly
+  replaces the last, and validation moves by recency (±0.003), not by
+  accumulation. At this budget the memory is a strong small predictor
+  (0.0048 better than its control and 0.068 better than Small) but not an
+  accumulating one. Retaining more needs more circuits (the E3 runs) or
+  a better reclamation policy. This is the open "circuit loss under
+  budget pressure" item.
+- **Resume (harness defect, scored as fail).** The reference run evaluated
+  validation after every book; the resumed run did not. Frozen scoring
+  advances `events_seen`, which is the clock that stamps `last_used`, so
+  the two state files differ in clock values only. Reclamation only
+  compares stamps, and frozen scoring shifts them uniformly, so
+  behavior is unchanged. Checked after the run: a resumed state is
+  byte-identical to an uninterrupted run without interleaved
+  evaluation, and it scores exactly the same (validation 0.329428, test
+  0.329696). The v1 gate still counts as failed. A later protocol must
+  compare like with like.
+
+**Decision.** The resource half of ADR 0006 item 3 is closed: the
+production engine runs Micro at 7% of its RSS ceiling and 11% of its time
+ceiling. The quality half is not. Micro does not keep learning from more
+data at a 4 MiB state. Micro stays a diagnostic tier, as `r6-tier-v2`
+already treats it. There is no re-run at another budget, because that
+would be choosing the budget from the result.
