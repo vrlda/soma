@@ -75,14 +75,11 @@ pub struct MixerConfig {
     /// Diagnostic: arbitration weights stop learning after this many
     /// events (0 = never).
     pub freeze_arbitration_after: u64,
-    /// Development only (not saved in SOMAMIX1, not in the Python
-    /// reference): when > 0, reclamation ranks by visits + last_used / this
-    /// (frequency aged by recency) instead of (visits, last_used).
-    pub reclaim_recency: f64,
-    /// Development only (not saved): when > 0 and reclamation has begun, a
-    /// new circuit also needs parent visits >= this * (frontier + 1), where
-    /// frontier is the most visits of any circuit in the last reclaimed batch.
-    pub growth_pressure: f64,
+    /// Pressure-adaptive growth (0 = off): once reclamation has begun, a new
+    /// circuit above the first order also needs parent visits >= this *
+    /// (frontier + 1), where frontier is the most visits of any circuit in
+    /// the last reclaimed batch.
+    pub growth_pressure: u32,
 }
 
 impl Default for MixerConfig {
@@ -105,8 +102,7 @@ impl Default for MixerConfig {
             growth_threshold: 8,
             plasticity_tau: 100_000.0,
             freeze_arbitration_after: 0,
-            reclaim_recency: 0.0,
-            growth_pressure: 0.0,
+            growth_pressure: 0,
         }
     }
 }
@@ -206,7 +202,7 @@ pub struct CircuitMixingMemory {
     pub events_seen: u64,
     pub circuits_created: u64,
     pub circuits_reclaimed: u64,
-    /// Development only (not saved): most visits in the last reclaimed batch.
+    /// Most visits of any circuit in the last reclaimed batch.
     pub reclaim_frontier: u32,
     /// Per order: (probability, updates) for each (n0, n1) count state.
     pub calibration: Vec<Vec<(f64, u32)>>,
@@ -375,23 +371,6 @@ impl CircuitMixingMemory {
 
     fn reclaim(&mut self) {
         let batch = ((self.config.max_circuits as f64 * self.config.reclaim_fraction) as usize).max(1);
-        if self.config.reclaim_recency > 0.0 {
-            let scale = self.config.reclaim_recency;
-            let mut ranked: Vec<(f64, u64)> = self
-                .circuits
-                .iter()
-                .map(|(&key, c)| (c.visits as f64 + c.last_used as f64 / scale, key))
-                .collect();
-            let take = batch.min(ranked.len());
-            if take < ranked.len() {
-                ranked.select_nth_unstable_by(take, |a, b| a.partial_cmp(b).unwrap());
-            }
-            for item in &ranked[..take] {
-                self.circuits.remove(&item.1);
-            }
-            self.circuits_reclaimed += take as u64;
-            return;
-        }
         let mut ranked: Vec<(u32, u64, u64)> = self
             .circuits
             .iter()
@@ -406,7 +385,9 @@ impl CircuitMixingMemory {
             frontier = frontier.max(item.0);
             self.circuits.remove(&item.2);
         }
-        self.reclaim_frontier = frontier;
+        if take > 0 {
+            self.reclaim_frontier = frontier;
+        }
         self.circuits_reclaimed += take as u64;
     }
 
@@ -470,11 +451,11 @@ impl CircuitMixingMemory {
                     if threshold > 0 && index > 0 && self.visits[index - 1] < threshold {
                         continue;
                     }
-                    let pressure = self.config.growth_pressure;
-                    if pressure > 0.0
+                    let pressure = self.config.growth_pressure as u64;
+                    if pressure > 0
                         && index > 0
                         && self.circuits_reclaimed > 0
-                        && (self.visits[index - 1] as f64) < pressure * (self.reclaim_frontier as f64 + 1.0)
+                        && (self.visits[index - 1] as u64) < pressure * (self.reclaim_frontier as u64 + 1)
                     {
                         continue;
                     }
@@ -552,6 +533,11 @@ impl CircuitMixingMemory {
             "partial": self.partial,
             "history": self.history,
         });
+        let mut header = header;
+        if c.growth_pressure > 0 {
+            header["growth_pressure"] = serde_json::json!(c.growth_pressure);
+            header["reclaim_frontier"] = serde_json::json!(self.reclaim_frontier);
+        }
         let encoded = serde_json::to_vec(&header).unwrap();
         let mut out = Vec::new();
         out.extend_from_slice(STATE_MAGIC);
@@ -659,8 +645,7 @@ impl CircuitMixingMemory {
             growth_threshold: int("growth_threshold")? as u32,
             plasticity_tau: reader.f64()?,
             freeze_arbitration_after: int("freeze_arbitration_after")?,
-            reclaim_recency: 0.0,
-            growth_pressure: 0.0,
+            growth_pressure: 0,
         };
         let mut memory = CircuitMixingMemory::new(config);
         let rows = reader.u32()? as usize;
@@ -714,6 +699,7 @@ impl CircuitMixingMemory {
             return Err("SOMAMIX1 trailing bytes".to_string());
         }
         memory.events_seen = int("events_seen")?;
+        memory.reclaim_frontier = header.get("reclaim_frontier").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
         memory.circuits_created = int("circuits_created")?;
         memory.circuits_reclaimed = int("circuits_reclaimed")?;
         memory.partial = int("partial")? as u32;

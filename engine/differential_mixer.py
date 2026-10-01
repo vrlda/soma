@@ -30,6 +30,7 @@ CONFIGS = (
      "halve_above": 2, "count_limit": 60, "orders": [0, 1, 2, 3]},
     {"max_circuits": 16384, "gate_partial": False, "gate_bit_position": True,
      "growth_threshold": 0, "learning_rate": 0.015, "correction": True},
+    {"max_circuits": 4096, "growth_pressure": 2, "reclaim_fraction": 0.03},
 )
 
 

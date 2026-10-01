@@ -111,7 +111,8 @@ class CircuitMixingMemory(object):
                  reclaim_fraction=0.125, arbitration=True, halve_above=1000000,
                  calibration=False, calibration_limit=255, gate_bit_position=False,
                  gate_partial=True, correction=False, correction_rate=0.02,
-                 growth_threshold=8, plasticity_tau=100000.0, freeze_arbitration_after=0):
+                 growth_threshold=8, plasticity_tau=100000.0, freeze_arbitration_after=0,
+                 growth_pressure=0):
         self.orders = tuple(int(order) for order in orders)
         if not self.orders or list(self.orders) != sorted(set(self.orders)):
             raise ValueError("orders must be unique, ascending, and nonempty")
@@ -135,6 +136,12 @@ class CircuitMixingMemory(object):
         self.use_correction = bool(correction)
         self.correction_rate = float(correction_rate)
         self.growth_threshold = int(growth_threshold)
+        # Pressure-adaptive growth (0 = off): once reclamation has begun, a new
+        # circuit also needs parent visits >= growth_pressure * (frontier + 1),
+        # frontier = most visits of any circuit in the last reclaimed batch.
+        self.growth_pressure = int(growth_pressure)
+        if self.growth_pressure < 0:
+            raise ValueError("growth pressure must be nonnegative")
         levels = len(self.orders) + 1
         per_level = 256 if self.gate_partial else (8 if self.gate_bit_position else 1)
         self.weights = [[self.initial_weight] * levels for _ in range(levels * per_level)]
@@ -153,6 +160,7 @@ class CircuitMixingMemory(object):
         self.events_seen = 0
         self.circuits_created = 0
         self.circuits_reclaimed = 0
+        self.reclaim_frontier = 0
         self._pending = None
 
     def reset_history(self):
@@ -245,6 +253,8 @@ class CircuitMixingMemory(object):
         taken = ranked[:batch]
         for _, _, key in taken:
             del self.circuits[key]
+        if taken:
+            self.reclaim_frontier = taken[-1][0]
         self.circuits_reclaimed += len(taken)
 
     def distribution(self):
@@ -326,6 +336,9 @@ class CircuitMixingMemory(object):
                     if (self.growth_threshold > 0 and index > 0
                             and visits[index - 1] < self.growth_threshold):
                         continue
+                    if (self.growth_pressure > 0 and index > 0 and self.circuits_reclaimed > 0
+                            and visits[index - 1] < self.growth_pressure * (self.reclaim_frontier + 1)):
+                        continue
                     if len(self.circuits) >= self.max_circuits:
                         self._reclaim()
                     circuit = [0, 0, 0, 0]
@@ -382,6 +395,9 @@ class CircuitMixingMemory(object):
             "partial": self.partial,
             "history": list(self.history),
         })
+        if self.growth_pressure > 0:
+            header["growth_pressure"] = self.growth_pressure
+            header["reclaim_frontier"] = self.reclaim_frontier
         encoded = json.dumps(header, sort_keys=True, separators=(",", ":")).encode("utf-8")
         parts = [MAGIC, struct.pack("<I", len(encoded)), encoded,
                  struct.pack("<5d", *(getattr(self, name) for name in _FLOAT_FIELDS))]
@@ -426,6 +442,7 @@ class CircuitMixingMemory(object):
         offset += 40
         config = {name: header[name] for name in _INT_FIELDS + _BOOL_FIELDS}
         config.update(dict(zip(_FLOAT_FIELDS, floats)))
+        config["growth_pressure"] = header.get("growth_pressure", 0)
         memory = cls(orders=header["orders"], **config)
         rows, cols = struct.unpack_from("<II", body, offset)
         offset += 8
@@ -459,6 +476,7 @@ class CircuitMixingMemory(object):
         memory.events_seen = header["events_seen"]
         memory.circuits_created = header["circuits_created"]
         memory.circuits_reclaimed = header["circuits_reclaimed"]
+        memory.reclaim_frontier = header.get("reclaim_frontier", 0)
         memory.partial = header["partial"]
         memory.history = bytearray(header["history"])
         memory.validate()

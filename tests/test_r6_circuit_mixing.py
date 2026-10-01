@@ -66,6 +66,32 @@ class CircuitMixingMemoryTests(unittest.TestCase):
         self.assertEqual(memory.circuits_created - memory.circuits_reclaimed,
                          len(memory.circuits))
 
+    def test_growth_pressure_engages_only_under_reclamation(self):
+        text = alice(0, 12000)
+        roomy = [CircuitMixingMemory(max_circuits=1 << 18, growth_pressure=pressure)
+                 for pressure in (0, 4)]
+        tight = [CircuitMixingMemory(max_circuits=4096, growth_pressure=pressure)
+                 for pressure in (0, 4)]
+        for memory in roomy + tight:
+            memory.observe_bytes(text)
+        self.assertEqual(roomy[1].circuits_reclaimed, 0)
+        self.assertEqual(roomy[0].circuits, roomy[1].circuits)
+        self.assertEqual(roomy[0].weights, roomy[1].weights)
+        self.assertGreater(tight[1].reclaim_frontier, 0)
+        self.assertLess(tight[1].circuits_created, tight[0].circuits_created)
+
+    def test_growth_pressure_state_round_trips_and_is_absent_when_off(self):
+        memory = CircuitMixingMemory(max_circuits=4096, growth_pressure=3)
+        memory.observe_bytes(alice(0, 8000))
+        state = memory.dumps()
+        restored = CircuitMixingMemory.loads(state)
+        self.assertEqual((restored.growth_pressure, restored.reclaim_frontier),
+                         (3, memory.reclaim_frontier))
+        self.assertEqual(restored.dumps(), state)
+        self.assertNotIn(b"growth_pressure", CircuitMixingMemory(max_circuits=4096).dumps())
+        with self.assertRaises(ValueError):
+            CircuitMixingMemory(growth_pressure=-1)
+
     def test_growth_gate_defers_long_contexts(self):
         text = alice(0, 3000)
         gated = CircuitMixingMemory(max_circuits=1 << 18, growth_threshold=8)

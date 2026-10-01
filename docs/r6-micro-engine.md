@@ -102,3 +102,11 @@ ceiling. The quality half is not. Micro does not keep learning from more
 data at a 4 MiB state. Micro stays a diagnostic tier, as `r6-tier-v2`
 already treats it. There is no re-run at another budget, because that
 would be choosing the budget from the result.
+
+**Erratum (2026-10-01, after the run).** A `SOMAMIX1` circuit record is
+28 bytes (key 8, counts 4 + 4, visits 4, last use 8), not 32. The harness
+used 32, which overstates the peak-state bound, so the state gate's verdict
+stands. The reason given for choosing 2^16 was wrong, though: 2^17 records
+take 3.67 MB, and that budget would also have fit under 4 MiB. Any later
+Micro protocol should take the largest power of two whose bound fits,
+computed with 28 bytes. That is 2^17.

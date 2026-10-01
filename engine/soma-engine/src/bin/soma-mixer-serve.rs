@@ -38,6 +38,7 @@ fn config_from(value: &serde_json::Value) -> MixerConfig {
     if let Some(v) = get("growth_threshold").and_then(|v| v.as_u64()) { config.growth_threshold = v as u32; }
     if let Some(v) = get("plasticity_tau").and_then(|v| v.as_f64()) { config.plasticity_tau = v; }
     if let Some(v) = get("freeze_arbitration_after").and_then(|v| v.as_u64()) { config.freeze_arbitration_after = v; }
+    if let Some(v) = get("growth_pressure").and_then(|v| v.as_u64()) { config.growth_pressure = v as u32; }
     config
 }
 

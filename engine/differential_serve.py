@@ -93,6 +93,8 @@ def latency():
 def main():
     seed = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     cases = [run_tape(seed, {"max_circuits": 4096}),
+             run_tape(seed + 2, {"max_circuits": 4096, "growth_pressure": 2,
+                                 "reclaim_fraction": 0.03}),
              run_tape(seed + 1, {"max_circuits": 16384, "orders": [0, 1, 2, 4, 8],
                                  "calibration": True, "correction": True, "count_limit": 255})]
     result = {"cases": cases, "latency": latency()}
