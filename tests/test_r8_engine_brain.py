@@ -104,3 +104,55 @@ class EngineBrainServiceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@ENGINE
+class EngineReuseTests(unittest.TestCase):
+    def test_live_engine_reused_only_when_clean_and_unchanged(self):
+        from soma.memory.engine import reuse_live_engines
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "m.somamix")
+            with EngineMixingMemory(config={"max_circuits": 4096}, path=path) as seed:
+                seed.observe_bytes(alice(0, 2000))
+                seed.save()
+            payload = {"kind": "circuit-mixing-file", "path": "m.somamix"}
+            with reuse_live_engines():
+                first = EngineMixingMemory.from_state_dict(payload, base_dir=directory)
+                first.observe_bytes(b"frozen prompt", learn=False)
+                again = EngineMixingMemory.from_state_dict(payload, base_dir=directory)
+                self.assertIs(again, first)
+                fresh = EngineMixingMemory(path=path)
+                fresh.reset_history()
+                self.assertEqual(again.distribution(), fresh.distribution())
+                fresh.close()
+                first.observe_bytes(b"learned")  # dirty: never handed out again
+                third = EngineMixingMemory.from_state_dict(payload, base_dir=directory)
+                self.assertIsNot(third, first)
+                with EngineMixingMemory(path=path) as writer:  # file changes
+                    writer.observe_bytes(b"more")
+                    writer.save()
+                fourth = EngineMixingMemory.from_state_dict(payload, base_dir=directory)
+                self.assertIsNot(fourth, third)
+            outside = EngineMixingMemory.from_state_dict(payload, base_dir=directory)
+            self.assertIsNot(outside, fourth)
+            for memory in (first, third, fourth, outside):
+                memory.close()
+
+    def test_unchanged_memory_is_linked_not_rewritten(self):
+        from soma.service.chat import chat_turn, teach_text
+        from soma.service.store import BrainStore
+        with tempfile.TemporaryDirectory() as root:
+            store = BrainStore(os.path.join(root, "brains"))
+            store.create("demo", memory="mixing", max_circuits=1 << 16)
+            teach_text(store, "demo", alice(0, 5000))
+            memory_path = os.path.join(store.root, "demo", "memory.somamix")
+            for _ in range(3):  # chat learns only in the dialogue tier
+                chat_turn(store, "demo", "hello")
+            self.assertTrue(os.path.samefile(memory_path, memory_path + ".prev"))
+            with open(memory_path, "rb") as handle:
+                before = handle.read()
+            teach_text(store, "demo", alice(5000, 2000))
+            self.assertFalse(os.path.samefile(memory_path, memory_path + ".prev"))
+            with open(memory_path + ".prev", "rb") as handle:
+                self.assertEqual(handle.read(), before)
+            self.assertEqual(store.inspect("demo")["sequence_events"], 7000 * 8)

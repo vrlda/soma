@@ -60,7 +60,11 @@ def chat_turn(store, name, user_text, max_bytes=24, seed=0):
     service chat (no stored training byte set); order-based uncertainty
     still applies. Documented in docs/r8-service.md."""
     from ..evaluation.instruction import instruct
-    organism, episodic, _, dialogue = store.load(name)
+    from ..memory.engine import reuse_live_engines
+    # Engine brains: reuse the running engine across turns while its file
+    # is unchanged (saving skips an unchanged background memory).
+    with reuse_live_engines():
+        organism, episodic, _, dialogue = store.load(name)
     memory = organism.sequence_memory
     if memory is None:
         raise ValueError("brain has no sequence memory")

@@ -12,6 +12,7 @@ trip, not one per bit. The memory's durable form is a ``SOMAMIX1`` file.
 ``state_dict`` records its path, and the engine saves it there.
 """
 
+import contextlib
 import json
 import os
 import subprocess
@@ -23,6 +24,34 @@ DEFAULT_BINARY = os.path.join(ROOT, "engine", "soma-engine", "target", "release"
 
 class EngineError(RuntimeError):
     pass
+
+
+# Opt-in reuse of live engines (see ``reuse_live_engines``): path -> memory.
+_LIVE = {}
+_REUSE = [False]
+
+
+@contextlib.contextmanager
+def reuse_live_engines():
+    """Within this block, loading an engine memory whose file is unchanged
+    reuses the running engine (history reset) instead of re-reading the
+    file. Only a memory with no learning since its last load or save, and
+    nothing pending, is reused, so the result equals a fresh load for
+    callers that reset history first (chat does)."""
+    previous = _REUSE[0]
+    _REUSE[0] = True
+    try:
+        yield
+    finally:
+        _REUSE[0] = previous
+
+
+def _file_signature(path):
+    try:
+        status = os.stat(path)
+    except OSError:
+        return None
+    return (status.st_mtime_ns, status.st_size)
 
 
 def installed_binary():
@@ -64,12 +93,16 @@ class EngineMixingMemory(object):
                               "engine/soma-engine/Cargo.toml`" % binary)
         self._pending_bits = []
         self._pending_mode = None
+        self._dirty = True
+        self._signature = None
         self._process = subprocess.Popen(
             [binary], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             text=True, bufsize=1)
         try:
             if self.path is not None and os.path.exists(self.path):
                 self._request({"op": "load", "path": self.path})
+                self._dirty = False
+                self._signature = _file_signature(self.path)
             else:
                 self._request({"op": "new", "config": dict(config or {})})
         except Exception:
@@ -110,6 +143,8 @@ class EngineMixingMemory(object):
         if isinstance(weight, bool) or not isinstance(weight, int) or weight < 1:
             raise ValueError("weight must be a positive integer")
         mode = (learn, weight)
+        if learn:
+            self._dirty = True
         if self._pending_mode is not None and self._pending_mode != mode:
             self._flush()
         self._pending_mode = mode
@@ -150,8 +185,27 @@ class EngineMixingMemory(object):
         if path is None:
             raise ValueError("no path to save the engine memory to")
         self._flush()
-        self._request({"op": "save", "path": os.path.abspath(path)})
+        path = os.path.abspath(path)
+        self._request({"op": "save", "path": path})
+        if path == self.path:
+            self._dirty = False
+            self._signature = _file_signature(path)
         return path
+
+    def unchanged_since_save(self, path):
+        """True when ``path`` is the backing file, still holds exactly this
+        memory's learned state, and nothing has been learned since. Frozen
+        observation changes only scratch history, which users reset."""
+        return (self.path is not None and os.path.abspath(path) == self.path
+                and not self._dirty and self._signature is not None
+                and self._signature == _file_signature(path))
+
+    def adopt_file(self, path):
+        """Record that ``path`` (the backing file) now holds this memory."""
+        if os.path.abspath(path) != self.path:
+            raise ValueError("can only adopt the backing file")
+        self._dirty = False
+        self._signature = _file_signature(path)
 
     def state_dict(self):
         """Reference to the backing file (relative name); no side effects.
@@ -171,7 +225,22 @@ class EngineMixingMemory(object):
             path = os.path.join(base_dir or os.getcwd(), path)
         if not os.path.exists(path):
             raise ValueError("engine memory file is missing: %s" % path)
-        return cls(path=path, binary=binary)
+        path = os.path.abspath(path)
+        if _REUSE[0]:
+            live = _LIVE.get(path)
+            # Pending learning bits set _dirty; pending frozen bits only
+            # touch scratch history, which reset_history discards.
+            if (live is not None and live.validate() and not live._dirty
+                    and live._signature == _file_signature(path)):
+                live.reset_history()
+                return live
+        memory = cls(path=path, binary=binary)
+        if _REUSE[0]:
+            stale = _LIVE.get(path)
+            if stale is not None and stale is not memory:
+                stale.close()
+            _LIVE[path] = memory
+        return memory
 
     def _shutdown(self):
         """Stop the engine process and release its pipes. Unsaved learning is lost."""

@@ -148,10 +148,29 @@ class BrainStore(object):
         episodic.validate()
         with open(paths["manifest"]) as handle:
             manifest = json.load(handle)
+        memory = organism.sequence_memory
+        engine_memory = hasattr(memory, "save") and paths["memory"] is not None
+        # An engine memory that learned nothing since its last load or save
+        # is carried into the new generation as a hard link to the previous
+        # file instead of being rewritten (hundreds of MB for large brains).
+        unchanged = (engine_memory and hasattr(memory, "unchanged_since_save")
+                     and memory.unchanged_since_save(paths["memory"]))
         begin_save(paths["dir"])
         rotate_previous(paths)
-        if hasattr(organism.sequence_memory, "save") and paths["memory"] is not None:
-            organism.sequence_memory.save(paths["memory"])
+        if engine_memory:
+            if unchanged:
+                previous = paths["memory"] + ".prev"
+                # rename() onto another link to the same file is a no-op,
+                # so after an earlier link both names may still exist.
+                if not (os.path.exists(paths["memory"])
+                        and os.path.samefile(previous, paths["memory"])):
+                    try:
+                        os.link(previous, paths["memory"])
+                    except OSError:
+                        shutil.copyfile(previous, paths["memory"])
+                memory.adopt_file(paths["memory"])
+            else:
+                memory.save(paths["memory"])
         organism.save(paths["brain"])
         with open(paths["episodic"], "w") as handle:
             handle.write(json.dumps(episodic.state_dict(), sort_keys=True))
