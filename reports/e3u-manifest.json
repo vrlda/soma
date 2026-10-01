@@ -1,0 +1,28 @@
+{
+  "books": [
+    {
+      "authors": "Collins, Gilbert, 1890-1960",
+      "boilerplate_stripped": true,
+      "bytes": 478872,
+      "downloaded_sha256": "bc3f2300cb24b397a01317ad5dba0aa9ac405246ace0fcf70bf963b1d7a5c6f5",
+      "license": "public-domain",
+      "line_endings_normalized": true,
+      "name": "pg76222",
+      "partition": "test",
+      "path": "data/e3u/pg76222.txt",
+      "raw_bytes": 498362,
+      "raw_sha256": "08e75aa96bf6a11f17d977f201cf20234c904b77893ef52ae07779e7de7c56dc",
+      "retrieved_utc": "2026-10-01",
+      "sha256": "7af92e74a24e648960198bd29179b449ea6ebc9f4833b5d9b2497442eb30bd16",
+      "source_url": "https://www.gutenberg.org/cache/epub/76222/pg76222.txt",
+      "title": "The valley of eyes unseen"
+    }
+  ],
+  "selection": {
+    "catalog_sha256": "52cc0ffbef2b79d8d07fdd16dada95d29952f47ce21a1557598c580ee6188bea",
+    "rule": "first book after E3-full's last tried candidate (seeded order, same filters, same catalog) that passes prepare()",
+    "skipped": [],
+    "start_index": 276
+  },
+  "test_bytes": 478872
+}

@@ -24,6 +24,12 @@ Validation (Jekyll) and test (Time Machine) are unchanged.
 
   build  [--catalog pg_catalog.csv]   select, download, write the manifest
   fetch                              re-download into data/e3full/, verify hashes
+  untouched [--catalog pg_catalog.csv]  pick one fresh sealed test book (below)
+
+``untouched`` continues the same seeded order after the last candidate the
+E3-full build tried, skips any ID already in a manifest, and keeps the
+first book that passes the same filters. It writes data/e3u/<name>.txt and
+reports/e3u-manifest.json, and prints only metadata, never the text.
 
 Book texts live in data/e3full/ (git-ignored); the manifest is committed.
 """
@@ -233,6 +239,73 @@ def fetch(args):
     return 1 if failures else 0
 
 
+UNTOUCHED_MANIFEST = "reports/e3u-manifest.json"
+UNTOUCHED_DIRECTORY = "data/e3u"
+
+
+def untouched(args):
+    with open(args.catalog, "rb") as handle:
+        catalog_bytes = handle.read()
+    with open(os.path.join(ROOT, MANIFEST)) as handle:
+        full = json.load(handle)
+    if _sha256(catalog_bytes) != full["selection"]["catalog_sha256"]:
+        raise SystemExit("catalog differs from the one the E3-full build used")
+    rows = list(csv.DictReader(catalog_bytes.decode("utf-8").splitlines()))
+    used_ids, _ = used_ids_and_books()
+    candidates = eligible(rows, used_ids)
+    tried = {book["name"][2:] for book in full["books"] if book["name"].startswith("pg")}
+    tried |= {entry["id"] for entry in full["selection"]["skipped"]}
+    last = max(index for index, row in enumerate(candidates) if row["Text#"] in tried)
+    skipped = []
+    for row in candidates[last + 1:]:
+        book_id = row["Text#"]
+        url = BOOK_URL.format(id=book_id)
+        try:
+            raw = download(url)
+        except OSError as error:
+            skipped.append({"id": book_id, "reason": "download failed: %s" % error})
+            continue
+        finally:
+            time.sleep(1.0)
+        prepared, reason = prepare(raw)
+        if prepared is None:
+            skipped.append({"id": book_id, "reason": reason})
+            continue
+        normalized, stripped = prepared
+        name = "pg%s" % book_id
+        path = os.path.join(UNTOUCHED_DIRECTORY, name + ".txt")
+        os.makedirs(os.path.join(ROOT, UNTOUCHED_DIRECTORY), exist_ok=True)
+        with open(os.path.join(ROOT, path), "wb") as handle:
+            handle.write(normalized)
+        entry = {
+            "name": name, "title": row["Title"].split("\n")[0][:120],
+            "authors": row["Authors"][:120], "path": path, "partition": "test",
+            "license": "public-domain", "source_url": url,
+            "downloaded_sha256": _sha256(raw), "line_endings_normalized": normalized != raw,
+            "raw_bytes": len(normalized), "raw_sha256": _sha256(normalized),
+            "bytes": len(stripped), "sha256": _sha256(stripped), "boilerplate_stripped": True,
+            "retrieved_utc": time.strftime("%Y-%m-%d", time.gmtime()),
+        }
+        manifest = {
+            "books": [entry],
+            "test_bytes": len(stripped),
+            "selection": {
+                "rule": "first book after E3-full's last tried candidate (seeded order, "
+                        "same filters, same catalog) that passes prepare()",
+                "catalog_sha256": _sha256(catalog_bytes),
+                "start_index": last + 1,
+                "skipped": skipped,
+            },
+        }
+        with open(os.path.join(ROOT, UNTOUCHED_MANIFEST), "w") as handle:
+            json.dump(manifest, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+        print(json.dumps({key: entry[key] for key in ("name", "title", "authors", "bytes",
+                                                      "sha256")}, indent=2))
+        return 0
+    raise SystemExit("no eligible book left")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -240,8 +313,10 @@ def main():
     build_parser = commands.add_parser("build")
     build_parser.add_argument("--catalog", default="pg_catalog.csv")
     commands.add_parser("fetch")
+    untouched_parser = commands.add_parser("untouched")
+    untouched_parser.add_argument("--catalog", default="pg_catalog.csv")
     args = parser.parse_args()
-    return build(args) if args.command == "build" else fetch(args)
+    return {"build": build, "fetch": fetch, "untouched": untouched}[args.command](args)
 
 
 if __name__ == "__main__":
