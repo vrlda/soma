@@ -29,7 +29,9 @@ Validation (Jekyll) and test (Time Machine) are unchanged.
 ``untouched`` continues the same seeded order after the last candidate the
 E3-full build tried, skips any ID already in a manifest, and keeps the
 first book that passes the same filters. It writes data/e3u/<name>.txt and
-reports/e3u-manifest.json, and prints only metadata, never the text.
+reports/e3u-manifest.json (or ``--out``), and prints only metadata, never
+the text. Books in earlier ``reports/e3u*-manifest.json`` count as tried,
+so each run seals the next fresh book.
 
 Book texts live in data/e3full/ (git-ignored); the manifest is committed.
 """
@@ -255,6 +257,13 @@ def untouched(args):
     candidates = eligible(rows, used_ids)
     tried = {book["name"][2:] for book in full["books"] if book["name"].startswith("pg")}
     tried |= {entry["id"] for entry in full["selection"]["skipped"]}
+    # Earlier sealed picks (and the candidates they skipped) count as tried.
+    for name in sorted(os.listdir(os.path.join(ROOT, "reports"))):
+        if name.startswith("e3u") and name.endswith("-manifest.json"):
+            with open(os.path.join(ROOT, "reports", name)) as handle:
+                sealed = json.load(handle)
+            tried |= {book["name"][2:] for book in sealed["books"]}
+            tried |= {entry["id"] for entry in sealed["selection"]["skipped"]}
     last = max(index for index, row in enumerate(candidates) if row["Text#"] in tried)
     skipped = []
     for row in candidates[last + 1:]:
@@ -297,7 +306,7 @@ def untouched(args):
                 "skipped": skipped,
             },
         }
-        with open(os.path.join(ROOT, UNTOUCHED_MANIFEST), "w") as handle:
+        with open(os.path.join(ROOT, args.out), "w") as handle:
             json.dump(manifest, handle, indent=2, sort_keys=True)
             handle.write("\n")
         print(json.dumps({key: entry[key] for key in ("name", "title", "authors", "bytes",
@@ -315,6 +324,8 @@ def main():
     commands.add_parser("fetch")
     untouched_parser = commands.add_parser("untouched")
     untouched_parser.add_argument("--catalog", default="pg_catalog.csv")
+    untouched_parser.add_argument("--out", default=UNTOUCHED_MANIFEST,
+                                  help="new manifest, e.g. reports/e3u2-manifest.json")
     args = parser.parse_args()
     return {"build": build, "fetch": fetch, "untouched": untouched}[args.command](args)
 

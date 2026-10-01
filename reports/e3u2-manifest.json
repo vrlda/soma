@@ -1,0 +1,28 @@
+{
+  "books": [
+    {
+      "authors": "Chatterton, Georgiana, Lady, 1806-1876",
+      "boilerplate_stripped": true,
+      "bytes": 206961,
+      "downloaded_sha256": "264580d5f88f85b18a50d12761c00fa9244eedebfd37df4838f6d86ec40a2d07",
+      "license": "public-domain",
+      "line_endings_normalized": true,
+      "name": "pg78576",
+      "partition": "test",
+      "path": "data/e3u/pg78576.txt",
+      "raw_bytes": 226551,
+      "raw_sha256": "56a03f06765a7e7cd2112b5ad8fd6c93b1012203a81de13688a7ad2c37b23bb3",
+      "retrieved_utc": "2026-10-01",
+      "sha256": "5526f4b95f88fbcad7a1176026f0be2ddc1024f8abad845aa455eb05a06f5046",
+      "source_url": "https://www.gutenberg.org/cache/epub/78576/pg78576.txt",
+      "title": "The lost bride; vol. 2"
+    }
+  ],
+  "selection": {
+    "catalog_sha256": "52cc0ffbef2b79d8d07fdd16dada95d29952f47ce21a1557598c580ee6188bea",
+    "rule": "first book after E3-full's last tried candidate (seeded order, same filters, same catalog) that passes prepare()",
+    "skipped": [],
+    "start_index": 277
+  },
+  "test_bytes": 206961
+}
