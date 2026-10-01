@@ -56,14 +56,32 @@ generation, teaching, quarantine, and persistence run through it.
 | generate 24 bytes, bit by bit | 8.3 ms (about 43 µs per round trip) |
 | teach the 151 KB E0 corpus | 1.2 s end to end |
 | inference inside a chat turn (route, recall, 40-byte generation) | about 0.2 s |
-| **full chat turn** | **about 2.1–2.5 s** |
+| **full chat turn** | **0.4–0.9 s, median 0.70 s** (was 2.1–2.5 s) |
 
-**The turn time is not the engine.** The legacy turn-scoped dialogue tier
-(an order-256 `SequenceCircuitMemory` persisted as JSON) is saved on every
-turn: about 2.3 s of JSON encoding, reclamation scans in its saturated
-16K-circuit table, and validation. Moving that tier to binary state or to
-the engine is the remaining latency work. A redundant reload after save
-was removed from `chat_turn`.
+The rest of a turn is the turn-scoped dialogue tier, an order-256
+`SequenceCircuitMemory` saved on every turn. It was 2.3 s and is now about
+0.5 s, through four behavior-preserving changes:
+
+- **Reclamation index.** A saturated 16K-circuit table rescanned and fully
+  sorted every circuit about 900 times per turn. A min-heap of eligible
+  circuits plus per-event buckets now yields exactly the same batches, in
+  the same order. It is checked against a verbatim copy of the old scan
+  under unobserve, chunk promotion, save/load, and direct count edits
+  (`tests/test_sequence_memory_performance.py`). The heap is compacted by
+  an exact rebuild when stale entries outnumber live circuits. A first
+  version without compaction leaked memory on long runs: the R6
+  reclamation benchmark was killed at 41 minutes. A test now bounds it.
+- **State format v2.** Binary-symbol contexts are stored as bit strings,
+  not integer lists, which halves `dialogue.json`. v1 states still load.
+- **The C JSON encoder** (`json.dumps`; identical text), a cached
+  protected-context set, and no duplicate validation.
+- **No reload** after save in `chat_turn`.
+
+All eight frozen gate reports that use this memory reproduce
+byte-for-byte. So does the R6 reclamation benchmark, which runs this code
+under constant forced eviction (`reports/r6-reclamation.json` unchanged).
+It now finishes in 2,480 s instead of 4,538 s, with memory flat at about
+200 MB.
 
 ## Chat quality fix found on the way
 
@@ -80,7 +98,6 @@ behavior.
 
 ## Open
 
-- Dialogue-tier latency (above).
 - The old service default is still the suffix memory. Making `mixing` the
   default for new brains needs the engine shipped with the installer (R8
   packaging).

@@ -712,7 +712,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R8 — Prosumer runtime — PARTIAL
 
-**Status:** CLI, chat, local HTTP API, doctor, clone/backup/restore/export/import, installer, presets, and a clean-machine procedure exist (`docs/r8-service.md`). Engine brains (`brain-create --memory mixing`) serve the R6 memory. Open: signatures, downloader, updater, a recorded clean-machine run, shipping the engine with the installer, and dialogue-tier latency.
+**Status:** CLI, chat, local HTTP API, doctor, clone/backup/restore/export/import, installer, presets, and a clean-machine procedure exist (`docs/r8-service.md`). Engine brains (`brain-create --memory mixing`) serve the R6 memory. Open: signatures, downloader, updater, a recorded clean-machine run, and shipping the engine with the installer.
 
 **Deliverables:** runtime installer/updater, blank-brain creator, trained-brain downloader, transducer manager, signatures, daemon, CLI, local API, hardware presets, clone/branch, backup/restore, import/export, doctor, documentation, and brain/model card.
 
@@ -868,11 +868,11 @@ This is the single ordered work list. Update it whenever a step closes. The orig
 ### Phase C: make it usable
 
 7. ~~**Feature parity for the product.**~~ **Done 2026-09-30** ([docs/r6-product-parity.md](docs/r6-product-parity.md)). The distribution interface, trust-weighted observation, organism ownership with quarantine and checkpoints, and a binary `SOMAMIX1` state that Python and Rust write byte-identically. R4 passes 6/6 and R9 7/7 on the new memory. Exact forgetting stays at the episodic layer, the only one the product forgets at; statistical unforgetting cannot be exact with capped counts and plastic weights.
-8. ~~**Serve from the engine.**~~ **Done 2026-10-01** ([docs/r8-engine-serving.md](docs/r8-engine-serving.md)). `soma-mixer-serve` plus `EngineMixingMemory`: 0 mismatches against the reference on random tapes, a 1.2 ms prompt, about 43 µs per generated bit. Brains created with `--memory mixing` live on the engine through clone, backup, `.soma` export, and crash recovery. Gates on the engine-served memory: R3C 4/4, R3D 6/6, R7 instruction 5/5, R7 tools 4/4 (plus R4 6/6 and R9 7/7 in step 7). Chat now uses evidence arbitration and produces English where it used to produce byte garbage. Open: a full turn takes about 2.3 s, dominated by the legacy JSON dialogue tier, not the engine.
+8. ~~**Serve from the engine.**~~ **Done 2026-10-01** ([docs/r8-engine-serving.md](docs/r8-engine-serving.md)). `soma-mixer-serve` plus `EngineMixingMemory`: 0 mismatches against the reference on random tapes, a 1.2 ms prompt, about 43 µs per generated bit. Brains created with `--memory mixing` live on the engine through clone, backup, `.soma` export, and crash recovery. Gates on the engine-served memory: R3C 4/4, R3D 6/6, R7 instruction 5/5, R7 tools 4/4 (plus R4 6/6 and R9 7/7 in step 7). Chat now uses evidence arbitration and produces English where it used to produce byte garbage. A full turn takes a median of 0.70 s (was 2.3 s) after exact speedups to the dialogue tier.
 
 ### Phase D: scale and ship (R5–R10)
 
-9. **E3 scaling.** Run 100–500 MB through the Rust engine under the runbook's E3 gates (quality per MB, per hour, durable bytes, retention). The spend is now justified: the mechanism separates from controls.
+9. **E3 scaling.** Preview done: E3-lite (18 MB) brings full-budget test from 0.2406 to 0.2346, where the old memory gained nothing. Capacity is now binding, at 37.7M circuits reclaimed ([docs](docs/r6-circuit-mixing.md#scaling-preview-e3-lite-18-mb-27-books)). Run 100–500 MB through the Rust engine under the runbook's E3 gates (quality per MB, per hour, durable bytes, retention). The spend is now justified: the mechanism separates from controls.
 10. **Micro tier on the engine** under frozen ceilings (ADR 0006 item 3). The GPU backend only if a measured workload needs it.
 11. **R7 human preference floors** with real raters.
 12. **R8 signatures, downloader, and updater;** a recorded clean-machine run; then the signed Small candidate (ADR 0006 item 2).

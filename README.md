@@ -33,8 +33,8 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
    ([ADR 0009](docs/adr/0009-language-substrate.md)).
 3. ~~**Make it usable:**~~ done. The new memory has quarantine, trust
    weighting, and persistence, and is served from the Rust engine. Every
-   product gate passes on it, and chat produces English
-   ([serving](docs/r8-engine-serving.md)). Open: dialogue-tier latency.
+   product gate passes on it, chat produces English, and a turn takes
+   0.70 s ([serving](docs/r8-engine-serving.md)).
 4. **Scale and ship:** E3 scaling, Micro tier on the engine, human
    preference ratings, signatures, alpha, then Text v1.
 
@@ -54,7 +54,7 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
 | R5 engine | partial | `.soma` v1, journal, profiler, 2M soak; Rust parity for graph, forward, learning, evidence, detector, circuit mixing; serves chat. Open: growth on engine, GPU, 72 h soak |
 | R6 useful scale | partial | circuit mixing 0.2406 bits/bit, 7/7 gates, metaplastic consolidation, untouched book 0.2381 (beats order-5 n-gram); Small floor, factual 8/8, reclamation 4/4. Open: consolidation, E3, signed candidate |
 | R7 instruction | partial | skills, uncertainty, refusal, tools. Open: human preference floors |
-| R8 service | partial | CLI, chat, HTTP API, doctor, installer, backup/restore; engine-served circuit-mixing brains. Open: signatures, downloader, recorded clean-machine run, dialogue-tier latency |
+| R8 service | partial | CLI, chat, HTTP API, doctor, installer, backup/restore; engine-served circuit-mixing brains. Open: signatures, downloader, recorded clean-machine run |
 | R9 red-team | partial | 7/7 attack gates, telemetry, runbooks. Open: closed alpha |
 | R10 release | open | needs R5–R9 |
 | R11 vision | first step | 6×6 glyphs through the unchanged core, 7/7 |

@@ -67,6 +67,22 @@ forgetting, no gating), unbounded growth reached 17.8M circuits and scored
 0.2624 on test. At a fixed 4.2M budget, that predictor scored 0.2666 and
 the final one scores 0.2473.
 
+## Scaling preview: E3-lite (18 MB, 27 books)
+
+`r6_circuit_mixing_benchmark.py --manifest reports/e3-manifest.json
+--skip-ablations` (`reports/r6-circuit-mixing-e3lite.json`), with the same
+Jekyll validation and Time Machine test:
+
+| Budget | E2 (11.5 MB) validation / test | E3-lite (18 MB) validation / test |
+|---|---|---|
+| full (16.8M) | 0.2399 / 0.2406 | **0.2350 / 0.2346** |
+| compact (4.2M) | 0.2458 / 0.2470 | 0.2434 / 0.2432 |
+
+More data helps this memory. The old suffix memory gained 0.000 from E2
+to E3. The curve flattens over the last books, and the full budget
+reclaimed 37.7M circuits, so capacity is now binding. Scaling (master plan
+step 9) needs larger budgets as well as more data.
+
 ## Honest boundaries
 
 - **Untouched test (resolved):** on a book never used anywhere,

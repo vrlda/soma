@@ -97,11 +97,11 @@ class BrainStore(object):
         organism.save(paths["brain"])
         episodic = EpisodicBuffer()
         with open(paths["episodic"], "w") as handle:
-            json.dump(episodic.state_dict(), handle, sort_keys=True)
+            handle.write(json.dumps(episodic.state_dict(), sort_keys=True))
         from ..memory import SequenceCircuitMemory
         dialogue = SequenceCircuitMemory((0, 1), max_order=256, max_circuits=16384)
         with open(paths["dialogue"], "w") as handle:
-            json.dump(dialogue.state_dict(), handle, sort_keys=True)
+            handle.write(json.dumps(dialogue.state_dict(), sort_keys=True))
         manifest = {
             "version": MANIFEST_VERSION,
             "name": name,
@@ -154,13 +154,13 @@ class BrainStore(object):
             organism.sequence_memory.save(paths["memory"])
         organism.save(paths["brain"])
         with open(paths["episodic"], "w") as handle:
-            json.dump(episodic.state_dict(), handle, sort_keys=True)
+            handle.write(json.dumps(episodic.state_dict(), sort_keys=True))
         if dialogue is None:
             from ..memory import SequenceCircuitMemory
             dialogue = SequenceCircuitMemory((0, 1), max_order=256, max_circuits=16384)
-        dialogue.validate()
+        # state_dict() validates the dialogue memory itself.
         with open(paths["dialogue"], "w") as handle:
-            json.dump(dialogue.state_dict(), handle, sort_keys=True)
+            handle.write(json.dumps(dialogue.state_dict(), sort_keys=True))
         manifest["identity"] = _sha256_file(paths["brain"])[:16]
         if description is not None:
             manifest["description"] = str(description)

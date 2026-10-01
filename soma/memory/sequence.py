@@ -6,13 +6,18 @@ and are reclaimed deterministically under a hard budget.  The mechanism is
 domain-neutral: symbols are declared by the caller and carry no text meaning.
 """
 
+import heapq
 import math
+
+_BIT_DECODE = bytes.maketrans(b"01", b"\x00\x01")
+_BIT_ENCODE = bytes.maketrans(b"\x00\x01", b"01")
 
 
 class SequenceCircuitMemory(object):
     """Online variable-order prediction with bounded structural state."""
 
-    VERSION = 1
+    VERSION = 2
+    READABLE_VERSIONS = (1, 2)
 
     def __init__(self, symbols, max_order=16, max_circuits=131072,
                  min_support=2, prior=0.5):
@@ -39,6 +44,7 @@ class SequenceCircuitMemory(object):
         self.circuits_reclaimed = 0
         self.chunks = {}
         self.chunks_promoted = 0
+        self._invalidate_reclaim_index()
 
     def _new_circuit(self, step):
         return {
@@ -50,11 +56,48 @@ class SequenceCircuitMemory(object):
     def reset_history(self):
         """Start a new stream without erasing acquired circuits."""
         self.history = []
+        self._protected_cache = None
 
     def _contexts(self):
         limit = min(self.max_order, len(self.history))
         return [tuple(self.history[-order:]) if order else ()
                 for order in range(limit + 1)]
+
+    # Reclamation ranks eligible circuits by (support, reuse, last_used,
+    # -len(context), context): weakest, least reused, oldest, most specific
+    # first. A circuit is eligible once it is older than the grace window.
+    # Its key only changes when observe() updates it, which also resets its
+    # age. So eligible keys sit in a min-heap, recently touched circuits wait
+    # in per-event buckets until they come of age, and stale heap entries
+    # are dropped when popped. The result is exactly the batch smallest
+    # eligible keys, as a full sorted scan would give
+    # (tests/test_sequence_memory_performance.py checks this against the
+    # original scan). Operations that change keys any other way invalidate
+    # the index, and the next reclamation rebuilds it with one scan.
+
+    def _invalidate_reclaim_index(self):
+        self._reclaim_heap = None
+        self._reclaim_buckets = None
+
+    def _touch(self, context):
+        if getattr(self, "_reclaim_heap", None) is not None:
+            self._reclaim_buckets.setdefault(self.events_seen, []).append(context)
+
+    def _reclaim_key(self, context, circuit):
+        return (sum(circuit["counts"]), circuit["reuse"], circuit["last_used"],
+                -len(context), context)
+
+    def _build_reclaim_index(self, cutoff):
+        heap, buckets = [], {}
+        for context, circuit in self.circuits.items():
+            if not context:
+                continue
+            if circuit["last_used"] <= cutoff:
+                heap.append(self._reclaim_key(context, circuit))
+            else:
+                buckets.setdefault(circuit["last_used"], []).append(context)
+        heapq.heapify(heap)
+        self._reclaim_heap, self._reclaim_buckets = heap, buckets
 
     def _reclaim(self):
         """Reclaim weak, old, specific circuits; root is permanent.
@@ -67,27 +110,60 @@ class SequenceCircuitMemory(object):
             return
         # A scan that found nothing stays empty for the rest of this event:
         # only protected (current-context) circuits change until history
-        # advances, so repeating it is pure quadratic cost.
+        # advances.
         if getattr(self, "_reclaim_exhausted_at", None) == self.events_seen:
             return
-        protected = set(self._contexts())
         grace = 2 * max(1, self.max_order)
-        candidates = []
-        for context, circuit in self.circuits.items():
-            if not context or context in protected:
+        cutoff = self.events_seen - grace
+        heap = getattr(self, "_reclaim_heap", None)
+        # Stale entries are only dropped when popped, so compact by
+        # rebuilding (exact) whenever they outnumber live circuits.
+        if heap is None or len(heap) > 2 * len(self.circuits) + 64:
+            self._build_reclaim_index(cutoff)
+        heap, buckets = self._reclaim_heap, self._reclaim_buckets
+        for stamp in [stamp for stamp in buckets if stamp <= cutoff]:
+            for context in buckets.pop(stamp):
+                circuit = self.circuits.get(context)
+                if circuit is not None and circuit["last_used"] == stamp:
+                    heapq.heappush(heap, self._reclaim_key(context, circuit))
+        # The current contexts change only when history does, so the set is
+        # kept for the rest of this event (reset_history clears it).
+        cached = getattr(self, "_protected_cache", None)
+        if cached is not None and cached[0] == self.events_seen:
+            protected = cached[1]
+        else:
+            protected = set(self._contexts())
+            self._protected_cache = (self.events_seen, protected)
+        batch = max(1, min(1024, self.max_circuits // 100))
+        taken, held, chosen = [], [], set()
+        while heap and len(taken) < batch:
+            entry = heapq.heappop(heap)
+            context = entry[-1]
+            circuit = self.circuits.get(context)
+            # Entries can repeat (a bucket and a re-rank may both re-add a
+            # circuit); duplicates share one key, so skipping keeps order.
+            if circuit is None or context in chosen:
                 continue
-            if self.events_seen - circuit["last_used"] < grace:
+            current = self._reclaim_key(context, circuit)
+            if current != entry:
+                # Changed since indexed. If still eligible (for example,
+                # counts edited directly), re-rank it; otherwise its bucket
+                # brings it back once it is old enough.
+                if circuit["last_used"] <= cutoff:
+                    heapq.heappush(heap, current)
                 continue
-            support = sum(circuit["counts"])
-            candidates.append((support, circuit["reuse"], circuit["last_used"],
-                               -len(context), context))
-        if not candidates:
+            if context in protected:
+                held.append(entry)
+                continue
+            taken.append(context)
+            chosen.add(context)
+        for entry in held:
+            heapq.heappush(heap, entry)
+        if not taken:
             self._reclaim_exhausted_at = self.events_seen
             return
-        candidates.sort()
-        batch = max(1, min(1024, self.max_circuits // 100))
-        for item in candidates[:batch]:
-            del self.circuits[item[-1]]
+        for context in taken:
+            del self.circuits[context]
             self.circuits_reclaimed += 1
 
     def distribution(self):
@@ -146,6 +222,7 @@ class SequenceCircuitMemory(object):
                     self.circuits_created += 1
                 circuit["counts"][symbol_index] += active_weight
                 circuit["last_used"] = self.events_seen
+                self._touch(context)
                 circuit["reuse"] += 1
         self.history.append(symbol)
         if len(self.history) > self.max_order:
@@ -156,6 +233,11 @@ class SequenceCircuitMemory(object):
         self.events_seen += 1
 
     def unobserve(self, symbols, preceding_history, weight=1, min_weighted_order=0):
+        """Exactly reverse a previous weighted observation sequence (see _unobserve)."""
+        self._invalidate_reclaim_index()
+        self._unobserve(symbols, preceding_history, weight, min_weighted_order)
+
+    def _unobserve(self, symbols, preceding_history, weight=1, min_weighted_order=0):
         """Exactly reverse a previous weighted observation sequence.
 
         preceding_history is the history list as it stood before the taught
@@ -188,7 +270,12 @@ class SequenceCircuitMemory(object):
                 del self.circuits[context]
         self.validate()
 
-    def promote_chunks(self, min_order=8, min_reuse=10, min_concentration=0.9,
+    def promote_chunks(self, *args, **kwargs):
+        """Merge extension families into promoted chunk circuits (see _promote_chunks)."""
+        self._invalidate_reclaim_index()
+        return self._promote_chunks(*args, **kwargs)
+
+    def _promote_chunks(self, min_order=8, min_reuse=10, min_concentration=0.9,
                        max_chunks=4096, max_merged_reuse=None):
         """Merge extension families into promoted chunk circuits.
 
@@ -253,8 +340,9 @@ class SequenceCircuitMemory(object):
         for context in self.chunks:
             if context not in self.circuits:
                 raise AssertionError("sequence chunk has no circuit")
+        allowed = frozenset(self.symbol_index)
         for context, circuit in self.circuits.items():
-            if len(context) > self.max_order or any(symbol not in self.symbol_index for symbol in context):
+            if len(context) > self.max_order or not allowed.issuperset(context):
                 raise AssertionError("sequence circuit context is invalid")
             counts = circuit.get("counts")
             if not isinstance(counts, list) or len(counts) != len(self.symbols):
@@ -267,9 +355,30 @@ class SequenceCircuitMemory(object):
                     raise AssertionError("sequence circuit metadata is invalid")
         return True
 
+    def _binary(self):
+        return tuple(self.symbols) == (0, 1)
+
+    def _encode_context(self, context):
+        if self._binary():
+            return bytes(context).translate(_BIT_ENCODE).decode("ascii")
+        return list(context)
+
+    def _decode_context(self, encoded):
+        if isinstance(encoded, str):
+            return tuple(encoded.encode("ascii").translate(_BIT_DECODE))
+        return tuple(encoded)
+
     def state_dict(self):
+        """Version 2: binary-symbol contexts are bit strings ("0110"), which
+        is much smaller and faster than v1's integer lists. v1 still loads."""
         self.validate()
-        ordered = sorted(self.circuits.items(), key=lambda item: (len(item[0]), repr(item[0])))
+        binary = self._binary()
+        encoded = [(self._encode_context(context), circuit)
+                   for context, circuit in self.circuits.items()]
+        if binary:
+            encoded.sort(key=lambda item: (len(item[0]), item[0]))
+        else:
+            encoded.sort(key=lambda item: (len(item[0]), repr(item[0])))
         return {
             "version": self.VERSION,
             "symbols": list(self.symbols),
@@ -282,8 +391,9 @@ class SequenceCircuitMemory(object):
             "circuits_created": self.circuits_created,
             "circuits_reclaimed": self.circuits_reclaimed,
             "chunks_promoted": self.chunks_promoted,
+            "context_encoding": "bits" if binary else "list",
             "chunks": [
-                {"context": list(context),
+                {"context": self._encode_context(context),
                  "merged": chunk["merged"],
                  "reuse": chunk["reuse"],
                  "concentration": chunk["concentration"]}
@@ -291,18 +401,18 @@ class SequenceCircuitMemory(object):
             ],
             "circuits": [
                 {
-                    "context": list(context),
+                    "context": context,
                     "counts": list(circuit["counts"]),
                     "last_used": circuit["last_used"],
                     "reuse": circuit["reuse"],
                 }
-                for context, circuit in ordered
+                for context, circuit in encoded
             ],
         }
 
     @classmethod
     def from_state_dict(cls, payload):
-        if not isinstance(payload, dict) or payload.get("version") != cls.VERSION:
+        if not isinstance(payload, dict) or payload.get("version") not in cls.READABLE_VERSIONS:
             raise ValueError("unsupported sequence memory state")
         memory = cls(
             payload["symbols"], payload["max_order"], payload["max_circuits"],
@@ -314,7 +424,7 @@ class SequenceCircuitMemory(object):
         memory.chunks_promoted = int(payload.get("chunks_promoted", 0))
         memory.chunks = {}
         for item in payload.get("chunks", []):
-            context = tuple(item["context"])
+            context = memory._decode_context(item["context"])
             if context in memory.chunks:
                 raise ValueError("duplicate sequence chunk context")
             memory.chunks[context] = {
@@ -324,7 +434,7 @@ class SequenceCircuitMemory(object):
             }
         memory.circuits = {}
         for item in payload["circuits"]:
-            context = tuple(item["context"])
+            context = memory._decode_context(item["context"])
             if context in memory.circuits:
                 raise ValueError("duplicate sequence circuit context")
             memory.circuits[context] = {
