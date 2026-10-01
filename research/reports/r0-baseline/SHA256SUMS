@@ -49,7 +49,7 @@ e7b54a0002cfd76f93fa0669110bfa1b23fca4c01f77270fbbc117f75b3a3d13  engine/differe
 cf24aba2928f8eeb1851a722868678d6f6a1e703dce7bb108fea35919410bdb2  engine/soma-engine/src/bin/soma-evidence.rs
 11f0ded08123db2ca131b8633e0f19059f38323872372d72e523dc484230b183  engine/soma-engine/src/bin/soma-forward.rs
 fc0e3280b3038700c9d6ee5c045eda456785f794fb3d3d34db76b11b6ebdeb54  engine/soma-engine/src/bin/soma-learn.rs
-0e82a20a09c9b252b0289f882cb0687536ff898bfca83ab2ae7d0eb2c3557de0  engine/soma-engine/src/bin/soma-longmix.rs
+eb1ed9168bb8b5ffd4735bfef99b44ebd8b73cd681d448c80429e18802a802f3  engine/soma-engine/src/bin/soma-longmix.rs
 dce990ba3bde58a1c960cb9cb04a9989d0d55d18eeaae0ec6052aea91e40e978  engine/soma-engine/src/bin/soma-mixer-serve.rs
 bb8dbd0dc9697b219c26cb3dad0e76a018fd34b2f33920867b9910eaa5281723  engine/soma-engine/src/bin/soma-mixer.rs
 ce940c462566ab15a7227cb0a136e0e16564731afa58122b95ccd86d52c583f3  engine/soma-engine/src/bin/soma-tape.rs
@@ -57,7 +57,7 @@ ce940c462566ab15a7227cb0a136e0e16564731afa58122b95ccd86d52c583f3  engine/soma-en
 8a4be8747547ef7cd4862bfcf8ff9fcf0c4865547977d1c5ce41f35109e77340  engine/soma-engine/src/evidence.rs
 0f8d95ce6cbf2fccdafce3b9af8e06cfb46f4dd5ba63f699d5a544aabc55c78a  engine/soma-engine/src/graph.rs
 3a25878cd43624ab9c9c832a9f186a2d2e3383a78babe0f950bf3aa7f47f1895  engine/soma-engine/src/lib.rs
-80dce41929e7155749a41ce7fdd3f0d2e8556da311f44e03512a6f928503905a  engine/soma-engine/src/longmix.rs
+7b00c2d0c72280b57edbd283043bec98ca71656b8e48ecf64acd2cd129d03e58  engine/soma-engine/src/longmix.rs
 0bceb8256b4bdcb69b5de1ee2d82c2b6c0c883ea8f305356b6a85edcff514c3b  engine/soma-engine/src/mixer.rs
 a0cce07f7b388635d14cf8b596dff976af5a23e5705a9aeb4478897c24c7f531  engine/soma-engine/src/neuron.rs
 0b95681089f9ba868f8a6ed3d33ee0090fe7dad9d2b51cd146618b37d7a30486  engine/soma-engine/src/tape.rs

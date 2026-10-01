@@ -41,6 +41,7 @@ fn config_from(value: &serde_json::Value) -> LongConfig {
     if let Some(v) = get("growth_threshold").and_then(|v| v.as_u64()) { c.growth_threshold = v as u32; }
     if let Some(v) = get("growth_pressure").and_then(|v| v.as_u64()) { c.growth_pressure = v as u32; }
     if let Some(v) = get("plasticity_tau").and_then(|v| v.as_f64()) { c.plasticity_tau = v; }
+    if let Some(v) = get("byte_gate").and_then(|v| v.as_bool()) { c.byte_gate = v; }
     c
 }
 

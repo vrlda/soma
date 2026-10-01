@@ -84,6 +84,9 @@ pub struct LongConfig {
     pub growth_threshold: u32,
     pub growth_pressure: u32,
     pub plasticity_tau: f64,
+    /// Weight sets selected by byte-circuit presence only (not word circuits),
+    /// and long-range inputs start at weight 0 so they must earn influence.
+    pub byte_gate: bool,
 }
 
 impl Default for LongConfig {
@@ -101,6 +104,7 @@ impl Default for LongConfig {
             growth_threshold: 8,
             growth_pressure: 8,
             plasticity_tau: 100_000.0,
+            byte_gate: true,
         }
     }
 }
@@ -159,8 +163,15 @@ impl LongMixer {
         let circuits_n = parents.len();
         let inputs_n = circuits_n + if config.match_model { 1 } else { 0 };
         let rows = (circuits_n + 1) * 3 * 256;
+        let byte_n = config.byte_orders.len();
+        let mut initial = vec![config.initial_weight; inputs_n + 1];
+        if config.byte_gate {
+            for value in initial.iter_mut().take(inputs_n).skip(byte_n) {
+                *value = 0.0;
+            }
+        }
         LongMixer {
-            weights: vec![vec![config.initial_weight; inputs_n + 1]; rows],
+            weights: vec![initial; rows],
             weight_updates: vec![0; rows],
             circuits: KeyMap::default(),
             history: Vec::new(),
@@ -280,12 +291,15 @@ impl LongMixer {
         }
         let n = self.keys.len();
         let mut present = 0;
+        let byte_n = self.config.byte_orders.len();
         for i in 0..n {
             self.visits[i] = 0;
             self.inputs[i] = match self.keys[i].and_then(|k| self.circuits.get(&k)) {
                 None => 0.0,
                 Some(circuit) => {
-                    present += 1;
+                    if i < byte_n || !self.config.byte_gate {
+                        present += 1;
+                    }
                     self.visits[i] = circuit.visits;
                     let p = (circuit.n1 as f64 + 0.4) / (circuit.n0 as f64 + circuit.n1 as f64 + 0.8);
                     stretch(p).min(STRETCH_LIMIT).max(-STRETCH_LIMIT)
