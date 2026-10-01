@@ -88,7 +88,8 @@ class CircuitMixingMemoryTests(unittest.TestCase):
         self.assertEqual((restored.growth_pressure, restored.reclaim_frontier),
                          (3, memory.reclaim_frontier))
         self.assertEqual(restored.dumps(), state)
-        self.assertNotIn(b"growth_pressure", CircuitMixingMemory(max_circuits=4096).dumps())
+        self.assertNotIn(b"growth_pressure",
+                         CircuitMixingMemory(max_circuits=4096, growth_pressure=0).dumps())
         with self.assertRaises(ValueError):
             CircuitMixingMemory(growth_pressure=-1)
 

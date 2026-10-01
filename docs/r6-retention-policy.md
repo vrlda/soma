@@ -83,3 +83,8 @@ continued learning after a load is byte-identical in both languages. That
 check found and fixed a Rust bug in which `loads` dropped a saved
 `growth_pressure`. No result was affected, because no run had loaded such
 a state.
+
+Product gates after adoption: R3C, R3D, R7 instruction, R7 tools, R4, and
+R9 on the circuit-mixing memory (`--memory mixing`) were rerun with the new
+defaults. All pass, and every report is byte-identical to the one it
+replaces.
