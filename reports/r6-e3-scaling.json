@@ -1,0 +1,138 @@
+{
+  "acquisition_mb": 108.359679,
+  "books": 233,
+  "e3_lite_validation_at_2_24": 0.235,
+  "hypotheses": {
+    "H1_data_helps": true,
+    "H2_capacity_helps": true
+  },
+  "manifest": "reports/e3-full-manifest.json",
+  "protocol": "r6-e3-scaling-v1",
+  "results": {
+    "budget_2_24": {
+      "circuits": 15658250,
+      "circuits_reclaimed": 595591168,
+      "curve": [
+        {
+          "circuits": 16396805,
+          "cumulative_mb": 17.947886,
+          "validation": 0.23550356494108282
+        },
+        {
+          "circuits": 15239428,
+          "cumulative_mb": 28.517737,
+          "validation": 0.23070036802522112
+        },
+        {
+          "circuits": 15465498,
+          "cumulative_mb": 39.366893,
+          "validation": 0.2289184055422842
+        },
+        {
+          "circuits": 16543980,
+          "cumulative_mb": 50.504124,
+          "validation": 0.22908117522953317
+        },
+        {
+          "circuits": 16690127,
+          "cumulative_mb": 62.100084,
+          "validation": 0.22873953053643117
+        },
+        {
+          "circuits": 14836570,
+          "cumulative_mb": 72.056266,
+          "validation": 0.22663006201529004
+        },
+        {
+          "circuits": 16681126,
+          "cumulative_mb": 83.659423,
+          "validation": 0.22662282982969398
+        },
+        {
+          "circuits": 16308510,
+          "cumulative_mb": 93.595623,
+          "validation": 0.22681090136248683
+        },
+        {
+          "circuits": 15410623,
+          "cumulative_mb": 104.03721,
+          "validation": 0.22564531797127937
+        },
+        {
+          "circuits": 15658250,
+          "cumulative_mb": 108.359679,
+          "validation": 0.22555945274253225
+        }
+      ],
+      "max_circuits": 16777216,
+      "peak_rss_mb": 1623.01953125,
+      "seconds": 2186.0734062194824,
+      "state_bytes": 438751015,
+      "test_validation_grade": 0.22567653223147174,
+      "validation": 0.22555945274253225
+    },
+    "budget_2_26": {
+      "circuits": 66178788,
+      "circuits_reclaimed": 301989888,
+      "curve": [
+        {
+          "circuits": 40957749,
+          "cumulative_mb": 17.947886,
+          "validation": 0.23411936234264313
+        },
+        {
+          "circuits": 64862337,
+          "cumulative_mb": 28.517737,
+          "validation": 0.22839921191583445
+        },
+        {
+          "circuits": 58772500,
+          "cumulative_mb": 39.366893,
+          "validation": 0.22564083826448533
+        },
+        {
+          "circuits": 59487222,
+          "cumulative_mb": 50.504124,
+          "validation": 0.22424658799096128
+        },
+        {
+          "circuits": 58722106,
+          "cumulative_mb": 62.100084,
+          "validation": 0.22290617520958045
+        },
+        {
+          "circuits": 64157756,
+          "cumulative_mb": 72.056266,
+          "validation": 0.22087324736433817
+        },
+        {
+          "circuits": 61689607,
+          "cumulative_mb": 83.659423,
+          "validation": 0.22040558630517826
+        },
+        {
+          "circuits": 63458352,
+          "cumulative_mb": 93.595623,
+          "validation": 0.22037805014730824
+        },
+        {
+          "circuits": 62063549,
+          "cumulative_mb": 104.03721,
+          "validation": 0.21893714781445106
+        },
+        {
+          "circuits": 66178788,
+          "cumulative_mb": 108.359679,
+          "validation": 0.2189047683347451
+        }
+      ],
+      "max_circuits": 67108864,
+      "peak_rss_mb": 6525.68359375,
+      "seconds": 2504.1233320236206,
+      "state_bytes": 1853326079,
+      "test_validation_grade": 0.21842869338740967,
+      "validation": 0.2189047683347451
+    }
+  },
+  "total_seconds": 4691.115106105804
+}

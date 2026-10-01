@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- E3-full scaling (step 9, pre-registered): on 108 MB, Jekyll validation
+  is 0.2256 at 2^24 circuits (E3-lite 0.2350) and 0.2189 at 2^26 (6.5 GB
+  RAM). More data and more capacity both help.
 - Micro tier on the engine (`r6_micro_engine_benchmark.py`, pre-registered):
   35 MB RSS, 19.5 s, 1.98 MB state, all within the frozen ceilings the
   Python reference failed. v1 still fails 6/9: a 2^16 budget saturates on

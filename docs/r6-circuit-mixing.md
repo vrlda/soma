@@ -81,7 +81,9 @@ Jekyll validation and Time Machine test:
 More data helps this memory. The old suffix memory gained 0.000 from E2
 to E3. The curve flattens over the last books, and the full budget
 reclaimed 37.7M circuits, so capacity is now binding. Scaling (master plan
-step 9) needs larger budgets as well as more data.
+step 9) needs larger budgets as well as more data. The full run
+([r6-e3-scaling.md](r6-e3-scaling.md), 108 MB) confirms this: 0.2256 at 2^24 and
+0.2189 at 2^26.
 
 ## Honest boundaries
 
