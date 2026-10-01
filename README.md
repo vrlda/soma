@@ -16,9 +16,9 @@ recover what it learned, within stated resource and safety bounds.
 
 **Latest result:** the R6 circuit-mixing memory brings English prediction
 to 1.92 bits/byte (was 3.20). It beats a frozen order-5 n-gram, and its
-plastic arbitration is causal ([details](docs/r6-circuit-mixing.md)). The
+plastic arbitration is causal ([details](research/docs/r6-circuit-mixing.md)). The
 result held on a pre-registered, never-seen test book: 1.90 bits/byte
-against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
+against 2.07 for the n-gram ([untouched test](research/docs/r6-untouched-test.md)).
 
 **Next, in order** (authoritative list with done-criteria:
 [master plan §22](SOMA_REAL_MODEL_MASTER_PLAN.md#22-exact-next-work-on-resume)):
@@ -28,7 +28,7 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
    (ADR 0007).
 2. **Answer the SOMA question:** ~~measure forgetting~~ and ~~consolidate~~
    (done: metaplasticity cut forgetting 15% and order spread 25% while
-   improving every final score; [record](docs/r6-consolidation.md)). The
+   improving every final score; [record](research/docs/r6-consolidation.md)). The
    circuit memory is now the organism's recorded language substrate
    ([ADR 0009](docs/adr/0009-language-substrate.md)).
 3. ~~**Make it usable:**~~ done. The new memory has quarantine, trust
@@ -90,18 +90,17 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
 
 ## Repository map
 
-- `soma/` — organism core (frozen paths) + `events/`, `routing/`,
+- `soma/` — the product: organism core, `events/`, `routing/`,
   `transducers/`, `memory/`, `evaluation/`, `persistence/`, `service/`
-- `engine/soma-engine` — Rust engine: graph, kernels, and `soma-mixer`
-  (`bash engine/tests.sh` builds it and runs every Python/Rust parity gate)
-- `tests/` — 496 unit tests (about 7 min) (`python -m unittest discover -s tests`)
-- `r*_benchmark.py` — frozen milestone gates with JSON reports in `reports/`;
-  `r6_*_pilot.py` / `*_study.py` / `*_calibration.py` are exploratory R6
-  experiments, and `r3b_reference_baselines.py` is a non-gating comparison.
-  They stay at the root because tests import them and
-  `reports/r0-baseline/SHA256SUMS` pins their paths.
-- `docs/` — per-milestone records, honest boundaries included
-- `data/` — licensed public-domain corpora with manifests
+- `engine/soma-engine` — Rust engine (`bash engine/tests.sh` builds it and
+  runs every Python/Rust parity gate)
+- `tests/` — product tests (`python3 -m unittest discover -s tests`, ~5 min)
+- `scripts/` — release tooling (`package_engine.py`)
+- `configs/`, `data/`, `formats/` — presets, corpora, format specs
+- `docs/` — product docs and architecture decisions (`docs/adr/`)
+- `research/` — archived research: milestone benchmarks and pilots, their
+  tests, frozen reports, and per-milestone records
+  ([research/README.md](research/README.md))
 
 ## Documentation map
 
@@ -109,9 +108,9 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
 |---|---|
 | [`PROJECT.MD`](PROJECT.MD) | Founding vision and design principles (why SOMA exists) |
 | [`SOMA_REAL_MODEL_MASTER_PLAN.md`](SOMA_REAL_MODEL_MASTER_PLAN.md) | **The plan:** architecture contract, milestone status (§16), Text v1 definition of done (§21), ordered next work (§22) |
-| [`SOMA_ENGLISH_DEMO_RUNBOOK.md`](SOMA_ENGLISH_DEMO_RUNBOOK.md) | Procedure and gates for training the English demonstration brain |
+| [`research/SOMA_ENGLISH_DEMO_RUNBOOK.md`](research/SOMA_ENGLISH_DEMO_RUNBOOK.md) | Procedure and gates for training the English demonstration brain |
 | [`docs/README.md`](docs/README.md) | Index of per-milestone records, ADRs, and operations docs |
-| [`SOMA_SYNTHETIC_KERNEL_HISTORY.md`](SOMA_SYNTHETIC_KERNEL_HISTORY.md) | Historical v8–v15 kernel record (not a plan) |
+| [`research/SOMA_SYNTHETIC_KERNEL_HISTORY.md`](research/SOMA_SYNTHETIC_KERNEL_HISTORY.md) | Historical v8–v15 kernel record (not a plan) |
 | [`CHANGELOG.md`](CHANGELOG.md) | What changed, by release |
 
 ## Honesty section
@@ -119,9 +118,9 @@ and says "I don't know" for out-of-training bytes. `doctor` checks health.
 - Language ability is statistical bit prediction plus exact episodic rules;
   E2 English (0.3995 bits/bit) sits between a frozen order-1 and order-2
   byte n-gram and behind gzip; a frozen order-5 n-gram reaches 0.258
-  ([reference baselines](docs/r3b-reference-baselines.md)). The R6
+  ([reference baselines](research/docs/r3b-reference-baselines.md)). The R6
   circuit-mixing memory reaches 0.2406 on the same protocol
-  ([docs](docs/r6-circuit-mixing.md)) and 0.2381 on a pre-registered
+  ([docs](research/docs/r6-circuit-mixing.md)) and 0.2381 on a pre-registered
   untouched book; chat does not use it yet. There is no comprehension, and
   fluent nonsense is answered from marginals.
 - Compositional transfer works for taught parts in novel arrangements;

@@ -16,5 +16,5 @@ by design); no authentication on the local API (localhost default).
 Installer (`install.sh`): Python/hardware checks, layout creation, import
 smoke, fast unit subset; fails loud. Presets (`configs/presets.json`):
 Micro/Tiny/Small/Prosumer memory budgets. Clean-machine procedure:
-`docs/clean-machine.md`. R6 quality floors: `scripts/check_floors.py`
+`docs/clean-machine.md`. R6 quality floors: `research/scripts/check_floors.py`
 (frozen bars over report JSONs; currently all passing).

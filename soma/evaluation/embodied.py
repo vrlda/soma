@@ -217,7 +217,7 @@ def run_cart_benchmark(seeds=R12_ACCEPTANCE_SEEDS, steps=STEPS):
     causal learning signal (learn beats shuffled). Absolute closed-loop
     mastery (beating frozen/passive reliably across seeds) is recorded, not
     gated: limit cycles and seed luck defeat naive single-step credit, which
-    is defined next work (multi-step planning). See docs/r12-embodied.md.
+    is defined next work (multi-step planning). See research/docs/r12-embodied.md.
     """
     import random as _random
     report = {"seeds": list(seeds), "steps": steps, "modes": {}, "all_passed": False}

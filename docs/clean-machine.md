@@ -5,7 +5,7 @@ On a machine without this repo's caches or state:
 1. Clone the repository; confirm `git status` is clean.
 2. Run `bash install.sh` with an empty `SOMA_ROOT`. It must exit 0 and
    print the smoke lines. Any failure aborts the release.
-3. `python3 scripts/verify_hashes.py` must report 0 missing, 0 mismatch.
+3. `python3 research/scripts/verify_hashes.py` must report 0 missing, 0 mismatch.
 4. `python3 -m unittest discover -s tests` must pass in full.
 5. `SOMA_BRAINS=$SOMA_ROOT/brains python3 -m soma.service.main doctor`
    must report `"ok": true`.

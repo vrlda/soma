@@ -2,11 +2,16 @@
 
 ## Unreleased
 
+- Repository cleanup: research benchmarks, pilots, their tests, frozen
+  reports, records, and evidence tools moved to `research/` (see
+  `research/README.md`). The root holds only the product. Links, paths, CI,
+  and the hash manifest are updated. Product tests (463), research tests
+  (78), and `engine/tests.sh` pass.
 - Small candidate brain (`r8-small-candidate-v1`, pre-registered, sealed
   book pg78576): 0.2161 bits/bit (1.73 bits/byte) against 0.2343 for the
   same config on E2 and 0.2574 for an order-5 n-gram. All 8 gates pass,
   including 0.49 s chat at 1.5 GB RSS and byte-identical resume.
-  `scripts/build_small_candidate.py` rebuilds it.
+  `research/scripts/build_small_candidate.py` rebuilds it.
 - Chat on large engine brains: a turn takes 0.38–0.5 s, down from 4–5 s.
   The running engine is reused and an unchanged memory is hard-linked,
   not rewritten.
@@ -37,7 +42,7 @@
   Python reference failed. v1 still fails 6/9: a 2^16 budget saturates on
   the first book, so it does not improve with more data, and the resume
   comparison mixed evaluation into one side. Recorded as failed.
-- E3-full corpus (`scripts/build_e3_full_corpus.py`): 206 new public-domain
+- E3-full corpus (`research/scripts/build_e3_full_corpus.py`): 206 new public-domain
   books chosen by a fixed seeded rule, 108.4 MB acquisition, hash manifest.
 - Stop tracking build output: `engine/soma-engine/target/` (3,518 files of
   macOS binaries that could not run on Linux), `__pycache__`, `*.pyc`,
@@ -96,12 +101,12 @@
   *The Man Who Was Thursday* vs 0.2588 for the frozen order-5 n-gram and
   0.4009 for the prior E2 memory; all pre-registered hypotheses held.
 - Pre-registered untouched test for R6 circuit mixing
-  (`docs/r6-untouched-test.md`, `r6_untouched_test.py`): the book, frozen
+  (`research/docs/r6-untouched-test.md`, `r6_untouched_test.py`): the book, frozen
   configuration, comparisons, and hypotheses are fixed before scoring;
   single-evaluation guard; editions with ASCII quotes are refused.
 - Integrity re-baseline: all frozen benchmarks covering changed code re-run
-  and matched (`reports/rebaseline-2026-09-30/`); manifest policy is now
-  "pin all tracked evidence, not prose" via `scripts/update_hashes.py`;
+  and matched (`research/reports/rebaseline-2026-09-30/`); manifest policy is now
+  "pin all tracked evidence, not prose" via `research/scripts/update_hashes.py`;
   274 files pinned, 0 mismatches.
 - Docs tidy: master plan §16 carries live status for R5–R12 and §22 is the
   single ordered work list with done-criteria. README gains a "what's
@@ -113,7 +118,7 @@
 
 ## 0.3.0-alpha — language track working set
 
-Added (all gated, all hashed in reports/r0-baseline/SHA256SUMS):
+Added (all gated, all hashed in research/reports/r0-baseline/SHA256SUMS):
 
 - Universal event system: envelopes v2, channels, clocks, correlation,
   transducer SDK, three byte/bit adapters plus history/phase variants.

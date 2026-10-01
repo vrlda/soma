@@ -23,7 +23,7 @@ book scale:
 - Metaplasticity.  Each weight set's learning rate falls with its own
   experience, rate = learning_rate * tau / (tau + updates), so well-practiced
   arbitration consolidates while rarely used sets stay plastic.  This cuts
-  forgetting across books (docs/r6-consolidation.md).
+  forgetting across books (research/docs/r6-consolidation.md).
 - A final correction stage keyed by the previous byte and partial byte
   (optional, off by default: redundant with partial-byte gating, ADR 0007).
 
@@ -92,7 +92,7 @@ def fnv1a64(data):
     return digest
 
 
-# Defaults before r6-retention-policy-v1 (2026-10-01, docs/r6-retention-policy.md).
+# Defaults before r6-retention-policy-v1 (2026-10-01, research/docs/r6-retention-policy.md).
 # Scripts behind reports frozen earlier merge these in so they reproduce.
 LEGACY_DEFAULTS = {"reclaim_fraction": 0.125, "growth_pressure": 0}
 

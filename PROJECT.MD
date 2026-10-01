@@ -6,7 +6,7 @@
 > [`SOMA_REAL_MODEL_MASTER_PLAN.md`](SOMA_REAL_MODEL_MASTER_PLAN.md)
 > (Sections 16 and 22). The "Instructions for Codex" section applies to any
 > coding agent. The synthetic-kernel work that pursued its first
-> milestones is recorded in the [history](SOMA_SYNTHETIC_KERNEL_HISTORY.md).
+> milestones is recorded in the [history](research/SOMA_SYNTHETIC_KERNEL_HISTORY.md).
 
 SOMA is an experimental artificial intelligence research project focused on building a fundamentally different kind of learning system from conventional Transformers, LLMs, and fixed-topology neural networks.
 

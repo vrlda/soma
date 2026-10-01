@@ -5,7 +5,7 @@
   forgetting 0.0060 and order spread 0.0053. Step 5 required a local,
   bounded, replay-free mechanism that lowers both without worsening final
   validation, and is shown causal by ablation.
-- Evidence ([r6-consolidation.md](../r6-consolidation.md)):
+- Evidence ([r6-consolidation.md](../../research/docs/r6-consolidation.md)):
   - Diagnostics attribute forgetting to arbitration-weight drift (about
     0.002 at both budgets) and, at the compact budget, reclamation.
   - Per-weight-set metaplasticity, rate = lr × τ / (τ + updates) with

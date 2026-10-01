@@ -2,7 +2,7 @@
 
 **Status:** canonical post-v15 engineering plan. Live milestone status is in Section 16 and the ordered next work in Section 22 (last reviewed 2026-09-30).  
 **Purpose:** take the validated SOMA learning kernel to a downloadable, trainable, continuously learning, prosumer-ready model that accepts human input and produces useful responses  
-**Supersedes:** the scoped roadmap preserved in `SOMA_SYNTHETIC_KERNEL_HISTORY.md`; that file is evidence/history and is not an active plan
+**Supersedes:** the scoped roadmap preserved in `research/SOMA_SYNTHETIC_KERNEL_HISTORY.md`; that file is evidence/history and is not an active plan
 
 ---
 
@@ -355,7 +355,7 @@ Teaching a blank brain English is expected to require substantial data and compu
 
 ## 7A. First English Brain Demonstration Program
 
-The first English brain is the operational bridge between the universal organism and a useful trained release. Its procedure is specified in `SOMA_ENGLISH_DEMO_RUNBOOK.md`. The runbook's commands are target interfaces until their corresponding milestones implement them.
+The first English brain is the operational bridge between the universal organism and a useful trained release. Its procedure is specified in `research/SOMA_ENGLISH_DEMO_RUNBOOK.md`. The runbook's commands are target interfaces until their corresponding milestones implement them.
 
 ### 7A.1 Brain identities
 
@@ -688,7 +688,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R5 — Scalable brain runtime — PARTIAL
 
-**Status:** done: binary `.soma` v1, journal and crash recovery, profiler, budgets, tier ceilings, 2M-step soak, and Rust ports with differential parity for the graph, forward, learning, evidence, detector, and circuit-mixing kernels (`docs/r5-engine.md`, `engine/README.md`). Serving the language memory from the engine is done (`soma-mixer-serve`, [docs/r8-engine-serving.md](docs/r8-engine-serving.md)). Open: structural growth, fingerprints, and probes on the engine; GPU backend; 72-hour soak; Micro tier on the engine.
+**Status:** done: binary `.soma` v1, journal and crash recovery, profiler, budgets, tier ceilings, 2M-step soak, and Rust ports with differential parity for the graph, forward, learning, evidence, detector, and circuit-mixing kernels (`research/docs/r5-engine.md`, `engine/README.md`). Serving the language memory from the engine is done (`soma-mixer-serve`, [docs/r8-engine-serving.md](docs/r8-engine-serving.md)). Open: structural growth, fingerprints, and probes on the engine; GPU backend; 72-hour soak; Micro tier on the engine.
 
 **Deliverables:** separately installed production host, CPU backend, first GPU backend, binary `.soma` format, adapter host, differential reference tests, profiler, journal/compactor, sparse activation instrumentation, and memory-budget enforcement.
 
@@ -696,7 +696,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R6 — Useful trained-brain acquisition — PARTIAL
 
-**Status:** Small clears the 0.45 floor, factual/provenance 8/8, snapshot resume exact, and reclamation evidence 4/4 (`docs/adr/0006-r6-control-margins-evidence.md`). The old suffix memory was bit-identical to its n-gram control. The circuit-mixing memory is the first language result that clears conventional controls: 0.2411 bits/bit on E2 (current default) against 0.2575 for a frozen order-5 n-gram, 7/7 gates; metaplasticity (ADR 0008) cut cross-book forgetting 15% (`docs/r6-circuit-mixing.md`), confirmed on a pre-registered untouched book (0.2381 vs 0.2588; `docs/r6-untouched-test.md`). Open: see Section 22 (recency interference, E3 scale, Micro on the engine, signed candidate).
+**Status:** Small clears the 0.45 floor, factual/provenance 8/8, snapshot resume exact, and reclamation evidence 4/4 (`docs/adr/0006-r6-control-margins-evidence.md`). The old suffix memory was bit-identical to its n-gram control. The circuit-mixing memory is the first language result that clears conventional controls: 0.2411 bits/bit on E2 (current default) against 0.2575 for a frozen order-5 n-gram, 7/7 gates; metaplasticity (ADR 0008) cut cross-book forgetting 15% (`research/docs/r6-circuit-mixing.md`), confirmed on a pre-registered untouched book (0.2381 vs 0.2588; `research/docs/r6-untouched-test.md`). Open: see Section 22 (recency interference, E3 scale, Micro on the engine, signed candidate).
 
 **Deliverables:** licensed corpus manifest, versioned text transducer, reproducible developmental trainer, Micro/Tiny/Small scaling runs, conventional controls, and signed candidate `.soma` brain descended from the canonical blank state.
 
@@ -704,7 +704,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R7 — Instruction and interaction model — PARTIAL
 
-**Status:** skills, calibrated uncertainty, refusal, and schema-constrained tool calls pass their frozen gates (`docs/r7-instruction.md`). Open: human preference floors; the preference harness exists but only has a synthetic rater.
+**Status:** skills, calibrated uncertainty, refusal, and schema-constrained tool calls pass their frozen gates (`research/docs/r7-instruction.md`). Open: human preference floors; the preference harness exists but only has a synthetic rater.
 
 **Deliverables:** dialogue/instruction curriculum, response policy, corrections, uncertainty expression, refusal behavior, and structured tool-call proposal head.
 
@@ -720,7 +720,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R9 — Closed alpha and adversarial hardening — PARTIAL
 
-**Status:** 7/7 red-team gates, trust ranks, quotas, quarantine, consent-gated telemetry, support bundles, and runbooks (`docs/r9-redteam.md`, `docs/runbooks.md`). Open: a real closed alpha with long-running brains.
+**Status:** 7/7 red-team gates, trust ranks, quotas, quarantine, consent-gated telemetry, support bundles, and runbooks (`research/docs/r9-redteam.md`, `docs/runbooks.md`). Open: a real closed alpha with long-running brains.
 
 **Deliverables:** consented telemetry option, local diagnostic bundles, issue taxonomy, red-team corpus, rollback tooling, migration rehearsal, and support runbooks.
 
@@ -734,7 +734,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R11 — Multimodal perception — FIRST STEP
 
-**Status:** 6×6 glyph vision through the unchanged event core, 7/7 gates (`docs/r11-vision.md`). Real images and audio are not started; they follow Text v1.
+**Status:** 6×6 glyph vision through the unchanged event core, 7/7 gates (`research/docs/r11-vision.md`). Real images and audio are not started; they follow Text v1.
 
 **Deliverables:** minimally interpreted vision then audio transducers, learned-adapter controls, shared universal event/checkpoint schema, cross-modal developmental training, continual cross-modal evaluation, and privacy controls.
 
@@ -742,7 +742,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R12 — Safe action and embodied SOMA — FIRST STEP
 
-**Status:** simulated 1-D cart with an independent safety controller, 5/5 gates (`docs/r12-embodied.md`). Multi-step planning is the recorded next step; it follows Text v1.
+**Status:** simulated 1-D cart with an independent safety controller, 5/5 gates (`research/docs/r12-embodied.md`). Multi-step planning is the recorded next step; it follows Text v1.
 
 **Deliverables:** production tool boundary, simulator suite, real-time runtime, hardware adapter contract, independent safety controller, and staged robotics qualification.
 
@@ -855,27 +855,27 @@ This is the single ordered work list. Update it whenever a step closes. The orig
 
 ### Phase A: make the new result trustworthy
 
-1. ~~**Re-baseline integrity.**~~ **Done 2026-09-30.** Every frozen benchmark covering changed code was re-run, and the full suite passes (496 tests). Commit 3532e39 is behavior-preserving. The manifest now pins all 274 tracked evidence files and excludes prose; `verify_hashes.py` reports 0 mismatches with Git LFS present. Record: `reports/rebaseline-2026-09-30/README.md`. One carried finding: the v15 archive's learning-disabled control arm does not reproduce on Linux (the gate is unaffected); a macOS re-run could settle it.
-2. ~~**Untouched test book.**~~ **Done 2026-09-30.** Pre-registered, then scored once on Chesterton's *The Man Who Was Thursday*: full circuit mixing 0.2381 bits/bit vs 0.2588 for the frozen order-5 n-gram and 0.4009 for the prior E2 memory; H1–H3 all supported ([docs/r6-untouched-test.md](docs/r6-untouched-test.md), `reports/r6-untouched-test.json`).
+1. ~~**Re-baseline integrity.**~~ **Done 2026-09-30.** Every frozen benchmark covering changed code was re-run, and the full suite passes (496 tests). Commit 3532e39 is behavior-preserving. The manifest now pins all 274 tracked evidence files and excludes prose; `verify_hashes.py` reports 0 mismatches with Git LFS present. Record: `research/reports/rebaseline-2026-09-30/README.md`. One carried finding: the v15 archive's learning-disabled control arm does not reproduce on Linux (the gate is unaffected); a macOS re-run could settle it.
+2. ~~**Untouched test book.**~~ **Done 2026-09-30.** Pre-registered, then scored once on Chesterton's *The Man Who Was Thursday*: full circuit mixing 0.2381 bits/bit vs 0.2588 for the frozen order-5 n-gram and 0.4009 for the prior E2 memory; H1–H3 all supported ([research/docs/r6-untouched-test.md](research/docs/r6-untouched-test.md), `research/reports/r6-untouched-test.json`).
 3. ~~**Remove or justify neutral mechanisms.**~~ **Done 2026-09-30** ([ADR 0007](docs/adr/0007-circuit-mixing-mechanism-audit.md)). The correction stage is off by default: it is redundant with partial-byte gating, and removing it also reduced recency interference. Every remaining mechanism has a positive validation ablation: arbitration 0.0202, growth gate 0.0032, partial-byte gating 0.0029.
 
 ### Phase B: the SOMA question on the language path
 
-4. ~~**Measure retention.**~~ **Done 2026-09-30** ([docs/r6-retention.md](docs/r6-retention.md), `r6_retention_benchmark.py`). Baseline: mean forgetting 0.0060 bits/bit over four book orders, order spread 0.0053. Two thirds of the forgetting persists at full budget, so plastic drift, not reclamation, is the main cause.
-5. ~~**Consolidation mechanism.**~~ **Done 2026-09-30** ([docs/r6-consolidation.md](docs/r6-consolidation.md), [ADR 0008](docs/adr/0008-metaplasticity-consolidation.md)). Per-weight-set metaplasticity (τ = 1e5) cut forgetting 15% and order spread 25%, and improved final validation in every book order. It halves weight drift. The other candidates tried were rejected; all are recorded. Still open: circuit loss under budget pressure.
+4. ~~**Measure retention.**~~ **Done 2026-09-30** ([research/docs/r6-retention.md](research/docs/r6-retention.md), `r6_retention_benchmark.py`). Baseline: mean forgetting 0.0060 bits/bit over four book orders, order spread 0.0053. Two thirds of the forgetting persists at full budget, so plastic drift, not reclamation, is the main cause.
+5. ~~**Consolidation mechanism.**~~ **Done 2026-09-30** ([research/docs/r6-consolidation.md](research/docs/r6-consolidation.md), [ADR 0008](docs/adr/0008-metaplasticity-consolidation.md)). Per-weight-set metaplasticity (τ = 1e5) cut forgetting 15% and order spread 25%, and improved final validation in every book order. It halves weight drift. The other candidates tried were rejected; all are recorded. Still open: circuit loss under budget pressure.
 6. ~~**Decide what "organism plasticity" means for language.**~~ **Done 2026-09-30** ([ADR 0009](docs/adr/0009-language-substrate.md)). The circuit memory is the organism's sequence-prediction memory subsystem and the Text v1 language substrate. The organism motor path scores 0.994 on E0, adds about 1e-6 when fused, and hit a recorded stop condition; the memory's SOMA mechanisms are each causal and domain-neutral. Re-entry for organism plasticity is a pre-declared experiment. First candidate: context-detector routing of arbitration banks.
 
 ### Phase C: make it usable
 
-7. ~~**Feature parity for the product.**~~ **Done 2026-09-30** ([docs/r6-product-parity.md](docs/r6-product-parity.md)). The distribution interface, trust-weighted observation, organism ownership with quarantine and checkpoints, and a binary `SOMAMIX1` state that Python and Rust write byte-identically. R4 passes 6/6 and R9 7/7 on the new memory. Exact forgetting stays at the episodic layer, the only one the product forgets at; statistical unforgetting cannot be exact with capped counts and plastic weights.
+7. ~~**Feature parity for the product.**~~ **Done 2026-09-30** ([research/docs/r6-product-parity.md](research/docs/r6-product-parity.md)). The distribution interface, trust-weighted observation, organism ownership with quarantine and checkpoints, and a binary `SOMAMIX1` state that Python and Rust write byte-identically. R4 passes 6/6 and R9 7/7 on the new memory. Exact forgetting stays at the episodic layer, the only one the product forgets at; statistical unforgetting cannot be exact with capped counts and plastic weights.
 8. ~~**Serve from the engine.**~~ **Done 2026-10-01** ([docs/r8-engine-serving.md](docs/r8-engine-serving.md)). `soma-mixer-serve` plus `EngineMixingMemory`: 0 mismatches against the reference on random tapes, a 1.2 ms prompt, about 43 µs per generated bit. Brains created with `--memory mixing` live on the engine through clone, backup, `.soma` export, and crash recovery. Gates on the engine-served memory: R3C 4/4, R3D 6/6, R7 instruction 5/5, R7 tools 4/4 (plus R4 6/6 and R9 7/7 in step 7). Chat now uses evidence arbitration and produces English where it used to produce byte garbage. A full turn takes a median of 0.70 s (was 2.3 s) after exact speedups to the dialogue tier.
 
 ### Phase D: scale and ship (R5–R10)
 
-9. ~~**E3 scaling.**~~ **Done 2026-10-01** ([docs/r6-e3-scaling.md](docs/r6-e3-scaling.md)). Pre-registered E3-full corpus: 233 books, 108 MB, selected by a fixed seeded rule. Both hypotheses hold. Validation is 0.2256 at 2^24 circuits (E3-lite: 0.2350) and 0.2189 at 2^26 (1.75 bits/byte; 6.5 GB RAM, 42 min). The 2^24 curve flattens after about 40 MB because capacity is binding. Retention under pressure, **done 2026-10-01** ([docs/r6-retention-policy.md](docs/r6-retention-policy.md)): on a sealed, never-used book, smaller reclaim batches plus pressure-adaptive growth beat the old defaults in all four pressured settings (−0.0069 at Micro, −0.0021 at E3-full 2^24) and are neutral at light pressure. They are now the default. On the same sealed book, E3-full beats E2 by 0.031 at the same budget, so data scaling generalizes.
-10. **Micro tier on the engine.** Run 2026-10-01 under pre-registered `r6-micro-engine-v1` ([docs/r6-micro-engine.md](docs/r6-micro-engine.md)); it fails 6/9. Resources pass: 35 MB RSS (ceiling 512), 19.5 s (180), 1.98 MB state (4 MiB), where the Python reference failed at 966 MB and 278 s. Effect fails: 2^16 circuits saturate on the first book, so validation does not improve with more data. Test is still 0.3297, against 0.3976 for the old Small tier. The resume gate failed on a harness mismatch: frozen evaluation advances the clock, and nothing else differs. Micro stays diagnostic. v2 (2^17, new retention defaults, like-with-like resume) passes 8/9: resume and effect now pass, but arbitration ties its no-arbitration control at this scale (−0.0003), because evidence-gated growth now does that job. Micro stays a diagnostic tier. The GPU backend only if a measured workload needs it.
+9. ~~**E3 scaling.**~~ **Done 2026-10-01** ([research/docs/r6-e3-scaling.md](research/docs/r6-e3-scaling.md)). Pre-registered E3-full corpus: 233 books, 108 MB, selected by a fixed seeded rule. Both hypotheses hold. Validation is 0.2256 at 2^24 circuits (E3-lite: 0.2350) and 0.2189 at 2^26 (1.75 bits/byte; 6.5 GB RAM, 42 min). The 2^24 curve flattens after about 40 MB because capacity is binding. Retention under pressure, **done 2026-10-01** ([research/docs/r6-retention-policy.md](research/docs/r6-retention-policy.md)): on a sealed, never-used book, smaller reclaim batches plus pressure-adaptive growth beat the old defaults in all four pressured settings (−0.0069 at Micro, −0.0021 at E3-full 2^24) and are neutral at light pressure. They are now the default. On the same sealed book, E3-full beats E2 by 0.031 at the same budget, so data scaling generalizes.
+10. **Micro tier on the engine.** Run 2026-10-01 under pre-registered `r6-micro-engine-v1` ([research/docs/r6-micro-engine.md](research/docs/r6-micro-engine.md)); it fails 6/9. Resources pass: 35 MB RSS (ceiling 512), 19.5 s (180), 1.98 MB state (4 MiB), where the Python reference failed at 966 MB and 278 s. Effect fails: 2^16 circuits saturate on the first book, so validation does not improve with more data. Test is still 0.3297, against 0.3976 for the old Small tier. The resume gate failed on a harness mismatch: frozen evaluation advances the clock, and nothing else differs. Micro stays diagnostic. v2 (2^17, new retention defaults, like-with-like resume) passes 8/9: resume and effect now pass, but arbitration ties its no-arbitration control at this scale (−0.0003), because evidence-gated growth now does that job. Micro stays a diagnostic tier. The GPU backend only if a measured workload needs it.
 11. **R7 human preference floors** with real raters.
-12. **R8 signatures, downloader, and updater;** a recorded clean-machine run; then the signed Small candidate (ADR 0006 item 2). Signatures and downloader are **done 2026-10-01** ([docs/r8-signing.md](docs/r8-signing.md)): Ed25519 in the standard library (RFC 8032 vectors, matches OpenSSL), verified `brain-download` and `engine-install`, signature checks on import, and a release workflow for prebuilt engines. The Small candidate is **built and passes 8/8 pre-registered gates** ([docs/r8-small-candidate.md](docs/r8-small-candidate.md)): 0.2161 bits/bit on a second sealed book, against 0.2343 for the same config on E2 and 0.2574 for an order-5 n-gram. Chat takes a median of 0.49 s at 1.5 GB RSS, and a resumed build is byte-identical. Open: the owner's release key, signing and publishing the artifact, and a clean-machine run.
+12. **R8 signatures, downloader, and updater;** a recorded clean-machine run; then the signed Small candidate (ADR 0006 item 2). Signatures and downloader are **done 2026-10-01** ([docs/r8-signing.md](docs/r8-signing.md)): Ed25519 in the standard library (RFC 8032 vectors, matches OpenSSL), verified `brain-download` and `engine-install`, signature checks on import, and a release workflow for prebuilt engines. The Small candidate is **built and passes 8/8 pre-registered gates** ([research/docs/r8-small-candidate.md](research/docs/r8-small-candidate.md)): 0.2161 bits/bit on a second sealed book, against 0.2343 for the same config on E2 and 0.2574 for an order-5 n-gram. Chat takes a median of 0.49 s at 1.5 GB RSS, and a resumed build is byte-identical. Open: the owner's release key, signing and publishing the artifact, and a clean-machine run.
 13. **R9 closed alpha** with long-running brains, then R10 against Section 21.
 
 Stop/go (Section 20) applies at every step. If Phase B cannot show that consolidation helps, record the negative result before scaling.

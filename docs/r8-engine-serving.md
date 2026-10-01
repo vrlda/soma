@@ -82,7 +82,7 @@ The rest of a turn is the turn-scoped dialogue tier, an order-256
 
 All eight frozen gate reports that use this memory reproduce
 byte-for-byte. So does the R6 reclamation benchmark, which runs this code
-under constant forced eviction (`reports/r6-reclamation.json` unchanged).
+under constant forced eviction (`research/reports/r6-reclamation.json` unchanged).
 It now finishes in 2,480 s instead of 4,538 s, with memory flat at about
 200 MB.
 

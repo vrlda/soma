@@ -7,7 +7,7 @@
   book is spent, and the Time Machine test is validation-grade for this
   model.
 - Evidence (E2 acquisition, compact budget unless noted, validation
-  bits/bit, `reports/r6-circuit-mixing.json`):
+  bits/bit, `research/reports/r6-circuit-mixing.json`):
   - Correction stage: on vs off 0.24613 vs 0.24609 at compact, and
     0.2400 vs 0.2402 at full budget. Net effect ≤ 0.0002.
   - It is redundant with partial-byte gating. With gating off, removing

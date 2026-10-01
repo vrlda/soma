@@ -10,23 +10,23 @@ wins; fix the record.
 
 | Milestone | Status | Record |
 |---|---|---|
-| R0 preserve kernel | ✅ | [reproducibility.md](reproducibility.md), [checkpoint-schema-v12.md](checkpoint-schema-v12.md), [genesis-state.md](genesis-state.md), [workspace-contract.md](workspace-contract.md), [soma-artifact-v1.md](soma-artifact-v1.md), [plan used](superpowers/plans/2026-09-10-r0-preserve-kernel.md) (historical) |
-| R1 evidence router | ✅ | [r1-calibration.md](r1-calibration.md) |
-| R2 event organism | ✅ | [r2-event-system.md](r2-event-system.md) |
-| R3A sequences | ✅ | [r3a-sequence.md](r3a-sequence.md) |
-| R3B English | ✅ | [r3b-english.md](r3b-english.md) (log, newest first), [r3b-reference-baselines.md](r3b-reference-baselines.md), [model-card-e2.md](model-card-e2.md) |
-| R3D dialogue, systematicity | ✅ | [r3d-dialogue.md](r3d-dialogue.md), [r3d-systematicity.md](r3d-systematicity.md) |
-| R4 continual | ✅ | [r4-lifelong.md](r4-lifelong.md) |
-| R5 engine | partial | [r5-engine.md](r5-engine.md), [../engine/README.md](../engine/README.md) |
-| R6 useful scale | partial | **[r6-circuit-mixing.md](r6-circuit-mixing.md)** (current language result), [r6-untouched-test.md](r6-untouched-test.md) (pre-registered untouched test), [r6-retention.md](r6-retention.md) (forgetting baseline), [r6-consolidation.md](r6-consolidation.md) (metaplasticity), [r6-product-parity.md](r6-product-parity.md) (product features), [r6-tier-qualification.md](r6-tier-qualification.md), [r6-micro-engine.md](r6-micro-engine.md) (Micro on the engine), [r6-reclamation-pressure-dev.md](r6-reclamation-pressure-dev.md) (dev sweeps), [r6-e3-scaling.md](r6-e3-scaling.md) (E3-full), [ADR 0006](adr/0006-r6-control-margins-evidence.md) |
-| R7 instruction | partial | [r7-instruction.md](r7-instruction.md) |
-| R8 service | partial | [r8-service.md](r8-service.md), [r8-engine-serving.md](r8-engine-serving.md) (engine brains), [r8-signing.md](r8-signing.md) (signatures, downloader, prebuilt engine), [r8-small-candidate.md](r8-small-candidate.md) (Small candidate), [clean-machine.md](clean-machine.md) |
-| R9 red-team, ops | partial | [r9-redteam.md](r9-redteam.md), [runbooks.md](runbooks.md) |
+| R0 preserve kernel | ✅ | [reproducibility.md](../research/docs/reproducibility.md), [checkpoint-schema-v12.md](checkpoint-schema-v12.md), [genesis-state.md](genesis-state.md), [workspace-contract.md](workspace-contract.md), [soma-artifact-v1.md](soma-artifact-v1.md), [plan used](../research/docs/superpowers/plans/2026-09-10-r0-preserve-kernel.md) (historical) |
+| R1 evidence router | ✅ | [r1-calibration.md](../research/docs/r1-calibration.md) |
+| R2 event organism | ✅ | [r2-event-system.md](../research/docs/r2-event-system.md) |
+| R3A sequences | ✅ | [r3a-sequence.md](../research/docs/r3a-sequence.md) |
+| R3B English | ✅ | [r3b-english.md](../research/docs/r3b-english.md) (log, newest first), [r3b-reference-baselines.md](../research/docs/r3b-reference-baselines.md), [model-card-e2.md](../research/docs/model-card-e2.md) |
+| R3D dialogue, systematicity | ✅ | [r3d-dialogue.md](../research/docs/r3d-dialogue.md), [r3d-systematicity.md](../research/docs/r3d-systematicity.md) |
+| R4 continual | ✅ | [r4-lifelong.md](../research/docs/r4-lifelong.md) |
+| R5 engine | partial | [r5-engine.md](../research/docs/r5-engine.md), [../engine/README.md](../engine/README.md) |
+| R6 useful scale | partial | **[r6-circuit-mixing.md](../research/docs/r6-circuit-mixing.md)** (current language result), [r6-untouched-test.md](../research/docs/r6-untouched-test.md) (pre-registered untouched test), [r6-retention.md](../research/docs/r6-retention.md) (forgetting baseline), [r6-consolidation.md](../research/docs/r6-consolidation.md) (metaplasticity), [r6-product-parity.md](../research/docs/r6-product-parity.md) (product features), [r6-tier-qualification.md](../research/docs/r6-tier-qualification.md), [r6-micro-engine.md](../research/docs/r6-micro-engine.md) (Micro on the engine), [r6-reclamation-pressure-dev.md](../research/docs/r6-reclamation-pressure-dev.md) (dev sweeps), [r6-e3-scaling.md](../research/docs/r6-e3-scaling.md) (E3-full), [ADR 0006](adr/0006-r6-control-margins-evidence.md) |
+| R7 instruction | partial | [r7-instruction.md](../research/docs/r7-instruction.md) |
+| R8 service | partial | [r8-service.md](r8-service.md), [r8-engine-serving.md](r8-engine-serving.md) (engine brains), [r8-signing.md](r8-signing.md) (signatures, downloader, prebuilt engine), [r8-small-candidate.md](../research/docs/r8-small-candidate.md) (Small candidate), [clean-machine.md](clean-machine.md) |
+| R9 red-team, ops | partial | [r9-redteam.md](../research/docs/r9-redteam.md), [runbooks.md](runbooks.md) |
 | R10 release | open | [release-checklist.md](release-checklist.md) (rehearsal) |
-| R11 vision | first step | [r11-vision.md](r11-vision.md) |
-| R12 embodied | first step | [r12-embodied.md](r12-embodied.md) |
+| R11 vision | first step | [r11-vision.md](../research/docs/r11-vision.md) |
+| R12 embodied | first step | [r12-embodied.md](../research/docs/r12-embodied.md) |
 
-R3C generation is recorded inside [r3b-english.md](r3b-english.md).
+R3C generation is recorded inside [r3b-english.md](../research/docs/r3b-english.md).
 
 ## R6 development pilots (non-gating)
 
@@ -36,11 +36,11 @@ R6, and none changes the locked reports. They were the evidence for
 plasticity off the language path until a pre-declared experiment earns it
 a place.
 
-- [r6-english-event-pilot.md](r6-english-event-pilot.md), [r6-english-lag-pilot.md](r6-english-lag-pilot.md): English through the organism event path.
-- [r6-temporal-composition-pilot.md](r6-temporal-composition-pilot.md), [r6-temporal-composition-pilot-v4.md](r6-temporal-composition-pilot-v4.md): leave-one-combination-out temporal composition.
-- [r6-text-temporal-transport-pilot.md](r6-text-temporal-transport-pilot.md), [r6-text-temporal-transport-2048.md](r6-text-temporal-transport-2048.md): the same composition through the real text transducer.
-- [r6-compositional-byte-event.md](r6-compositional-byte-event.md): byte/event product discriminator.
-- [r6-persistent-scout-calibration.md](r6-persistent-scout-calibration.md), [r6-persistent-scout-power-study.md](r6-persistent-scout-power-study.md): scout thresholds and statistical power.
+- [r6-english-event-pilot.md](../research/docs/r6-english-event-pilot.md), [r6-english-lag-pilot.md](../research/docs/r6-english-lag-pilot.md): English through the organism event path.
+- [r6-temporal-composition-pilot.md](../research/docs/r6-temporal-composition-pilot.md), [r6-temporal-composition-pilot-v4.md](../research/docs/r6-temporal-composition-pilot-v4.md): leave-one-combination-out temporal composition.
+- [r6-text-temporal-transport-pilot.md](../research/docs/r6-text-temporal-transport-pilot.md), [r6-text-temporal-transport-2048.md](../research/docs/r6-text-temporal-transport-2048.md): the same composition through the real text transducer.
+- [r6-compositional-byte-event.md](../research/docs/r6-compositional-byte-event.md): byte/event product discriminator.
+- [r6-persistent-scout-calibration.md](../research/docs/r6-persistent-scout-calibration.md), [r6-persistent-scout-power-study.md](../research/docs/r6-persistent-scout-power-study.md): scout thresholds and statistical power.
 
 ## Architecture decision records
 

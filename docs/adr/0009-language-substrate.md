@@ -10,7 +10,7 @@
 - Evidence:
   - **The organism path does not model English.** With the memory
     lesioned, the fused E0 run scores 0.994 bits/bit held-out, worse than
-    the byte-unigram bar of 0.593 (`reports/r3b-fusion.json`).
+    the byte-unigram bar of 0.593 (`research/reports/r3b-fusion.json`).
   - **Fusion adds nothing.** Organism plus memory scores 0.3750937 vs
     0.3750949 for the memory alone, a difference of about 1e-6 (same
     report).
@@ -18,7 +18,7 @@
     composition through the real text transducer passed 4/16 cases against
     a pre-declared 75% floor. English organism pilots are blocked until a
     new architecture experiment is approved
-    (`docs/r6-text-temporal-transport-2048.md`).
+    (`research/docs/r6-text-temporal-transport-2048.md`).
   - **The memory carries SOMA's mechanisms, each shown causal:** evidence-
     gated growth (0.0033), plastic arbitration (0.0206), and budgeted
     reclamation (bounded, 7/7 gates) (ADR 0007), plus metaplastic

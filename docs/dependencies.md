@@ -10,4 +10,4 @@
 - Tests: `python3 -m unittest discover -s tests -v` (about 7 minutes);
   `bash engine/tests.sh` (about 1 minute plus build).
 - Large reports are stored with Git LFS; without it, two pinned reports
-  fail `scripts/verify_hashes.py`.
+  fail `research/scripts/verify_hashes.py`.
