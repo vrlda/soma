@@ -12,7 +12,8 @@ anything. Newest first.
 | longmix greedy generation | 5k questions | 0.0% | 0.6% |
 | longmix extractive, sum log-prob | 5k | 3.0% | 5.2% |
 | longmix extractive, PMI | 5k | 1.0% | 6.2% |
-| **span reader, local delta rule** | 10k | **30.6%** | **37.7%** |
+| span reader, local delta rule | 10k | 30.6% | 37.7% |
+| **span reader, local delta rule** | all 87.6k (2,000 validation questions) | **35.9%** | **41.6%** |
 
 Measured on 300 questions, except the reader, which was measured on 500.
 
@@ -26,7 +27,10 @@ Measured on 300 questions, except the reader, which was measured on 500.
   around the span, and repetition. It learns online with a delta rule:
   each weight changes by its own feature's activation times the
   prediction error. Its typical remaining error is the entity type ("which
-  team" → "National Football League").
+  team" → "National Football League"). For reference, the
+  feature-based logistic regression in the SQuAD paper (Rajpurkar et al.
+  2016) reached 40.4% EM and 51.0% F1, using parsers and POS tags that this
+  reader does not have.
 
 ## 2026-10-02: stage 2, long-range circuits (Simple English Wikipedia)
 
@@ -48,5 +52,9 @@ baseline is the same core with long-range parts off. It reproduces
 - **Word-level circuits hurt** at both budgets. They multiply circuit
   churn by about 15×, and gating arbitration by byte circuits with a
   zero-start weight did not fix it (2.0414 at 2^22). The likely cause is
-  that their high-cardinality keys starve the byte circuits; a 2^26 run is
-  checking this.
+  that their high-cardinality keys starve the byte circuits.
+- Confirmed at 2^26: word circuits alone reach 1.8442, against 1.8758 for
+  byte circuits at 2^24. The gain is 0.032, but it needs 6.4 GB of RAM
+  and 66M circuits, and the match model alone (1.7867 at 2^24, 1.6 GB) is
+  better. Word circuits need a cheaper representation (for example
+  per-word rather than per-bit keys) before they earn their memory.
