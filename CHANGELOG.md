@@ -13,6 +13,13 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- Engine serving (step 8): `soma-mixer-serve` plus `EngineMixingMemory`,
+  bit-exact with the reference; `brain-create --memory mixing` brains live
+  on the engine (clone, backup, `.soma` optional chunk, crash recovery).
+  R3C 4/4, R3D 6/6, R7 5/5 and 4/4 on the engine-served memory via
+  `--memory mixing`. Chat on engine brains uses evidence arbitration and
+  deterministic decoding (opt-in `respond`/`instruct` parameters), fixing
+  byte-garbage generation. `chat_turn` no longer reloads after saving.
 - Circuit-mixing product parity (step 7): `distribution()` interface,
   trust-weighted observation, `Organism.enable_sequence_memory(kind="mixing")`
   with checkpoints and quarantine, and a binary `SOMAMIX1` state that Python

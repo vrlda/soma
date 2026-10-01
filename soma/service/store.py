@@ -5,6 +5,8 @@ Layout per brain `<root>/<name>/`:
   dialogue.json   turn-scoped dialogue memory state
   episodic.json   episodic buffer state
   manifest.json   identity, ancestor, created, description, hashes
+  memory.somamix  engine-served language memory (brains created with
+                  memory="mixing"; see soma/memory/engine.py)
 """
 
 import hashlib
@@ -56,6 +58,12 @@ class BrainStore(object):
             "dialogue": os.path.join(directory, "dialogue.json"),
             "episodic": os.path.join(directory, "episodic.json"),
             "manifest": os.path.join(directory, "manifest.json"),
+            # Only engine brains have a memory file; None keeps crash
+            # recovery from expecting one for suffix brains.
+            "memory": (os.path.join(directory, "memory.somamix")
+                       if os.path.exists(os.path.join(directory, "memory.somamix"))
+                       or os.path.exists(os.path.join(directory, "memory.somamix.prev"))
+                       else None),
         }
 
     def list(self):
@@ -67,14 +75,25 @@ class BrainStore(object):
         return names
 
     def create(self, name, description="", symbols=(0, 1), max_order=16,
-               max_circuits=131072, seed=0):
+               max_circuits=131072, seed=0, memory="suffix", mixing_config=None):
+        """Create a brain. ``memory="mixing"`` uses the engine-served
+        circuit-mixing language memory (ADR 0009) in ``memory.somamix``."""
+        if memory not in ("suffix", "mixing"):
+            raise ValueError("memory must be 'suffix' or 'mixing'")
         paths = self._paths(name)
         if os.path.exists(paths["dir"]):
             raise ValueError("brain already exists: %s" % name)
         os.makedirs(paths["dir"])
         organism = Organism.create_default(input_size=2, hidden_size=2, output_size=1, seed=seed)
-        organism.enable_sequence_memory(tuple(symbols), max_order=max_order,
-                                        max_circuits=max_circuits)
+        if memory == "mixing":
+            config = {"max_circuits": max_circuits}
+            config.update(mixing_config or {})
+            organism.enable_sequence_memory(tuple(symbols), kind="engine", mixing_config=config,
+                                            engine_path=os.path.join(paths["dir"], "memory.somamix"))
+            organism.sequence_memory.save()
+        else:
+            organism.enable_sequence_memory(tuple(symbols), max_order=max_order,
+                                            max_circuits=max_circuits)
         organism.save(paths["brain"])
         episodic = EpisodicBuffer()
         with open(paths["episodic"], "w") as handle:
@@ -93,6 +112,7 @@ class BrainStore(object):
             "symbols": list(symbols),
             "max_order": max_order,
             "max_circuits": max_circuits,
+            "memory": memory,
         }
         with open(paths["manifest"], "w") as handle:
             json.dump(manifest, handle, indent=2, sort_keys=True)
@@ -130,6 +150,8 @@ class BrainStore(object):
             manifest = json.load(handle)
         begin_save(paths["dir"])
         rotate_previous(paths)
+        if hasattr(organism.sequence_memory, "save") and paths["memory"] is not None:
+            organism.sequence_memory.save(paths["memory"])
         organism.save(paths["brain"])
         with open(paths["episodic"], "w") as handle:
             json.dump(episodic.state_dict(), handle, sort_keys=True)
@@ -147,7 +169,7 @@ class BrainStore(object):
         end_save(paths["dir"])
         if self.state_budget_bytes is not None:
             total = sum(os.path.getsize(paths[key]) for key in
-                        ("brain", "dialogue", "episodic", "manifest")
+                        ("brain", "dialogue", "episodic", "manifest", "memory")
                         if paths.get(key) is not None and os.path.exists(paths[key]))
             if total > self.state_budget_bytes:
                 raise ValueError("brain state %d bytes exceeds budget %d" % (
@@ -164,7 +186,7 @@ class BrainStore(object):
         if os.path.exists(destination_paths["dir"]):
             raise ValueError("brain already exists: %s" % destination)
         shutil.copytree(source_paths["dir"], destination_paths["dir"],
-                        ignore=shutil.ignore_patterns("journal.log", "*.prev"))
+                        ignore=shutil.ignore_patterns("journal.log", "*.prev", "*.tmp"))
         with open(destination_paths["manifest"]) as handle:
             manifest = json.load(handle)
         manifest["name"] = destination
@@ -179,13 +201,21 @@ class BrainStore(object):
     def inspect(self, name):
         organism, episodic, manifest, dialogue = self.load(name)
         memory = organism.sequence_memory
+        if memory is not None and hasattr(memory, "summary"):
+            summary = memory.summary()
+            circuits, events = summary["circuits"], summary["events_seen"]
+        elif memory is not None:
+            circuits, events = len(memory.circuits), memory.events_seen
+        else:
+            circuits, events = 0, 0
         return {
             "name": name,
             "identity": manifest.get("identity"),
             "ancestor": manifest.get("ancestor"),
             "description": manifest.get("description", ""),
-            "sequence_circuits": len(memory.circuits) if memory is not None else 0,
-            "sequence_events": memory.events_seen if memory is not None else 0,
+            "memory": manifest.get("memory", "suffix"),
+            "sequence_circuits": circuits,
+            "sequence_events": events,
             "dialogue_circuits": len(dialogue.circuits),
             "episodic_entries": len(episodic.entries),
             "episodic_hits": episodic.hits,
@@ -221,7 +251,7 @@ class BrainStore(object):
         with tempfile.TemporaryDirectory() as scratch:
             staged = os.path.join(scratch, name)
             shutil.copytree(paths["dir"], staged,
-                            ignore=shutil.ignore_patterns("journal.log", "*.prev"))
+                            ignore=shutil.ignore_patterns("journal.log", "*.prev", "*.tmp"))
             with tarfile.open(path, "w:gz") as archive:
                 archive.add(staged, arcname=name)
         return {"path": os.path.abspath(path), "sha256": _sha256_file(path)}
@@ -236,6 +266,9 @@ class BrainStore(object):
         for key in ("manifest", "brain", "dialogue", "episodic"):
             with open(paths[key], "rb") as handle:
                 chunks[key + ".json"] = handle.read()
+        if paths["memory"] is not None:
+            with open(paths["memory"], "rb") as handle:
+                chunks["memory.somamix"] = handle.read()
         return write_soma(path, chunks)
 
     def import_soma(self, path, name):
@@ -251,6 +284,9 @@ class BrainStore(object):
         for chunk_name, key in mapping.items():
             with open(destination_paths[key], "wb") as handle:
                 handle.write(chunks[chunk_name])
+        if "memory.somamix" in chunks:
+            with open(os.path.join(destination_paths["dir"], "memory.somamix"), "wb") as handle:
+                handle.write(chunks["memory.somamix"])
         organism, episodic, _, _ = self.load(name)
         organism.validate()
         episodic.validate()

@@ -1,0 +1,29 @@
+{
+  "all_passed": true,
+  "continued_after_download": true,
+  "corpus": "data/e0/alice.txt",
+  "corrected": true,
+  "episodic_entries": 3,
+  "gates": {
+    "controls_fail": true,
+    "correction": true,
+    "interference": true,
+    "release": true,
+    "restart": true,
+    "uptake": true
+  },
+  "lesioned_recalls": false,
+  "manifest": {
+    "acquisition_bytes": 127072,
+    "documents": 13,
+    "license": "public-domain",
+    "test_bytes": 11782,
+    "test_sha256": "14005372aaf864d1aef667e5c13e3d8a666dfd900b90359a1d50da862b356e29",
+    "validation_bytes": 12122
+  },
+  "protocol": "r3d-dialogue-v1-mixing",
+  "retained_after_interference": true,
+  "retained_after_restart": true,
+  "table_alone_recalls": false,
+  "uptake": true
+}

@@ -473,6 +473,21 @@ impl CircuitMixingMemory {
         self.events_seen += 1;
         self.pending = false;
     }
+    /// (P(next bit = 1), evidence order in bits), as `CircuitMixingMemory.distribution`:
+    /// order is the longest live context's whole bytes times 8 plus the bits
+    /// already seen of the current byte (0 when no circuit is live).
+    pub fn distribution(&mut self) -> (f64, u32) {
+        let probability = self.predict();
+        let mut order = 0;
+        for index in (0..self.config.orders.len()).rev() {
+            if self.visits[index] > 0 {
+                order = self.config.orders[index] * 8 + bit_position(self.partial) as u32;
+                break;
+            }
+        }
+        (probability, order)
+    }
+
     /// Canonical binary state, byte-identical to `CircuitMixingMemory.dumps`.
     pub fn dumps(&self) -> Vec<u8> {
         let c = &self.config;

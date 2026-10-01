@@ -68,9 +68,13 @@ def chat_turn(store, name, user_text, max_bytes=24, seed=0):
     for bit in text_to_bits(user_turn):
         dialogue.observe(bit, learn=True)
     store.save(name, organism, episodic, dialogue=dialogue)
-    organism2, episodic2, _, dialogue2 = store.load(name)
-    reply, _ = instruct(organism2.sequence_memory, dialogue2, episodic2,
-                         user_text, max_bytes=max_bytes, seed=seed)
+    # The saved objects are exactly what a reload would return, so answer
+    # from them directly. Engine brains (circuit mixing, ADR 0009) have a
+    # strong background: arbitrate tiers by evidence length and decode
+    # deterministically.
+    engine = hasattr(memory, "summary")
+    reply, _ = instruct(memory, dialogue, episodic, user_text, max_bytes=max_bytes,
+                        seed=seed, deterministic=engine, evidence_arbitration=engine)
     return reply
 
 

@@ -74,11 +74,17 @@ def _constrain(out_bits, candidate):
 
 
 def respond(background, dialogue, episodic, prefix_text, max_bytes=12,
-            deterministic=False, seed=0, trace=False):
+            deterministic=False, seed=0, trace=False, evidence_arbitration=False):
     """Generate a turn across three tiers: episodic rule, dialogue table,
     background table. Dialogue history is turn-scoped; background is frozen
     E0 knowledge. Emissions never train protected state. With trace=True,
     also returns the fired episodic entry records (provenance attribution).
+
+    evidence_arbitration=False (the frozen R3D behavior) prefers the
+    dialogue table whenever it has DIALOGUE_FALLBACK_ORDER bits of context.
+    True prefers it only when its context is longer than the background
+    memory's. With a strong background (circuit mixing), a sparse
+    turn-scoped table no longer overrides it on short matches.
     """
     rng = random.Random(seed)
     background.reset_history()
@@ -103,7 +109,13 @@ def respond(background, dialogue, episodic, prefix_text, max_bytes=12,
             candidate = emitting.pop(0)
         else:
             distribution, order = dialogue.distribution()
-            if order >= DIALOGUE_FALLBACK_ORDER:
+            if evidence_arbitration:
+                background_distribution, background_order = background.distribution()
+                if order >= DIALOGUE_FALLBACK_ORDER and order > background_order:
+                    candidate = _sample(distribution, deterministic, rng)
+                else:
+                    candidate = _sample(background_distribution, deterministic, rng)
+            elif order >= DIALOGUE_FALLBACK_ORDER:
                 candidate = _sample(distribution, deterministic, rng)
             else:
                 distribution, _ = background.distribution()

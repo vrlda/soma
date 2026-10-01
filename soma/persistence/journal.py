@@ -53,9 +53,12 @@ def is_dirty(directory):
     return bool(records) and records[-1].get("op") != "save-done"
 
 
+GENERATION_KEYS = ("brain", "episodic", "manifest", "dialogue", "memory")
+
+
 def rotate_previous(paths):
     """Move current generation files aside (atomic renames per file)."""
-    for key in ("brain", "episodic", "manifest", "dialogue"):
+    for key in GENERATION_KEYS:
         source = paths.get(key)
         if source is not None and os.path.exists(source):
             os.rename(source, source + PREV_SUFFIX)
@@ -63,11 +66,13 @@ def rotate_previous(paths):
 
 def restore_previous(paths):
     """Bring the previous generation back; raises when absent."""
-    for key in ("brain", "episodic", "manifest", "dialogue"):
-        backup = (paths.get(key) or "") + PREV_SUFFIX
+    for key in GENERATION_KEYS:
+        if paths.get(key) is None:
+            continue
+        backup = paths[key] + PREV_SUFFIX
         if not os.path.exists(backup):
             raise ValueError("no previous generation for crash recovery")
-    for key in ("brain", "episodic", "manifest", "dialogue"):
+    for key in GENERATION_KEYS:
         source = paths.get(key)
         if source is None:
             continue

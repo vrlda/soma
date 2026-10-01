@@ -16,16 +16,11 @@ from soma.evaluation.english import (
     bit_stream, load_corpus, partition_documents, split_chapters,
 )
 from soma.evaluation.lineage import clone_brain, verify_clone
+from soma.evaluation.backgrounds import (
+    BackgroundFactory, add_memory_argument, report_path, respond_settings,
+)
 from soma.memory import EpisodicBuffer, SequenceCircuitMemory
 
-
-def trained_background(acquisition):
-    memory = SequenceCircuitMemory((0, 1), max_order=16, max_circuits=131072,
-                                   min_support=2, prior=0.5)
-    bits, _ = bit_stream(acquisition)
-    for symbol in bits[:-1]:
-        memory.observe(symbol)
-    return memory
 
 
 def starts_with(response, word):
@@ -42,31 +37,34 @@ def starts_with(response, word):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--corpus", default="data/e0/alice.txt")
+    add_memory_argument(parser)
     args = parser.parse_args()
+    settings = respond_settings(args.memory)
 
     data = load_corpus(args.corpus)
     acquisition, _, _, manifest = partition_documents(split_chapters(data), 0)
-    background = trained_background(acquisition)
+    factory = BackgroundFactory(args.memory, acquisition)
+    background = factory()
     dialogue = fresh_dialogue()
     episodic = EpisodicBuffer()
 
     teach_fact(dialogue, episodic, "USER the code is kite AGENT noted ",
                "USER the code is ", "kite")
-    uptake = starts_with(respond(background, dialogue, episodic, "USER the code is ", 8, seed=2), "kite")
+    uptake = starts_with(respond(background, dialogue, episodic, "USER the code is ", 8, seed=2, **settings), "kite")
 
     teach_fact(dialogue, episodic, "USER the code is ball AGENT noted ",
                "USER the code is ", "ball")
     teach_fact(dialogue, episodic, "USER no, the code is kite AGENT fixed ",
                "USER the code is ", "kite", provenance="correction")
     corrected = starts_with(
-        respond(background, dialogue, episodic, "USER the code is ", 8, seed=2), "kite")
+        respond(background, dialogue, episodic, "USER the code is ", 8, seed=2, **settings), "kite")
 
     for filler in ("USER the sky is blue AGENT noted ",
                    "USER grass is green AGENT noted ",
                    "USER birds can fly AGENT noted "):
         teach_fact(dialogue, episodic, filler, "USER filler ", "ok")
     retained = starts_with(
-        respond(background, dialogue, episodic, "USER the code is ", 8, seed=2), "kite")
+        respond(background, dialogue, episodic, "USER the code is ", 8, seed=2, **settings), "kite")
 
     with tempfile.TemporaryDirectory() as directory:
         source = os.path.join(directory, "branch.json")
@@ -80,13 +78,13 @@ def main():
         reloaded_dialogue = SequenceCircuitMemory.from_state_dict(json.load(open(clone)))
         reloaded_episodic = EpisodicBuffer.from_state_dict(json.load(open(source + ".episodic.json")))
     restarted = starts_with(
-        respond(background, reloaded_dialogue, reloaded_episodic, "USER the code is ", 8, seed=2),
+        respond(background, reloaded_dialogue, reloaded_episodic, "USER the code is ", 8, seed=2, **settings),
         "kite")
 
     bare_dialogue = fresh_dialogue()
     bare_episodic = EpisodicBuffer()
     table_alone = starts_with(
-        respond(background, bare_dialogue, bare_episodic, "USER the code is ", 8, seed=2), "kite")
+        respond(background, bare_dialogue, bare_episodic, "USER the code is ", 8, seed=2, **settings), "kite")
 
     memory2 = fresh_dialogue()
     episodic2 = EpisodicBuffer()
@@ -94,7 +92,7 @@ def main():
                        "USER the code is ", "kite")
     episodic2.remove(entry)
     lesioned = starts_with(
-        respond(background, memory2, episodic2, "USER the code is ", 8, seed=2), "kite")
+        respond(background, memory2, episodic2, "USER the code is ", 8, seed=2, **settings), "kite")
 
     table_state, kept_state = sanitize_export(reloaded_dialogue, reloaded_episodic)
     released_dialogue = SequenceCircuitMemory.from_state_dict(table_state)
@@ -102,11 +100,11 @@ def main():
     teach_fact(released_dialogue, released_episodic, "USER the key is opal AGENT noted ",
                "USER the key is ", "opal")
     continued = starts_with(
-        respond(background, released_dialogue, released_episodic, "USER the key is ", 8, seed=2),
+        respond(background, released_dialogue, released_episodic, "USER the key is ", 8, seed=2, **settings),
         "opal")
 
     result = {
-        "protocol": "r3d-dialogue-v1",
+        "protocol": "r3d-dialogue-v1" if args.memory == "suffix" else "r3d-dialogue-v1-mixing",
         "corpus": args.corpus,
         "manifest": manifest,
         "uptake": uptake,
@@ -128,7 +126,8 @@ def main():
     }
     result["all_passed"] = all(result["gates"].values())
     print(json.dumps(result, indent=2, sort_keys=True))
-    with open("reports/r3d-dialogue.json", "w") as handle:
+    factory.close()
+    with open(report_path("reports/r3d-dialogue.json", args.memory), "w") as handle:
         json.dump(result, handle, indent=2, sort_keys=True)
     return 0 if result["all_passed"] else 1
 

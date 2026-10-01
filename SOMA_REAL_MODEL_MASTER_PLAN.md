@@ -688,7 +688,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R5 — Scalable brain runtime — PARTIAL
 
-**Status:** done: binary `.soma` v1, journal and crash recovery, profiler, budgets, tier ceilings, 2M-step soak, and Rust ports with differential parity for the graph, forward, learning, evidence, detector, and circuit-mixing kernels (`docs/r5-engine.md`, `engine/README.md`). Open: structural growth, fingerprints, and probes on the engine; serving from the engine; GPU backend; 72-hour soak; Micro tier on the engine.
+**Status:** done: binary `.soma` v1, journal and crash recovery, profiler, budgets, tier ceilings, 2M-step soak, and Rust ports with differential parity for the graph, forward, learning, evidence, detector, and circuit-mixing kernels (`docs/r5-engine.md`, `engine/README.md`). Serving the language memory from the engine is done (`soma-mixer-serve`, [docs/r8-engine-serving.md](docs/r8-engine-serving.md)). Open: structural growth, fingerprints, and probes on the engine; GPU backend; 72-hour soak; Micro tier on the engine.
 
 **Deliverables:** separately installed production host, CPU backend, first GPU backend, binary `.soma` format, adapter host, differential reference tests, profiler, journal/compactor, sparse activation instrumentation, and memory-budget enforcement.
 
@@ -712,7 +712,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R8 — Prosumer runtime — PARTIAL
 
-**Status:** CLI, chat, local HTTP API, doctor, clone/backup/restore/export/import, installer, presets, and a clean-machine procedure exist (`docs/r8-service.md`). Open: signatures, downloader, updater, a recorded clean-machine run, and serving the R6 memory.
+**Status:** CLI, chat, local HTTP API, doctor, clone/backup/restore/export/import, installer, presets, and a clean-machine procedure exist (`docs/r8-service.md`). Engine brains (`brain-create --memory mixing`) serve the R6 memory. Open: signatures, downloader, updater, a recorded clean-machine run, shipping the engine with the installer, and dialogue-tier latency.
 
 **Deliverables:** runtime installer/updater, blank-brain creator, trained-brain downloader, transducer manager, signatures, daemon, CLI, local API, hardware presets, clone/branch, backup/restore, import/export, doctor, documentation, and brain/model card.
 
@@ -868,7 +868,7 @@ This is the single ordered work list. Update it whenever a step closes. The orig
 ### Phase C: make it usable
 
 7. ~~**Feature parity for the product.**~~ **Done 2026-09-30** ([docs/r6-product-parity.md](docs/r6-product-parity.md)). The distribution interface, trust-weighted observation, organism ownership with quarantine and checkpoints, and a binary `SOMAMIX1` state that Python and Rust write byte-identically. R4 passes 6/6 and R9 7/7 on the new memory. Exact forgetting stays at the episodic layer, the only one the product forgets at; statistical unforgetting cannot be exact with capped counts and plastic weights.
-8. **Serve from the engine.** Python cannot run a 16M-circuit memory interactively. Host `soma-mixer` in the service (library or daemon), then switch chat and generation to it behind a brain preset. *Done when* R3C generation, R3D dialogue, and R7 instruction gates re-pass on the new memory, and chat latency is published.
+8. ~~**Serve from the engine.**~~ **Done 2026-10-01** ([docs/r8-engine-serving.md](docs/r8-engine-serving.md)). `soma-mixer-serve` plus `EngineMixingMemory`: 0 mismatches against the reference on random tapes, a 1.2 ms prompt, about 43 µs per generated bit. Brains created with `--memory mixing` live on the engine through clone, backup, `.soma` export, and crash recovery. Gates on the engine-served memory: R3C 4/4, R3D 6/6, R7 instruction 5/5, R7 tools 4/4 (plus R4 6/6 and R9 7/7 in step 7). Chat now uses evidence arbitration and produces English where it used to produce byte garbage. Open: a full turn takes about 2.3 s, dominated by the legacy JSON dialogue tier, not the engine.
 
 ### Phase D: scale and ship (R5–R10)
 

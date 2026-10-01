@@ -31,10 +31,10 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
    improving every final score; [record](docs/r6-consolidation.md)). The
    circuit memory is now the organism's recorded language substrate
    ([ADR 0009](docs/adr/0009-language-substrate.md)).
-3. **Make it usable:** ~~port quarantine, trust weighting, and
-   persistence~~ (done: R4 6/6 and R9 7/7 on the new memory; state files
-   byte-identical across Python and Rust), then serve chat from the Rust
-   engine.
+3. ~~**Make it usable:**~~ done. The new memory has quarantine, trust
+   weighting, and persistence, and is served from the Rust engine. Every
+   product gate passes on it, and chat produces English
+   ([serving](docs/r8-engine-serving.md)). Open: dialogue-tier latency.
 4. **Scale and ship:** E3 scaling, Micro tier on the engine, human
    preference ratings, signatures, alpha, then Text v1.
 
@@ -51,10 +51,10 @@ against 2.07 for the n-gram ([untouched test](docs/r6-untouched-test.md)).
 | R3D dialogue | ✅ | 6/6 gates: uptake, correction, retention, release |
 | R3 systematicity | ✅ | novel combos recombine, precision held |
 | R4 continual | ✅ | lifelong 4/4 uptake, conflicts, quarantine |
-| R5 engine | partial | `.soma` v1, journal, profiler, 2M soak; Rust parity for graph, forward, learning, evidence, detector, circuit mixing. Open: growth on engine, serving, GPU, 72 h soak |
+| R5 engine | partial | `.soma` v1, journal, profiler, 2M soak; Rust parity for graph, forward, learning, evidence, detector, circuit mixing; serves chat. Open: growth on engine, GPU, 72 h soak |
 | R6 useful scale | partial | circuit mixing 0.2406 bits/bit, 7/7 gates, metaplastic consolidation, untouched book 0.2381 (beats order-5 n-gram); Small floor, factual 8/8, reclamation 4/4. Open: consolidation, E3, signed candidate |
 | R7 instruction | partial | skills, uncertainty, refusal, tools. Open: human preference floors |
-| R8 service | partial | CLI, chat, HTTP API, doctor, installer, backup/restore. Open: signatures, downloader, recorded clean-machine run |
+| R8 service | partial | CLI, chat, HTTP API, doctor, installer, backup/restore; engine-served circuit-mixing brains. Open: signatures, downloader, recorded clean-machine run, dialogue-tier latency |
 | R9 red-team | partial | 7/7 attack gates, telemetry, runbooks. Open: closed alpha |
 | R10 release | open | needs R5–R9 |
 | R11 vision | first step | 6×6 glyphs through the unchanged core, 7/7 |
@@ -78,6 +78,10 @@ python3 -m soma.service.main brain-correct demo "USER the code is " "kite"
 python3 -m soma.service.main chat demo
 python3 -m soma.service.main serve --port 8765
 ```
+
+For the stronger circuit-mixing language memory, build the engine once
+(`cargo build --release --manifest-path engine/soma-engine/Cargo.toml`) and
+create the brain with `brain-create demo --memory mixing`.
 
 Chat understands `repeat after me:`, `spell`, taught facts, corrections,
 and says "I don't know" for out-of-training bytes. `doctor` checks health.

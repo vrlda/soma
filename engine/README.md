@@ -13,6 +13,11 @@ Every ported kernel has a Python reference and a differential harness.
 | CUSUM detector update | `detector.rs` | `differential_detector.py` | ~1e-15 |
 | Circuit-mixing language memory (`soma/memory/mixing.py`), including trust-weighted learning and `SOMAMIX1` state | `mixer.rs`, `soma-mixer` | `differential_mixer.py` | bitwise; saved state byte-identical |
 
+`soma-mixer-serve` hosts one circuit-mixing memory for the chat service
+(line-delimited JSON on stdin/stdout; client `soma.memory.engine`). It is
+checked against the Python reference by `differential_serve.py`; see
+`docs/r8-engine-serving.md`.
+
 Not ported yet: fingerprints, probes, and organism structural growth
 (Python-side by design until the next engine milestone), serving from the
 engine, and GPU backends.

@@ -12,19 +12,14 @@ import json
 
 from soma.evaluation.dialogue import fresh_dialogue, respond, teach_fact
 from soma.evaluation.english import (
-    bit_stream, load_corpus, partition_documents, split_chapters,
+    load_corpus, partition_documents, split_chapters,
 )
 from soma.evaluation.tools import ToolRegistry, ToolSpec, _bits_of, propose_call
-from soma.memory import EpisodicBuffer, SequenceCircuitMemory
+from soma.evaluation.backgrounds import (
+    BackgroundFactory, add_memory_argument, report_path, respond_settings,
+)
+from soma.memory import EpisodicBuffer
 
-
-def trained_background(acquisition):
-    memory = SequenceCircuitMemory((0, 1), max_order=16, max_circuits=131072,
-                                   min_support=2, prior=0.5)
-    bits, _ = bit_stream(acquisition)
-    for symbol in bits[:-1]:
-        memory.observe(symbol)
-    return memory
 
 
 def registry():
@@ -44,11 +39,15 @@ def registry():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--corpus", default="data/e0/alice.txt")
+    add_memory_argument(parser)
     args = parser.parse_args()
+    settings = respond_settings(args.memory)
 
     data = load_corpus(args.corpus)
     acquisition, _, _, manifest = partition_documents(split_chapters(data), 0)
-    background = trained_background(acquisition)
+    factory = BackgroundFactory(args.memory, acquisition)
+    seed_factory = BackgroundFactory(args.memory, acquisition[:20000])
+    background = factory()
     tools = registry()
 
     # Teach tool-use transcripts so content evidence exists.
@@ -64,11 +63,7 @@ def main():
     # Syntax validity via constrained sampling on novel prefixes.
     validity, asked = 0, 0
     for seed_text in (b'{"tool": "get_we', b'{"arguments": {"city": "'):
-        memory = SequenceCircuitMemory((0, 1), max_order=16, max_circuits=131072,
-                                       min_support=2, prior=0.5)
-        seed_bits, _ = bit_stream(acquisition[:20000])
-        for symbol in seed_bits[:-1]:
-            memory.observe(symbol)
+        memory = seed_factory()
         memory.reset_history()
         for bit in _bits_of(seed_text):
             memory.observe(bit, learn=False)
@@ -88,7 +83,8 @@ def main():
                "USER weather paris ", paris_call)
     candidates = tools.triggered("weather in paris")
     assert len(candidates) == 1 and candidates[0].name == "get_weather"
-    call_text = respond(background, dialogue, episodic, "USER weather paris ", 64, seed=3)
+    call_text = respond(background, dialogue, episodic, "USER weather paris ", 64, seed=3,
+                        **settings)
     try:
         call_payload, _ = json.JSONDecoder().raw_decode(
             bytes(call_text).decode("utf-8", errors="ignore"))
@@ -98,11 +94,7 @@ def main():
         content_ok = False
 
     # Multi-turn loop: propose, execute, observe result, follow up.
-    loop_memory = SequenceCircuitMemory((0, 1), max_order=16, max_circuits=131072,
-                                        min_support=2, prior=0.5)
-    seed_bits, _ = bit_stream(acquisition[:20000])
-    for symbol in seed_bits[:-1]:
-        loop_memory.observe(symbol)
+    loop_memory = seed_factory()
     loop_memory.reset_history()
     for bit in _bits_of(b'{"tool": "get_we'):
         loop_memory.observe(bit, learn=False)
@@ -111,7 +103,8 @@ def main():
     arguments = json.loads(call.decode("utf-8"))["arguments"]
     result_text = "USER weather result AGENT %s " % tool.execute(arguments)
     teach_fact(dialogue, episodic, result_text, "USER weather result ", tool.execute(arguments))
-    followup = respond(background, dialogue, episodic, "USER weather result ", 10, seed=4)
+    followup = respond(background, dialogue, episodic, "USER weather result ", 10, seed=4,
+                       **settings)
     try:
         followup_text = bytes(followup).decode("utf-8", errors="strict")
     except UnicodeDecodeError:
@@ -122,7 +115,7 @@ def main():
     no_tool = bare.triggered("weather in paris") == []
 
     result = {
-        "protocol": "r7-tool-v1",
+        "protocol": "r7-tool-v1" if args.memory == "suffix" else "r7-tool-v1-mixing",
         "corpus": args.corpus,
         "manifest": manifest,
         "validity": "%d/%d" % (validity, asked),
@@ -137,7 +130,9 @@ def main():
     }
     result["all_passed"] = all(result["gates"].values())
     print(json.dumps(result, indent=2, sort_keys=True))
-    with open("reports/r7-tool.json", "w") as handle:
+    factory.close()
+    seed_factory.close()
+    with open(report_path("reports/r7-tool.json", args.memory), "w") as handle:
         json.dump(result, handle, indent=2, sort_keys=True)
     return 0 if result["all_passed"] else 1
 

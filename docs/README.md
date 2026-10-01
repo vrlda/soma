@@ -20,7 +20,7 @@ wins; fix the record.
 | R5 engine | partial | [r5-engine.md](r5-engine.md), [../engine/README.md](../engine/README.md) |
 | R6 useful scale | partial | **[r6-circuit-mixing.md](r6-circuit-mixing.md)** (current language result), [r6-untouched-test.md](r6-untouched-test.md) (pre-registered untouched test), [r6-retention.md](r6-retention.md) (forgetting baseline), [r6-consolidation.md](r6-consolidation.md) (metaplasticity), [r6-product-parity.md](r6-product-parity.md) (product features), [r6-tier-qualification.md](r6-tier-qualification.md), [ADR 0006](adr/0006-r6-control-margins-evidence.md) |
 | R7 instruction | partial | [r7-instruction.md](r7-instruction.md) |
-| R8 service | partial | [r8-service.md](r8-service.md), [clean-machine.md](clean-machine.md) |
+| R8 service | partial | [r8-service.md](r8-service.md), [r8-engine-serving.md](r8-engine-serving.md) (engine brains), [clean-machine.md](clean-machine.md) |
 | R9 red-team, ops | partial | [r9-redteam.md](r9-redteam.md), [runbooks.md](runbooks.md) |
 | R10 release | open | [release-checklist.md](release-checklist.md) (rehearsal) |
 | R11 vision | first step | [r11-vision.md](r11-vision.md) |

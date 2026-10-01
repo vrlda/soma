@@ -10,4 +10,6 @@ python3 engine/differential_learn.py 0 | grep -E "all_passed"
 python3 engine/differential_evidence.py 0 | grep -E "all_passed"
 python3 engine/differential_detector.py 0 | grep -E "all_passed"
 python3 engine/differential_mixer.py 0 | grep -E "all_passed"
+python3 engine/differential_serve.py 0 | grep -E "\"all_passed\""
+python3 -m unittest tests.test_r8_engine_brain 2>&1 | tail -1
 echo "ENGINE GATES DONE"

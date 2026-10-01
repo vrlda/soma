@@ -65,7 +65,7 @@ def _decode(raw):
 
 
 def instruct(background, dialogue, episodic, user_text, max_bytes=24, seed=0,
-             vocabulary=None):
+             vocabulary=None, deterministic=False, evidence_arbitration=False):
     """One instruction turn through refusal, skills, recall, uncertainty.
 
     Vocabulary, when given, is the training byte set: question bytes never
@@ -102,5 +102,6 @@ def instruct(background, dialogue, episodic, user_text, max_bytes=24, seed=0,
     if not episodic.match_all(question_bits) and not memory_specific(order):
         return UNCERTAINTY_TEXT, "uncertain"
     response = respond(background, dialogue, episodic, attributed,
-                       max_bytes=max_bytes, seed=seed)
+                       max_bytes=max_bytes, seed=seed, deterministic=deterministic,
+                       evidence_arbitration=evidence_arbitration)
     return _decode(response), "recall"

@@ -1,0 +1,27 @@
+{
+  "all_passed": true,
+  "benign": "h e l l o",
+  "corpus": "data/e0/alice.txt",
+  "gates": {
+    "no_collateral": true,
+    "recall": true,
+    "refusal": true,
+    "skills": true,
+    "uncertainty": true
+  },
+  "heldout_after": 0.2648213066484985,
+  "heldout_before": 0.2648213066484985,
+  "manifest": {
+    "acquisition_bytes": 127072,
+    "documents": 13,
+    "license": "public-domain",
+    "test_bytes": 11782,
+    "test_sha256": "14005372aaf864d1aef667e5c13e3d8a666dfd900b90359a1d50da862b356e29",
+    "validation_bytes": 12122
+  },
+  "protocol": "r7-instruction-v1-mixing",
+  "recall": "rivery good deal the fou",
+  "refusal": "I can't help with that.",
+  "skills": "4/4",
+  "uncertain": "3/3"
+}

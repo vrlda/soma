@@ -132,19 +132,21 @@ def run_generation_suite(memory_factory, max_bytes=50, samples=4):
     }
 
 
-def horizon_sensitivity(memory_factory, validation):
+def horizon_sensitivity(memory_factory, validation, horizon_bytes=2):
     """Familiar junctions score better; deep history beyond the horizon is
     invisible. Returns (spread_within, spread_beyond).
 
     spread_within: true 60-byte prefix vs a novel prefix for the same 8-byte
     window (familiar junction vs backoff).
-    spread_beyond: true prefix vs junk sharing its last 2 bytes (identical
-    trailing 16-bit histories must give identical likelihoods).
+    spread_beyond: true prefix vs junk sharing its last ``horizon_bytes``
+    bytes (identical histories within the memory's horizon must give
+    identical likelihoods). The default 2 is the 16-bit suffix memory's
+    horizon; circuit mixing sees 12 bytes.
     """
     window = bytes(validation[60:68])
     true_prefix = bytes(validation[:60])
     novel_prefix = b"xyzzy plugh frobnicate " * 3
-    same_tail = b"Qz!#" * 10 + bytes(validation[58:60])
+    same_tail = b"Qz!#" * 10 + bytes(validation[60 - horizon_bytes:60])
     spread_within = abs(continuation_nll(memory_factory(), true_prefix, window)
                         - continuation_nll(memory_factory(), novel_prefix, window))
     spread_beyond = abs(continuation_nll(memory_factory(), true_prefix, window)

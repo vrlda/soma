@@ -607,7 +607,7 @@ class Organism:
 
     def enable_sequence_memory(self, symbols, max_order=16, max_circuits=131072,
                                min_support=2, prior=0.5, kind="suffix",
-                               mixing_config=None) -> None:
+                               mixing_config=None, engine_path=None) -> None:
         """Enable brain-owned ordered-event prediction over declared symbols.
 
         Symbols are opaque labels declared by the harness (transducer domain);
@@ -615,15 +615,21 @@ class Organism:
         until enabled: legacy regimes never carry sequence state.  ``kind``
         "suffix" is the original SequenceCircuitMemory; "mixing" is the
         CircuitMixingMemory language substrate (ADR 0009), binary symbols
-        only, configured by ``mixing_config``.
+        only, configured by ``mixing_config``; "engine" is the same memory
+        hosted by the Rust engine and persisted to ``engine_path``.
         """
         if self.sequence_memory is not None:
             raise ValueError("sequence memory is already enabled")
+        if kind in ("mixing", "engine") and tuple(symbols) != (0, 1):
+            raise ValueError("circuit mixing memory predicts binary symbols (0, 1)")
         if kind == "mixing":
             from .memory.mixing import CircuitMixingMemory
-            if tuple(symbols) != (0, 1):
-                raise ValueError("circuit mixing memory predicts binary symbols (0, 1)")
             memory = CircuitMixingMemory(**dict(mixing_config or {}))
+        elif kind == "engine":
+            from .memory.engine import EngineMixingMemory
+            if engine_path is None:
+                raise ValueError("engine sequence memory requires engine_path")
+            memory = EngineMixingMemory(config=dict(mixing_config or {}), path=engine_path)
         elif kind == "suffix":
             from .memory.sequence import SequenceCircuitMemory
             memory = SequenceCircuitMemory(tuple(symbols), max_order=max_order,
@@ -5922,7 +5928,7 @@ class Organism:
         })
 
     @classmethod
-    def from_state_dict(cls, state: Mapping[str, object]) -> "Organism":
+    def from_state_dict(cls, state: Mapping[str, object], base_dir: Optional[str] = None) -> "Organism":
         if not isinstance(state, Mapping):
             raise ValueError("organism checkpoint must be a mapping")
         version = int(state.get("version", 0))
@@ -6312,7 +6318,11 @@ class Organism:
             organism.sequence_memory = None
             organism.sequence_memory_symbols = None
         else:
-            if isinstance(sequence_payload, dict) and sequence_payload.get("kind") == "circuit-mixing":
+            if isinstance(sequence_payload, dict) and sequence_payload.get("kind") == "circuit-mixing-file":
+                from .memory.engine import EngineMixingMemory
+                organism.sequence_memory = EngineMixingMemory.from_state_dict(sequence_payload,
+                                                                              base_dir=base_dir)
+            elif isinstance(sequence_payload, dict) and sequence_payload.get("kind") == "circuit-mixing":
                 from .memory.mixing import CircuitMixingMemory
                 organism.sequence_memory = CircuitMixingMemory.from_state_dict(sequence_payload)
             else:
@@ -6346,7 +6356,8 @@ class Organism:
     @classmethod
     def load(cls, path: str) -> "Organism":
         with open(path, "r") as handle:
-            return cls.from_state_dict(json.load(handle))
+            return cls.from_state_dict(json.load(handle),
+                                       base_dir=os.path.dirname(os.path.abspath(path)))
 
     @classmethod
     def load_checkpoint(cls, path: str):

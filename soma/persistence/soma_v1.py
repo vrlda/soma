@@ -7,8 +7,10 @@ Layout (big-endian):
              payload bytes, sha256(payload) 32 bytes
   footer_sha uint32-length-prefixed sha256 over everything before it
 
-Chunks: manifest.json, brain.json, dialogue.json, episodic.json.
-Every hash is verified on read; any mismatch or truncation raises.
+Chunks: manifest.json, brain.json, dialogue.json, episodic.json, plus the
+optional binary memory.somamix (engine-served language memory). Files
+without it are unchanged. Every hash is verified on read; any mismatch or
+truncation raises.
 Atomic writes via temp file + rename + fsync.
 """
 
@@ -21,6 +23,7 @@ import tempfile
 SOMAFORMAT_VERSION = 1
 MAGIC = b"SOMA0001"
 CHUNK_NAMES = ("manifest.json", "brain.json", "dialogue.json", "episodic.json")
+OPTIONAL_CHUNK_NAMES = ("memory.somamix",)
 
 
 def _sha256(data):
@@ -29,14 +32,17 @@ def _sha256(data):
 
 def write_soma(path, chunks):
     """Write chunks {name: bytes} atomically with full integrity hashes."""
-    if set(chunks.keys()) != set(CHUNK_NAMES):
-        raise ValueError("soma v1 requires exactly chunks %s" % (sorted(CHUNK_NAMES),))
+    names = set(chunks.keys())
+    if not set(CHUNK_NAMES) <= names or not names <= set(CHUNK_NAMES) | set(OPTIONAL_CHUNK_NAMES):
+        raise ValueError("soma v1 requires chunks %s (optional %s)" % (
+            sorted(CHUNK_NAMES), sorted(OPTIONAL_CHUNK_NAMES)))
+    ordered = [name for name in CHUNK_NAMES + OPTIONAL_CHUNK_NAMES if name in chunks]
     for name, payload in chunks.items():
         if not isinstance(payload, (bytes, bytearray)):
             raise ValueError("chunk %s must be bytes" % name)
     body = bytearray(MAGIC)
-    body += struct.pack(">I", len(CHUNK_NAMES))
-    for name in CHUNK_NAMES:
+    body += struct.pack(">I", len(ordered))
+    for name in ordered:
         payload = bytes(chunks[name])
         name_bytes = name.encode("ascii")
         body += struct.pack(">H", len(name_bytes))
@@ -76,7 +82,7 @@ def read_soma(path):
         raise ValueError("bad soma magic: %r" % (magic,))
     (nchunks,) = struct.unpack_from(">I", data, offset)
     offset += 4
-    if nchunks != len(CHUNK_NAMES):
+    if not len(CHUNK_NAMES) <= nchunks <= len(CHUNK_NAMES) + len(OPTIONAL_CHUNK_NAMES):
         raise ValueError("unexpected soma chunk count: %d" % nchunks)
     chunks = {}
     for _ in range(nchunks):
@@ -99,7 +105,8 @@ def read_soma(path):
         if name in chunks:
             raise ValueError("duplicate soma chunk: %s" % name)
         chunks[name] = payload
-    if set(chunks.keys()) != set(CHUNK_NAMES):
+    names = set(chunks.keys())
+    if not set(CHUNK_NAMES) <= names or not names <= set(CHUNK_NAMES) | set(OPTIONAL_CHUNK_NAMES):
         raise ValueError("soma chunk set mismatch: %s" % sorted(chunks.keys()))
     footer = data[offset:]
     if _sha256(data[:offset]) != footer:
