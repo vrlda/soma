@@ -4,3 +4,4 @@ __pycache__/
 engine/soma-engine/target/
 .venv/
 venv/
+data/e3full/

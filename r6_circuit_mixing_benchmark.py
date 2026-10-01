@@ -46,11 +46,14 @@ ABLATIONS = (
 )
 
 
-def run_engine(config, train_paths, eval_paths, every_file=False, snapshot_evals=None):
+def run_engine(config, train_paths, eval_paths, every_file=False, snapshot_evals=None,
+               extra=None):
     job = {"config": config, "train": train_paths, "eval": eval_paths,
            "eval_every_file": bool(every_file)}
     if snapshot_evals:
         job["snapshot_evals"] = list(snapshot_evals)
+    if extra:
+        job.update(extra)
     completed = subprocess.run([BINARY], input=json.dumps(job), check=True,
                                capture_output=True, text=True)
     report = json.loads(completed.stdout)

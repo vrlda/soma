@@ -124,6 +124,8 @@ fn main() {
         }
     }
     let every = job.get("eval_every_file").and_then(|v| v.as_bool()).unwrap_or(false);
+    // Evaluate after every `eval_interval` files (and after the last one).
+    let interval = job.get("eval_interval").and_then(|v| v.as_u64()).unwrap_or(0) as usize;
     // Diagnostic: snapshot_evals[i] names the eval to score at the end with
     // the final circuits but the arbitration weights saved after train[i].
     let snapshot_evals: Vec<String> = job
@@ -164,7 +166,7 @@ fn main() {
         if !snapshot_evals.is_empty() {
             snapshots.push(memory.weights.clone());
         }
-        if every || index + 1 == train.len() {
+        if every || index + 1 == train.len() || (interval > 0 && (index + 1) % interval == 0) {
             let mut scratch = BTreeMap::new();
             let scores = evaluate(&mut memory, &evals, &BTreeMap::new(), &mut scratch);
             curve.push(serde_json::json!({
