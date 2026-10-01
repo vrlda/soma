@@ -73,6 +73,12 @@ fn config_from(value: &serde_json::Value) -> MixerConfig {
     if let Some(v) = value.get("freeze_arbitration_after").and_then(|v| v.as_u64()) {
         config.freeze_arbitration_after = v;
     }
+    if let Some(v) = value.get("growth_pressure").and_then(|v| v.as_f64()) {
+        config.growth_pressure = v;
+    }
+    if let Some(v) = value.get("reclaim_recency").and_then(|v| v.as_f64()) {
+        config.reclaim_recency = v;
+    }
     if let Some(v) = value.get("correction_rate").and_then(|v| v.as_f64()) {
         config.correction_rate = v;
     }
