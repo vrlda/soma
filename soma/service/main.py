@@ -103,7 +103,62 @@ def cmd_brain_export_soma(args):
 
 
 def cmd_brain_import_soma(args):
-    print(json.dumps(_store(args).import_soma(args.path, args.name), indent=2, sort_keys=True))
+    from .distribution import import_signed
+    result = import_signed(_store(args), args.path, args.name,
+                           require_signature=args.require_signature,
+                           extra_keyrings=args.keyring or ())
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_brain_download(args):
+    from .distribution import download
+    result = download(_store(args), args.url, args.name, max_bytes=args.max_bytes,
+                      keep=args.keep, extra_keyrings=args.keyring or ())
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_engine_install(args):
+    from .distribution import engine_platform, install_engine
+    url = args.url
+    if url.endswith("/"):
+        url += "soma-engine-%s.tar.gz" % engine_platform()
+    print(json.dumps(install_engine(url, extra_keyrings=args.keyring or ()), indent=2,
+                     sort_keys=True))
+    return 0
+
+
+def cmd_key_generate(args):
+    from ..persistence.signing import write_secret_key
+    try:
+        entry = write_secret_key(args.path)
+    except FileExistsError:
+        raise ValueError("refusing to overwrite existing key %s" % args.path)
+    print(json.dumps(dict(entry, secret_key_file=os.path.abspath(args.path)), indent=2,
+                     sort_keys=True))
+    return 0
+
+
+def cmd_key_trust(args):
+    from .distribution import trust_key
+    print(json.dumps(trust_key(args.public_key, args.label, path=args.keyring_file), indent=2,
+                     sort_keys=True))
+    return 0
+
+
+def cmd_sign(args):
+    from ..persistence.signing import read_secret_key, sign_file
+    print(json.dumps(sign_file(args.path, read_secret_key(args.key)), indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_verify(args):
+    from ..persistence.signing import verify_file
+    from .distribution import keyring
+    envelope = verify_file(args.path, keyring(args.keyring or ()))
+    print(json.dumps({"verified": True, "key_id": envelope["key_id"],
+                      "artifact_sha256": envelope["artifact_sha256"]}, indent=2, sort_keys=True))
     return 0
 
 
@@ -237,7 +292,45 @@ def build_parser():
     import_soma = commands.add_parser("brain-import-soma")
     import_soma.add_argument("path")
     import_soma.add_argument("name")
+    import_soma.add_argument("--require-signature", action="store_true",
+                             help="refuse artifacts without a trusted signature")
+    import_soma.add_argument("--keyring", action="append", help="extra trusted-key file")
     import_soma.set_defaults(function=cmd_brain_import_soma)
+
+    download = commands.add_parser("brain-download",
+                                   help="download a signed .soma brain, verify, import")
+    download.add_argument("url")
+    download.add_argument("name")
+    download.add_argument("--max-bytes", type=int, default=8 * 1024 ** 3)
+    download.add_argument("--keep", help="also save the verified artifact here")
+    download.add_argument("--keyring", action="append", help="extra trusted-key file")
+    download.set_defaults(function=cmd_brain_download)
+
+    engine_install = commands.add_parser(
+        "engine-install", help="install a signed prebuilt engine (URL, or release dir ending /)")
+    engine_install.add_argument("url")
+    engine_install.add_argument("--keyring", action="append", help="extra trusted-key file")
+    engine_install.set_defaults(function=cmd_engine_install)
+
+    key_generate = commands.add_parser("key-generate", help="new Ed25519 signing key (secret)")
+    key_generate.add_argument("path")
+    key_generate.set_defaults(function=cmd_key_generate)
+
+    key_trust = commands.add_parser("key-trust", help="trust a public key for verification")
+    key_trust.add_argument("public_key")
+    key_trust.add_argument("--label", default="")
+    key_trust.add_argument("--keyring-file", help="default: $SOMA_HOME/trusted_keys.json")
+    key_trust.set_defaults(function=cmd_key_trust)
+
+    sign = commands.add_parser("sign", help="write <file>.sig with a secret key")
+    sign.add_argument("path")
+    sign.add_argument("--key", required=True)
+    sign.set_defaults(function=cmd_sign)
+
+    verify = commands.add_parser("verify", help="verify <file>.sig against trusted keys")
+    verify.add_argument("path")
+    verify.add_argument("--keyring", action="append", help="extra trusted-key file")
+    verify.set_defaults(function=cmd_verify)
 
     profile = commands.add_parser("profile")
     profile.add_argument("name")

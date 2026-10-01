@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Signed distribution (`docs/r8-signing.md`): standard-library Ed25519
+  (RFC 8032 vectors; byte-identical to OpenSSL), `key-generate`,
+  `key-trust`, `sign`, `verify`, `brain-download` (verified before
+  import), `engine-install` (signed prebuilt engine, safe extraction).
+  `brain-import-soma` checks a `.sig` when present (`--require-signature`).
+  Adds a release workflow for Linux and macOS engine packages, and an
+  `install.sh` fallback via `SOMA_ENGINE_URL`. No secret key is in the
+  repository.
 - Micro v2 (`r6_micro_engine_v2_benchmark.py`, pre-registered): 8/9. Resume
   and effect pass; arbitration ties its no-arbitration control at this
   scale (−0.0003) once evidence-gated growth is on. Micro stays diagnostic.

@@ -1,0 +1,54 @@
+name: release-engine
+# Prebuilt engine packages for `engine-install`. On an engine-v* tag the
+# packages are attached to a GitHub release; a manual run only uploads
+# them as workflow artifacts. Packages are signed when the repository has
+# a SOMA_RELEASE_KEY secret (the JSON written by `key-generate`); unsigned
+# packages are refused by `engine-install`.
+on:
+  push:
+    tags: ["engine-v*"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x86_64
+          - os: macos-14
+            platform: darwin-arm64
+          - os: macos-13
+            platform: darwin-x86_64
+    runs-on: ${{ matrix.os }}
+    env:
+      SOMA_RELEASE_KEY: ${{ secrets.SOMA_RELEASE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build and test the engine
+        run: bash engine/tests.sh
+      - name: Package
+        run: python scripts/package_engine.py --out dist --platform ${{ matrix.platform }}
+      - name: Sign
+        if: env.SOMA_RELEASE_KEY != ''
+        run: |
+          umask 077
+          printf '%s' "$SOMA_RELEASE_KEY" > "$RUNNER_TEMP/release.key"
+          python -m soma.service.main sign dist/soma-engine-${{ matrix.platform }}.tar.gz \
+            --key "$RUNNER_TEMP/release.key"
+          rm -f "$RUNNER_TEMP/release.key"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: soma-engine-${{ matrix.platform }}
+          path: dist/*
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/engine-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*

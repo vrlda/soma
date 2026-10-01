@@ -30,6 +30,19 @@ def engine_report():
     return report
 
 
+def signing_report():
+    """Trusted signing keys (an empty keyring only blocks downloads)."""
+    from .distribution import keyring
+    try:
+        keys = keyring()
+    except (OSError, ValueError) as error:
+        return {"trusted_keys": 0, "error": str(error)}
+    report = {"trusted_keys": len(keys), "key_ids": sorted(keys)}
+    if not keys:
+        report["hint"] = "brain-download needs a trusted key: `key-trust PUBLIC_KEY_HEX`"
+    return report
+
+
 def doctor(root):
     from .store import BrainStore
     from ..memory import SequenceCircuitMemory
@@ -40,6 +53,7 @@ def doctor(root):
         "disk_free_mb": shutil.disk_usage(os.path.abspath(root))[2] // (1024 * 1024),
         "brains": {},
         "engine": engine_report(),
+        "signing": signing_report(),
         "ok": True,
     }
     try:

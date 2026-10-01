@@ -101,8 +101,9 @@ behavior.
 
 ## Open
 
-- The engine is built from source by `install.sh`; prebuilt signed
-  binaries are part of R8 packaging (signatures, downloader).
+- The engine is built from source by `install.sh`, or installed as a
+  signed prebuilt package with `engine-install`
+  ([r8-signing.md](r8-signing.md)).
 - Generation is fluent locally and repetitive over longer spans ("the more
   the whole she was"). That is expected from a 12-byte-context predictor
   trained on 127 KB. Quality scales with corpus and budget (E3), not with

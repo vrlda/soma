@@ -25,8 +25,20 @@ class EngineError(RuntimeError):
     pass
 
 
+def installed_binary():
+    """Where ``engine-install`` puts a prebuilt, signature-verified engine."""
+    home = os.environ.get("SOMA_HOME", os.path.join(os.path.expanduser("~"), ".soma"))
+    return os.path.join(home, "engine", "soma-mixer-serve")
+
+
 def engine_binary():
-    return os.environ.get("SOMA_MIXER_SERVE", DEFAULT_BINARY)
+    """$SOMA_MIXER_SERVE, else a source build in this checkout, else an installed one."""
+    if "SOMA_MIXER_SERVE" in os.environ:
+        return os.environ["SOMA_MIXER_SERVE"]
+    if os.access(DEFAULT_BINARY, os.X_OK):
+        return DEFAULT_BINARY
+    installed = installed_binary()
+    return installed if os.access(installed, os.X_OK) else DEFAULT_BINARY
 
 
 def engine_available():

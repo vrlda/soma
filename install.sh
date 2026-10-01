@@ -1,6 +1,6 @@
 #!/bin/bash
 # SOMA prosumer installer (R8 rehearsal): checks, layouts, smoke test.
-# Local-only, no network, no sudo, no secrets. Fails loud on any step.
+# Local-only unless SOMA_ENGINE_URL is set; no sudo, no secrets. Fails loud on any step.
 set -euo pipefail
 
 SOMA_ROOT="${SOMA_ROOT:-$HOME/.soma}"
@@ -45,9 +45,15 @@ elif command -v cargo >/dev/null 2>&1; then
   cargo build --release --quiet --manifest-path "$SOMA_SRC/engine/soma-engine/Cargo.toml" \
     || { echo "FAIL: engine build failed (set SOMA_SKIP_ENGINE=1 to install without it)"; exit 1; }
   echo "    engine built: new brains default to the circuit-mixing memory"
+elif [ -n "${SOMA_ENGINE_URL:-}" ]; then
+  # Prebuilt, signature-verified engine (needs a trusted key; see docs/r8-signing.md).
+  PYTHONPATH="$SOMA_SRC" SOMA_HOME="$SOMA_ROOT" $PYTHON -B -m soma.service.main engine-install "$SOMA_ENGINE_URL" \
+    || { echo "FAIL: engine install failed (unset SOMA_ENGINE_URL to install without it)"; exit 1; }
+  echo "    prebuilt engine verified and installed in $SOMA_ROOT/engine"
 else
   echo "    cargo not found: engine not built; new brains use the original memory"
-  echo "    (install Rust from https://rustup.rs, then rerun to enable --memory mixing)"
+  echo "    (install Rust from https://rustup.rs, or set SOMA_ENGINE_URL to a signed"
+  echo "    release directory ending in /, then rerun to enable --memory mixing)"
 fi
 
 echo "==> running fast unit subset"
