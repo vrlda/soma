@@ -42,6 +42,7 @@ fn config_from(value: &serde_json::Value) -> LongConfig {
     if let Some(v) = get("growth_pressure").and_then(|v| v.as_u64()) { c.growth_pressure = v as u32; }
     if let Some(v) = get("plasticity_tau").and_then(|v| v.as_f64()) { c.plasticity_tau = v; }
     if let Some(v) = get("byte_gate").and_then(|v| v.as_bool()) { c.byte_gate = v; }
+    if let Some(v) = get("pointer").and_then(|v| v.as_bool()) { c.pointer = v; }
     c
 }
 
@@ -90,10 +91,21 @@ fn main() {
         let max_bytes = qa.get("max_bytes").and_then(|v| v.as_u64()).unwrap_or(64) as usize;
         let mut out = std::fs::File::create(qa.get("out").and_then(|v| v.as_str()).expect("out"))
             .expect("qa out");
+        let extractive = qa.get("extractive").and_then(|v| v.as_bool()).unwrap_or(false);
+        let scoring = qa.get("scoring").and_then(|v| v.as_str()).unwrap_or("pmi").to_string();
+        let max_words = qa.get("max_words").and_then(|v| v.as_u64()).unwrap_or(6) as usize;
         for prompt in prompts {
-            memory.reset_history();
-            memory.observe_bytes(&prompt, false);
-            let answer = memory.generate(max_bytes, b'\n');
+            let answer = if extractive {
+                // the passage is everything before the first "\nQ: "
+                let cut = prompt.windows(4).position(|w| w == b"\nQ: ").unwrap_or(prompt.len());
+                let mut neutral = prompt[..cut].to_vec();
+                neutral.extend_from_slice(b"\nQ: ?\nA: ");
+                memory.best_span(&prompt, &neutral, &prompt[..cut], max_words, b'\n', &scoring)
+            } else {
+                memory.reset_history();
+                memory.observe_bytes(&prompt, false);
+                memory.generate(max_bytes, b'\n')
+            };
             let text = String::from_utf8_lossy(&answer).to_string();
             writeln!(out, "{}", serde_json::to_string(&text).unwrap()).unwrap();
             qa_count += 1;

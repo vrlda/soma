@@ -87,6 +87,8 @@ pub struct LongConfig {
     /// Weight sets selected by byte-circuit presence only (not word circuits),
     /// and long-range inputs start at weight 0 so they must earn influence.
     pub byte_gate: bool,
+    /// Copy pointer for answers (stage 3).
+    pub pointer: bool,
 }
 
 impl Default for LongConfig {
@@ -105,10 +107,38 @@ impl Default for LongConfig {
             growth_pressure: 8,
             plasticity_tau: 100_000.0,
             byte_gate: true,
+            pointer: true,
         }
     }
 }
 
+
+/// Document-level state (everything that resets with history), for
+/// scoring candidate continuations from the same point.
+#[derive(Clone)]
+pub struct DocState {
+    history: Vec<u8>,
+    partial: u32,
+    word_hash: u64,
+    word_len: u32,
+    words: [u64; 4],
+    content: Vec<u64>,
+    content_ages: Vec<u64>,
+    words_seen: u64,
+    line_bag: Vec<u64>,
+    prev_line_bag: u64,
+    match_ptr: usize,
+    match_len: usize,
+    match_table: KeyMap<usize>,
+    doc_words: Vec<(u64, usize, bool)>,
+    line_start: usize,
+    line_words_from: usize,
+    question: Option<(Vec<u64>, usize)>,
+    answer_line: bool,
+    pointer_pos: Option<usize>,
+    pointer_score: usize,
+    pointer_advance: usize,
+}
 
 pub struct LongMixer {
     pub config: LongConfig,
@@ -130,6 +160,18 @@ pub struct LongMixer {
     match_len: usize,
     match_table: KeyMap<usize>,
     match_counts: [[u32; 2]; MATCH_BUCKETS],
+    // copy pointer: words of the document (hash, start, content), question state
+    doc_words: Vec<(u64, usize, bool)>,
+    line_start: usize,
+    line_words_from: usize,
+    question: Option<(Vec<u64>, usize)>,
+    answer_line: bool,
+    pointer_pos: Option<usize>,
+    pointer_score: usize,
+    pointer_advance: usize,
+    pointer_counts: [[u32; 2]; 32],
+    pointer_bit: Option<u32>,
+    pointer_bucket: usize,
     // per-bit scratch
     keys: Vec<Option<u64>>,
     parents: Vec<Option<usize>>,
@@ -161,8 +203,9 @@ impl LongMixer {
                             Some(base), Some(base)]);
         }
         let circuits_n = parents.len();
-        let inputs_n = circuits_n + if config.match_model { 1 } else { 0 };
-        let rows = (circuits_n + 1) * 3 * 256;
+        let inputs_n = circuits_n + if config.match_model { 1 } else { 0 }
+            + if config.pointer { 1 } else { 0 };
+        let rows = (circuits_n + 1) * 3 * 2 * 256;
         let byte_n = config.byte_orders.len();
         let mut initial = vec![config.initial_weight; inputs_n + 1];
         if config.byte_gate {
@@ -188,6 +231,17 @@ impl LongMixer {
             match_len: 0,
             match_table: KeyMap::default(),
             match_counts: [[0; 2]; MATCH_BUCKETS],
+            doc_words: Vec::new(),
+            line_start: 0,
+            line_words_from: 0,
+            question: None,
+            answer_line: false,
+            pointer_pos: None,
+            pointer_score: 0,
+            pointer_advance: 0,
+            pointer_counts: [[0; 2]; 32],
+            pointer_bit: None,
+            pointer_bucket: 0,
             keys: vec![None; circuits_n],
             parents,
             visits: vec![0; circuits_n],
@@ -219,6 +273,12 @@ impl LongMixer {
         self.match_ptr = 0;
         self.match_len = 0;
         self.match_table.clear();
+        self.doc_words.clear();
+        self.line_start = 0;
+        self.line_words_from = 0;
+        self.question = None;
+        self.answer_line = false;
+        self.pointer_pos = None;
         self.pending = false;
     }
 
@@ -327,9 +387,33 @@ impl LongMixer {
             }
             self.inputs[n] = value;
         }
+        let mut pointer_state = 0;
+        self.pointer_bit = None;
+        if self.config.pointer {
+            let slot = n + if self.config.match_model { 1 } else { 0 };
+            let mut value = 0.0;
+            if let Some(position) = self.pointer_pos {
+                if position < self.history.len() {
+                    let expected = self.history[position] as u32 | 256;
+                    let seen_bits = 31 - self.partial.leading_zeros();
+                    if (expected >> (8 - seen_bits)) == self.partial {
+                        let bit = (expected >> (7 - seen_bits)) & 1;
+                        let bucket = self.pointer_score.min(7) * 4 + self.pointer_advance.min(3);
+                        let [wrong, right] = self.pointer_counts[bucket];
+                        let p = (right as f64 + 0.5) / (right as f64 + wrong as f64 + 1.0);
+                        let confidence = stretch(p).min(STRETCH_LIMIT).max(-STRETCH_LIMIT);
+                        value = if bit == 1 { confidence } else { -confidence };
+                        self.pointer_bit = Some(bit);
+                        self.pointer_bucket = bucket;
+                        pointer_state = 1;
+                    }
+                }
+            }
+            self.inputs[slot] = value;
+        }
         let last = self.inputs.len() - 1;
         self.inputs[last] = 1.0;
-        self.gate = ((present * 3) + match_state) * 256 + self.partial as usize;
+        self.gate = (((present * 3) + match_state) * 2 + pointer_state) * 256 + self.partial as usize;
         let weights = &self.weights[self.gate];
         let mut total = 0.0;
         for i in 0..self.inputs.len() {
@@ -385,6 +469,14 @@ impl LongMixer {
                 let pair = self.match_counts[self.match_bucket];
                 if pair[0] + pair[1] > 65_535 {
                     self.match_counts[self.match_bucket] = [pair[0] / 2, pair[1] / 2];
+                }
+            }
+            if let Some(expected) = self.pointer_bit {
+                let slot = &mut self.pointer_counts[self.pointer_bucket][(expected == bit) as usize];
+                *slot = slot.saturating_add(1);
+                let pair = self.pointer_counts[self.pointer_bucket];
+                if pair[0] + pair[1] > 65_535 {
+                    self.pointer_counts[self.pointer_bucket] = [pair[0] / 2, pair[1] / 2];
                 }
             }
             let step = self.events_seen;
@@ -447,6 +539,14 @@ impl LongMixer {
             self.match_len = 0;
         }
         self.history.push(byte);
+        if let Some(position) = self.pointer_pos {
+            if position < self.history.len() - 1 && self.history[position] == byte {
+                self.pointer_pos = Some(position + 1);
+                self.pointer_advance += 1;
+            } else {
+                self.pointer_pos = None;
+            }
+        }
         // match model: extend or look up
         if self.config.match_model {
             if self.match_len > 0 && self.match_ptr < self.history.len() - 1
@@ -480,6 +580,10 @@ impl LongMixer {
         } else {
             if self.word_len > 0 {
                 let word = mix(self.word_hash, self.word_len as u64);
+                if self.config.pointer && self.doc_words.len() < 1 << 20 {
+                    let start = self.history.len() - 1 - self.word_len as usize;
+                    self.doc_words.push((word, start, self.word_len >= CONTENT_MIN));
+                }
                 self.words = [word, self.words[0], self.words[1], self.words[2]];
                 self.words_seen += 1;
                 if self.word_len >= CONTENT_MIN {
@@ -496,7 +600,28 @@ impl LongMixer {
             }
             self.word_hash = 0;
             self.word_len = 0;
+            if self.config.pointer && self.answer_line && self.pointer_pos.is_none()
+                && byte == b' ' && self.history.len() >= 2
+                && self.history[self.history.len() - 2] == b':'
+                && self.history.len() - self.line_start <= 16
+            {
+                self.align_pointer();
+            }
             if byte == b'\n' {
+                if self.config.pointer {
+                    let line = &self.history[self.line_start..self.history.len() - 1];
+                    let is_question = line.iter().rev().find(|b| !b.is_ascii_whitespace()) == Some(&b'?');
+                    self.answer_line = false;
+                    self.pointer_pos = None;
+                    if is_question {
+                        let words: Vec<u64> = self.doc_words[self.line_words_from..]
+                            .iter().filter(|w| w.2).map(|w| w.0).collect();
+                        self.question = Some((words, self.line_words_from));
+                        self.answer_line = true;
+                    }
+                    self.line_start = self.history.len();
+                    self.line_words_from = self.doc_words.len();
+                }
                 if !self.line_bag.is_empty() {
                     let mut bag = self.line_bag.clone();
                     bag.sort_unstable();
@@ -506,6 +631,128 @@ impl LongMixer {
                 self.line_bag.clear();
             }
         }
+    }
+
+    /// Point at the word in the earlier text with the most question content
+    /// words just before it (window of 10 words), skipping question words.
+    fn align_pointer(&mut self) {
+        let (question, question_from) = match &self.question {
+            Some(q) => q.clone(),
+            None => return,
+        };
+        if question.is_empty() {
+            return;
+        }
+        const WINDOW: usize = 10;
+        let mut best = (0usize, 0usize);
+        for i in 1..question_from.min(self.doc_words.len()) {
+            if question.contains(&self.doc_words[i].0) {
+                continue;
+            }
+            let from = i.saturating_sub(WINDOW);
+            let mut found: Vec<u64> = Vec::new();
+            for w in &self.doc_words[from..i] {
+                if question.contains(&w.0) && !found.contains(&w.0) {
+                    found.push(w.0);
+                }
+            }
+            if found.len() > best.0 {
+                best = (found.len(), i);
+            }
+        }
+        if best.0 > 0 {
+            self.pointer_pos = Some(self.doc_words[best.1].1);
+            self.pointer_score = best.0;
+            self.pointer_advance = 0;
+        }
+    }
+
+    pub fn snapshot(&self) -> DocState {
+        DocState {
+            history: self.history.clone(), partial: self.partial, word_hash: self.word_hash,
+            word_len: self.word_len, words: self.words, content: self.content.clone(),
+            content_ages: self.content_ages.clone(), words_seen: self.words_seen,
+            line_bag: self.line_bag.clone(), prev_line_bag: self.prev_line_bag,
+            match_ptr: self.match_ptr, match_len: self.match_len,
+            match_table: self.match_table.clone(), doc_words: self.doc_words.clone(),
+            line_start: self.line_start, line_words_from: self.line_words_from,
+            question: self.question.clone(), answer_line: self.answer_line,
+            pointer_pos: self.pointer_pos, pointer_score: self.pointer_score,
+            pointer_advance: self.pointer_advance,
+        }
+    }
+
+    pub fn restore(&mut self, state: &DocState) {
+        let s = state.clone();
+        self.history = s.history; self.partial = s.partial; self.word_hash = s.word_hash;
+        self.word_len = s.word_len; self.words = s.words; self.content = s.content;
+        self.content_ages = s.content_ages; self.words_seen = s.words_seen;
+        self.line_bag = s.line_bag; self.prev_line_bag = s.prev_line_bag;
+        self.match_ptr = s.match_ptr; self.match_len = s.match_len;
+        self.match_table = s.match_table; self.doc_words = s.doc_words;
+        self.line_start = s.line_start; self.line_words_from = s.line_words_from;
+        self.question = s.question; self.answer_line = s.answer_line;
+        self.pointer_pos = s.pointer_pos; self.pointer_score = s.pointer_score;
+        self.pointer_advance = s.pointer_advance;
+        self.pending = false;
+    }
+
+    /// Log-probability of ``candidate + stop`` from a snapshot (frozen).
+    fn continuation_log_probability(&mut self, start: &DocState, candidate: &[u8], stop: u8)
+        -> f64
+    {
+        self.restore(start);
+        let mut bytes = candidate.to_vec();
+        bytes.push(stop);
+        let (log_loss, _) = self.score_bytes(&bytes, false);
+        -log_loss
+    }
+
+    /// Extractive answer: score every span of 1..=max_words words from
+    /// ``passage`` as ``span + stop`` after ``prompt`` (frozen). ``scoring``:
+    /// "sum" (total log-probability), "mean" (per byte), or "pmi" (minus the
+    /// same span's log-probability after ``neutral``, i.e. how much the
+    /// question raises it).
+    pub fn best_span(&mut self, prompt: &[u8], neutral: &[u8], passage: &[u8], max_words: usize,
+                     stop: u8, scoring: &str) -> Vec<u8>
+    {
+        self.reset_history();
+        self.observe_bytes(prompt, false);
+        let start = self.snapshot();
+        let neutral_start = if scoring == "pmi" {
+            self.reset_history();
+            self.observe_bytes(neutral, false);
+            Some(self.snapshot())
+        } else {
+            None
+        };
+        let text = String::from_utf8_lossy(passage).to_string();
+        let tokens: Vec<&str> = text.split_whitespace().collect();
+        let mut seen = std::collections::HashSet::new();
+        let mut best: (f64, Vec<u8>) = (f64::NEG_INFINITY, Vec::new());
+        for i in 0..tokens.len() {
+            for j in i + 1..=(i + max_words).min(tokens.len()) {
+                let span = tokens[i..j].join(" ");
+                let span = span.trim_matches(|c: char| ",.;:!?\"'()".contains(c)).to_string();
+                if span.is_empty() || !seen.insert(span.clone()) {
+                    continue;
+                }
+                let bytes = span.as_bytes();
+                let mut score = self.continuation_log_probability(&start, bytes, stop);
+                match scoring {
+                    "mean" => score /= (bytes.len() + 1) as f64,
+                    "pmi" => {
+                        let base = neutral_start.as_ref().unwrap();
+                        score -= self.continuation_log_probability(base, bytes, stop);
+                    }
+                    _ => {}
+                }
+                if score > best.0 {
+                    best = (score, bytes.to_vec());
+                }
+            }
+        }
+        best.1
     }
 
     pub fn observe_bytes(&mut self, data: &[u8], learn: bool) {
