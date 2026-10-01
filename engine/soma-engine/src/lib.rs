@@ -7,6 +7,7 @@
 pub mod detector;
 pub mod evidence;
 pub mod graph;
+pub mod longmix;
 pub mod mixer;
 pub mod neuron;
 pub mod tape;

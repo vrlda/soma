@@ -5,3 +5,5 @@ engine/soma-engine/target/
 .venv/
 venv/
 data/e3full/
+data/modern/*
+!data/modern/MANIFEST.json

@@ -1,0 +1,71 @@
+{
+  "counts": {
+    "dialog-test": 39,
+    "dialog-train": 3565,
+    "dialog-validation": 65,
+    "squad-test": 4604,
+    "squad-train": 87599,
+    "squad-validation": 5966,
+    "wiki-test": 2080,
+    "wiki-train": 202853,
+    "wiki-validation": 4201,
+    "wiki_skipped_short": 75615
+  },
+  "outputs": {
+    "dialog-test.jsonl": {
+      "bytes": 64386,
+      "sha256": "6ef74aa8ca66ad24ff6dd3168c240fb2787ed6e73bdb13560b31f593ffe4eddc"
+    },
+    "dialog-train.jsonl": {
+      "bytes": 6538893,
+      "sha256": "21141ba51b58ee4cf469f4e2b7b90b5cf2dcafd8aa9fd0c937b6c330d4d81902"
+    },
+    "dialog-validation.jsonl": {
+      "bytes": 134226,
+      "sha256": "13e7f8e475e16d2717461ec4a829593da8c37f21fdd9f165785fc56f1632b49f"
+    },
+    "squad-test.jsonl": {
+      "bytes": 4324104,
+      "sha256": "75675ed40b2932f1e360e6433898cfb45a9c1a8e562bd22b0ba9221c27783eb9"
+    },
+    "squad-train.jsonl": {
+      "bytes": 79963189,
+      "sha256": "7f0fb675fcd3d2f6ac22327bdde0284d6aba7745fb7d2535d81d6075759ababa"
+    },
+    "squad-validation.jsonl": {
+      "bytes": 5802215,
+      "sha256": "af9d8b5dda428fe3a58be4a1e85a7cee6edbbd8483241e778549de5998b63710"
+    },
+    "wiki-test.jsonl": {
+      "bytes": 2819340,
+      "sha256": "3fe05a8b47ecfa6ed39cb39113d45c124e88db8d147dc8418e2ab0eef507b5a7"
+    },
+    "wiki-train.jsonl": {
+      "bytes": 262996097,
+      "sha256": "6d204b622d975e2c1b207ce7cb798d1468fd98b49968f454c908f8a634700979"
+    },
+    "wiki-validation.jsonl": {
+      "bytes": 5667671,
+      "sha256": "0c980f052b7fcb0409e933f6d5b574d60943dfd3d8bc778695a70125ee77fd23"
+    }
+  },
+  "sources": {
+    "oasst1-trees.jsonl.gz": {
+      "sha256": "2a9a8fd343e9b28e04a895a669d3253f82d93e9c174d440199ae19d5fafbdff7",
+      "url": "https://huggingface.co/datasets/OpenAssistant/oasst1/resolve/main/2023-04-12_oasst_ready.trees.jsonl.gz"
+    },
+    "simplewiki-20260901-pages-articles.xml.bz2": {
+      "sha256": "6832fd106ae0e4734a349d6351709fc219ccebad5850234214a57e653f7812f8",
+      "url": "https://dumps.wikimedia.org/simplewiki/20260901/simplewiki-20260901-pages-articles.xml.bz2"
+    },
+    "squad-dev-v1.1.json": {
+      "sha256": "95aa6a52d5d6a735563366753ca50492a658031da74f301ac5238b03966972c9",
+      "url": "https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v1.1.json"
+    },
+    "squad-train-v1.1.json": {
+      "sha256": "3527663986b8295af4f7fcdff1ba1ff3f72d07d61a20f487cb238a6ef92fd955",
+      "url": "https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json"
+    }
+  },
+  "split_rule": "bucket = int(sha256(key)[:8], 16) % 100; 0 test, 1-2 validation, else train; key = title (wiki) or tree id (dialog); SQuAD train articles train, dev articles halved by title hash into validation and test"
+}
