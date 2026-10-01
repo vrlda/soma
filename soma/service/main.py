@@ -16,8 +16,12 @@ def _store(args):
 def cmd_brain_create(args):
     from .store import BrainStore
     store = BrainStore(args.root)
+    memory = args.memory
+    if memory == "auto":
+        from ..memory.engine import engine_available
+        memory = "mixing" if engine_available() else "suffix"
     manifest = store.create(args.name, description=args.description or "",
-                            memory=args.memory, max_circuits=args.max_circuits)
+                            memory=memory, max_circuits=args.max_circuits)
     print(json.dumps(manifest, indent=2, sort_keys=True))
     return 0
 
@@ -162,9 +166,10 @@ def build_parser():
     create = commands.add_parser("brain-create")
     create.add_argument("name")
     create.add_argument("--description", default="")
-    create.add_argument("--memory", choices=("suffix", "mixing"), default="suffix",
+    create.add_argument("--memory", choices=("auto", "suffix", "mixing"), default="auto",
                         help="language memory: 'mixing' is the engine-served circuit-mixing "
-                             "memory (needs the Rust engine built)")
+                             "memory (needs the Rust engine built); 'auto' (default) uses it "
+                             "when the engine is built, else the original suffix memory")
     create.add_argument("--max-circuits", type=int, default=131072,
                         help="circuit budget of the language memory")
     create.set_defaults(function=cmd_brain_create)

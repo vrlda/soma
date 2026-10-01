@@ -79,9 +79,11 @@ python3 -m soma.service.main chat demo
 python3 -m soma.service.main serve --port 8765
 ```
 
-For the stronger circuit-mixing language memory, build the engine once
-(`cargo build --release --manifest-path engine/soma-engine/Cargo.toml`) and
-create the brain with `brain-create demo --memory mixing`.
+`bash install.sh` builds the Rust engine when Rust is installed. New brains
+then default to the stronger circuit-mixing language memory
+(`--memory auto`); without the engine they use the original memory. Force
+either with `--memory mixing` or `--memory suffix`. `doctor` reports whether
+the engine is available.
 
 Chat understands `repeat after me:`, `spell`, taught facts, corrections,
 and says "I don't know" for out-of-training bytes. `doctor` checks health.

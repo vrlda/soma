@@ -13,6 +13,11 @@
   `soma-mixer`: byte-context circuits, evidence-gated growth, budgeted
   reclamation, plastic arbitration. E2 test 0.2406 bits/bit (was 0.3995);
   `r6_circuit_mixing_benchmark.py` passes 7/7 gates.
+- The installer builds the Rust engine when `cargo` is present
+  (`SOMA_SKIP_ENGINE=1` opts out). `brain-create` defaults to `--memory
+  auto`: circuit mixing when the engine is built, else the original memory.
+  `doctor` reports engine availability with a live round trip and flags
+  engine brains whose engine is missing instead of crashing.
 - Chat latency: a turn takes a median of 0.70 s (was 2.3 s) through
   exact speedups to the dialogue tier: a heap-and-bucket reclamation
   index (verified against the original scan; compacted so it stays

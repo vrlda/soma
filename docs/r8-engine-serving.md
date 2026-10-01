@@ -20,8 +20,11 @@ generation, teaching, quarantine, and persistence run through it.
   relative name. Clone, backup, restore, and tar export copy it. `.soma`
   export/import carries it as an optional binary chunk; older `.soma` files
   still read. Crash-safe rotation covers it.
-- CLI: `brain-create NAME --memory mixing [--max-circuits N]`. Without the
-  flag, brains are unchanged.
+- CLI: `brain-create NAME [--memory auto|mixing|suffix] [--max-circuits N]`.
+  The default `auto` picks circuit mixing when the engine is built.
+  `install.sh` builds the engine when `cargo` is present (`SOMA_SKIP_ENGINE=1`
+  opts out). `doctor` reports engine availability and a live round trip,
+  and flags engine brains whose engine is missing.
 
 ## Verification
 
@@ -98,9 +101,8 @@ behavior.
 
 ## Open
 
-- The old service default is still the suffix memory. Making `mixing` the
-  default for new brains needs the engine shipped with the installer (R8
-  packaging).
+- The engine is built from source by `install.sh`; prebuilt signed
+  binaries are part of R8 packaging (signatures, downloader).
 - Generation is fluent locally and repetitive over longer spans ("the more
   the whole she was"). That is expected from a 12-byte-context predictor
   trained on 127 KB. Quality scales with corpus and budget (E3), not with

@@ -712,7 +712,7 @@ Each milestone closes only when every exit gate passes in the same locked revisi
 
 ### R8 — Prosumer runtime — PARTIAL
 
-**Status:** CLI, chat, local HTTP API, doctor, clone/backup/restore/export/import, installer, presets, and a clean-machine procedure exist (`docs/r8-service.md`). Engine brains (`brain-create --memory mixing`) serve the R6 memory. Open: signatures, downloader, updater, a recorded clean-machine run, and shipping the engine with the installer.
+**Status:** CLI, chat, local HTTP API, doctor, clone/backup/restore/export/import, installer, presets, and a clean-machine procedure exist (`docs/r8-service.md`). The installer builds the engine, and new brains default to the engine-served R6 memory (`--memory auto`). Open: signatures, prebuilt binaries, downloader, updater, and a recorded clean-machine run.
 
 **Deliverables:** runtime installer/updater, blank-brain creator, trained-brain downloader, transducer manager, signatures, daemon, CLI, local API, hardware presets, clone/branch, backup/restore, import/export, doctor, documentation, and brain/model card.
 

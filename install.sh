@@ -38,6 +38,18 @@ memory.validate()
 print('package smoke: ok')
 "
 
+echo "==> building the Rust engine (language memory for --memory mixing)"
+if [ "${SOMA_SKIP_ENGINE:-0}" = "1" ]; then
+  echo "    skipped (SOMA_SKIP_ENGINE=1); new brains use the original memory"
+elif command -v cargo >/dev/null 2>&1; then
+  cargo build --release --quiet --manifest-path "$SOMA_SRC/engine/soma-engine/Cargo.toml" \
+    || { echo "FAIL: engine build failed (set SOMA_SKIP_ENGINE=1 to install without it)"; exit 1; }
+  echo "    engine built: new brains default to the circuit-mixing memory"
+else
+  echo "    cargo not found: engine not built; new brains use the original memory"
+  echo "    (install Rust from https://rustup.rs, then rerun to enable --memory mixing)"
+fi
+
 echo "==> running fast unit subset"
 cd "$SOMA_SRC"
 PYTHONPATH="$SOMA_SRC" $PYTHON -B -m unittest \
@@ -47,3 +59,4 @@ PYTHONPATH="$SOMA_SRC" $PYTHON -B -m unittest \
 
 echo "==> install complete: brains in $SOMA_ROOT/brains"
 echo "    try: SOMA_BRAINS=\$SOMA_ROOT/brains python3 -m soma.service.main doctor"
+echo "    (doctor reports whether the engine is available)"
