@@ -60,6 +60,9 @@ class Config:
     evidence_decay: float = 0.999
     retention_protection: bool = False
     retention_weight: float = 0.001
+    afferent_normalization: bool = False
+    normalization_rate: float = 0.01
+    variance_floor: float = 0.0001
 
     def __post_init__(self):
         self.trace_decays = tuple(self.trace_decays)
@@ -89,6 +92,8 @@ class Config:
             raise ValueError("invalid growth clock")
         if not 0 <= self.evidence_decay <= 1 or self.synapse_growth_interval < 1:
             raise ValueError("invalid evidence decay or synapse growth interval")
+        if not 0 <= self.normalization_rate <= 1 or self.variance_floor <= 0:
+            raise ValueError("invalid homeostatic normalization settings")
 
 
 @dataclass
@@ -116,6 +121,8 @@ class Synapse:
     usefulness: float = 0.0
     evidence: float = 0.0
     plasticity: float = 1.0
+    pre_mean: float = 0.0
+    pre_variance: float = 1.0
 
 
 class Organism:
@@ -161,12 +168,17 @@ class Organism:
         parent = next((nid for nid in self.hidden if nid != target), None)
         local_traces = {s.source: s.trace for s in self.synapses
                         if s.kind == "drive" and s.target == parent}
+        local_statistics = {s.source: (s.pre_mean, s.pre_variance) for s in self.synapses
+                            if s.kind == "drive" and s.target == parent}
         for source in self.sensory:
             weight = self.rng.random() if self.config.hidden_rule == "competitive" else self.rng.uniform(-1, 1)
             if newborn and self.config.seed_birth_from_activity:
                 weight = local_traces.get(source, self.neurons[source].activity) if self.config.drive_trace_rule != "none" else self.neurons[source].activity
             trace = weight if newborn and self.config.seed_birth_from_activity and self.config.drive_trace_rule != "none" else 0.0
-            self.synapses.append(Synapse(source, target, "drive", weight, trace=trace))
+            synapse = Synapse(source, target, "drive", weight, trace=trace)
+            if newborn and self.config.afferent_normalization and source in local_statistics:
+                synapse.pre_mean, synapse.pre_variance = local_statistics[source]
+            self.synapses.append(synapse)
             self.synapse_births += 1
         for source in self.hidden:
             if self.rng.random() < self.config.drive_density:
@@ -181,7 +193,7 @@ class Organism:
                 self.synapses.append(Synapse(source, target, "prediction", 0.0, decay))
                 self.synapse_births += 1
 
-    def experience(self, signal, target=None, gate=1.0):
+    def experience(self, signal, target=None, gate=1.0, observer=None):
         """Receive sensory state, predict, THEN receive an optional outcome.
 
         gate is a scalar broadcast controlling learning amount, never direction.
@@ -216,6 +228,12 @@ class Organism:
                 else:
                     s.trace = decay * s.trace + (1 - decay) * pre
                 pre = s.trace
+            if not recurrent and self.config.afferent_normalization and self.config.learning:
+                rate = self.config.normalization_rate
+                old_mean = s.pre_mean
+                s.pre_mean += rate * (pre - old_mean)
+                s.pre_variance = max(0.0, (1 - rate) * s.pre_variance
+                                     + rate * (pre - old_mean) * (pre - s.pre_mean))
             pre_values[index] = pre
             drive[s.target] += s.strength * pre
         for nid in self.hidden:
@@ -229,7 +247,10 @@ class Organism:
             fan_in = {nid: 0 for nid in self.hidden}
             for index, s in enumerate(self.synapses):
                 if s.kind == "drive" and self.neurons[s.source].role == "sensory":
-                    mismatch[s.target] += (pre_values[index] - s.strength) ** 2
+                    distance = (pre_values[index] - s.strength) ** 2
+                    if self.config.afferent_normalization:
+                        distance /= max(self.config.variance_floor, s.pre_variance)
+                    mismatch[s.target] += distance
                     fan_in[s.target] += 1
             for nid in self.hidden:
                 mismatch[nid] = mismatch[nid] / fan_in[nid] if fan_in[nid] else float("inf")
@@ -271,6 +292,11 @@ class Organism:
         probabilities = [x / total for x in exps]
         for nid, prob in zip(self.outcome, probabilities):
             self.neurons[nid].activity = prob
+        if observer is not None:
+            # Copies only: diagnostics cannot mutate neural state or see the
+            # new outcome. Nothing from the observer feeds the learning rule.
+            observer({"probabilities": tuple(probabilities), "sensory": tuple(self.sensory),
+                      "traces": tuple((s.source, s.target, s.kind, s.trace) for s in self.synapses)})
         if self.config.learning:
             for index, s in enumerate(self.synapses):
                 if s.kind == "drive" and self.config.hidden_plasticity:

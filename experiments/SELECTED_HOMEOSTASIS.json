@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-10",
+  "selected_before_confirmation": true,
+  "seeds": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "overrides": {
+    "hidden_rule": "competitive",
+    "hidden_learning_rate": 0.05,
+    "persistence": false,
+    "recurrence": false,
+    "traces": false,
+    "drive_trace_rule": "peak",
+    "drive_decay": 0.8,
+    "initial_hidden": 1,
+    "growth": true,
+    "growth_rule": "representation",
+    "growth_interval": 1,
+    "growth_threshold": 0.01,
+    "growth_cost": 0.003,
+    "seed_birth_from_activity": true,
+    "vigilance": 0.03,
+    "growth_clock": "experience",
+    "growth_requires_current_novelty": true,
+    "drive_density": 0,
+    "afferent_normalization": true
+  },
+  "reason": "All five exploratory seeds scored 100% at gaps 0/2/8. Rate .01 and variance floor .0001 unchanged; gap 16 remains exploratory."
+}

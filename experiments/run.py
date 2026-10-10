@@ -32,6 +32,8 @@ VARIANTS = {
     "no_structural_safeguards": {"retain_active_representations": False,
                                  "regrow_predictions": False, "match_evidence": False,
                                  "retention_protection": False},
+    "no_normalization": {"afferent_normalization": False},
+    "no_scale_learning": {"normalization_rate": 0.0},
 }
 
 
@@ -214,7 +216,7 @@ def grammar(seed, variant, overrides, gap=2, budget_seconds=None):
                   termination="finished" if len(scores) == 1200 else "time_budget")
 
 
-def lifetime(seed, variant, overrides, budget_seconds=None):
+def lifetime(seed, variant, overrides, budget_seconds=None, gap=2):
     brain = Organism(config(seed, 7, 2, variant, overrides))
     stream = random.Random(seed + 70000)
     phases, trajectory = [], []
@@ -236,7 +238,7 @@ def lifetime(seed, variant, overrides, budget_seconds=None):
                 brain.experience(signal())
             first, second = stream.randrange(2), stream.randrange(2)
             brain.experience(signal(first))
-            for _ in range(2):
+            for _ in range(gap):
                 brain.experience(signal(4))
             brain.experience(signal(2 + second))
             target = first ^ second ^ context
@@ -250,7 +252,7 @@ def lifetime(seed, variant, overrides, budget_seconds=None):
             break
     old_return = phases[2]["first_50"] if len(phases) == 3 else metrics([])
     result = finish(brain, [], trajectory, phases=phases, complete=complete,
-                    termination="finished" if complete else "time_budget")
+                    termination="finished" if complete else "time_budget", gap=gap)
     result["metrics"] = old_return
     return result
 
@@ -261,6 +263,7 @@ def main():
     parser.add_argument("--seeds", default="0,1,2,3,4")
     parser.add_argument("--variants", default="candidate,no_learning,no_traces,no_hidden,no_recurrence,no_hidden_plasticity")
     parser.add_argument("--gaps", default="0,4,16,64")
+    parser.add_argument("--lifetime-gap", type=int, default=2)
     parser.add_argument("--overrides", default="{}", help="JSON config overrides recorded in every result")
     parser.add_argument("--output", default="experiments/results/initial.jsonl")
     parser.add_argument("--budget-seconds", type=float, default=60,
@@ -291,6 +294,8 @@ def main():
                     conditions = [False, True]
                 elif suite == "contextual":
                     conditions = ["none", "rest", "wake", "sleep"]
+                elif suite == "lifetime":
+                    conditions = [args.lifetime_gap]
                 for condition in conditions:
                     for seed in seeds:
                         if args.checkpoint_dir:
@@ -312,7 +317,7 @@ def main():
                         elif suite == "grammar":
                             result = grammar(seed, variant, overrides, gap=condition, budget_seconds=args.budget_seconds)
                         elif suite == "lifetime":
-                            result = lifetime(seed, variant, overrides, budget_seconds=args.budget_seconds)
+                            result = lifetime(seed, variant, overrides, budget_seconds=args.budget_seconds, gap=condition)
                         else:
                             result = contextual(seed, variant, overrides, rehearsal=condition)
                         row = dict(suite=suite, variant=variant, condition=condition,

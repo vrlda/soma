@@ -248,3 +248,52 @@ original `lifetime_initial.jsonl` baseline. The protection-off control changes
 only pruning protection. Configurations in each raw row are authoritative.
 The selected lifetime configuration is frozen in `SELECTED_LIFETIME.json`
 before confirmation on the independent lifetime streams at seeds 10–19.
+
+## Diagnose the remaining long grammar failure (registered 2026-10-10)
+
+Gap 8 still fails in the selected grammar while single cues survive 64 steps.
+Test whether the hidden afferent traces still contain the two symbols. A clearly
+labelled ORACLE baseline reads only pre-outcome trace snapshots, decodes each
+sensory alphabet by its larger trace, and applies the task's terminal rule.
+It never teaches, answers for, or changes SOMA. Gaps 8/16/64, five seeds, 1200
+episodes: compare oracle accuracy with the brain. If the oracle succeeds while
+the brain fails, representation resolution (not complete information loss) is
+implicated. This is an information diagnostic, not a learnable competitor.
+
+## Local afferent homeostasis (registered 2026-10-10)
+
+The oracle decoded both symbols at 100% for gaps 8/16/64 on all five seeds;
+SOMA stayed near chance. Information survives in traces but Euclidean matching
+can ignore the weaker older signal. Test mismatch normalized by each afferent's
+own incoming trace variance. Mean/variance update from its source trace only,
+without target/error information. Newborns inherit locally available parent
+trace statistics. Outcome learning and the task definitions are unchanged.
+
+Settings: selected grammar rules, variance normalization rate .01, variance
+floor .0001, no pruning for isolation. Gaps 0/2/8/16, initial seeds 0–4; controls
+normalization off, scale statistics frozen (rate zero), and recruitment off.
+Extension gate: >= .90 at gap 8 while retaining >= .90 at gaps 0/2; >= .20 over
+normalization-off at gap 8. Gap 16 exploratory. Choose once before confirmation
+10–19. Hidden-weight-off means afferent weights frozen, not homeostatic scale
+statistics; test those separately. Preserve the original gap-8 failure.
+
+## Combine longer temporal representation with lifetime retention (registered 2026-10-10)
+
+All five initial homeostasis seeds pass gaps 0/2/8. Freeze the unchanged
+configuration in `SELECTED_HOMEOSTASIS.json` before confirmation. Also test
+compatibility with the selected consolidation/pruning rules in ONE longer
+contextual lifetime at gap 8 (same 1200/1200/400 episodes, seven sensory
+channels). Compare pruning protection off and normalization off. Initial seeds
+0–4, then selected combination on confirmation 10–19 if it passes. Keep gates
+>= .90 new-context final 400 and >= .90 first-50 old return; no resetting,
+replay, or hand-designed task features. This distinguishes separately working
+mechanisms from a working combination. Incomplete budget-stopped runs cannot
+pass. Gap 16 is still a separate exploratory limitation.
+
+Compute-budget note: the first combined lifetime attempt ran concurrently with
+three CPU-heavy suites. Its 120-second wall budget stopped before the return
+phase (partial records preserved in `lifetime_combined.jsonl`); another active
+run was interrupted to avoid more uninformative partials. This is a compute
+limit, not evidence of task failure. Rerun the unchanged model/streams/gates
+with a 600-second budget after the other suites finish. The population remains
+uncapped; do not count partial scores as successes or choose settings from them.

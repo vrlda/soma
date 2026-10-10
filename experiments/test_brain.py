@@ -155,7 +155,7 @@ class BrainTests(unittest.TestCase):
                             vigilance=.01, growth_requires_current_novelty=True,
                             seed_birth_from_activity=True, persistence=False,
                             drive_trace_rule="peak", drive_density=0,
-                            prune_age=10, prune_interval=5))
+                            prune_age=10, prune_interval=5, afferent_normalization=True))
         for i in range(20):
             a.experience([i % 2, (i + 1) % 2], i % 2)
         b = Organism.from_state(json.loads(json.dumps(a.state())))
@@ -210,6 +210,35 @@ class BrainTests(unittest.TestCase):
         for _ in range(40):
             p = a.experience([1, 0], 0)
         self.assertGreater(p[0], .9)
+
+    def test_diagnostic_snapshot_has_no_new_outcome_or_mutable_state_alias(self):
+        a = Organism(Config(inputs=2, outputs=2))
+        b = Organism.from_state(a.state())
+        receipts_a, receipts_b = [], []
+        a.experience([1, 0], 0, observer=receipts_a.append)
+        b.experience([1, 0], 1, observer=receipts_b.append)
+        self.assertEqual(receipts_a, receipts_b)
+        self.assertIsInstance(receipts_a[0]["traces"], tuple)
+        receipts_a[0]["sensory"] = ()
+        self.assertEqual(len(a.sensory), 2)
+
+    def test_afferent_homeostasis_uses_only_source_history(self):
+        a = Organism(Config(inputs=2, outputs=2, hidden_rule="competitive",
+                            afferent_normalization=True))
+        b = Organism.from_state(a.state())
+        for i in range(20):
+            x = [i % 2, (i + 1) % 2]
+            a.experience(x, 0)
+            b.experience(x, 1)
+        self.assertEqual([(s.pre_mean, s.pre_variance) for s in a.synapses if s.kind == "drive"],
+                         [(s.pre_mean, s.pre_variance) for s in b.synapses if s.kind == "drive"])
+
+    def test_no_learning_freezes_homeostatic_statistics(self):
+        a = Organism(Config(inputs=2, outputs=2, afferent_normalization=True, learning=False))
+        for _ in range(10):
+            a.experience([1, 0], 0)
+        for s in a.synapses:
+            self.assertEqual((s.pre_mean, s.pre_variance), (0, 1))
 
 
 if __name__ == "__main__":

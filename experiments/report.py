@@ -43,6 +43,7 @@ def summarize(rows):
             log_loss=describe([r["metrics"]["log_loss"] for r in complete if r["metrics"]["log_loss"] is not None]),
             new_context=describe([r["phases"][1]["last_200"]["accuracy"] for r in complete if r["suite"] == "contextual"]),
             old_probe=describe([r["recall_first_20"]["accuracy"] for r in complete if r["suite"] == "contextual"]),
+            oracle=describe([r["oracle"]["accuracy"] for r in complete if "oracle" in r]),
             hidden=describe([r["brain"]["hidden"] for r in rr]),
             births=describe([r["brain"]["births"] for r in rr]),
             deaths=describe([r["brain"]["deaths"] for r in rr]),
@@ -109,6 +110,7 @@ def plots(rows, output):
     for file, variant, label, color in (
         ("grammar_initial.jsonl", "candidate", "Fixed 16 cells, local temporal input", "#bf4b45"),
         ("grammar_confirmation.jsonl", "candidate", "Recruited representations", "#177d76"),
+        ("homeostasis_confirmation.jsonl", "candidate", "Local variance normalization", "#5a4eb2"),
         ("grammar_confirmation.jsonl", "no_growth", "Recruitment removed", "#667085"),
         ("grammar_confirmation.jsonl", "no_drive_memory", "Input traces removed", "#d18a32"),
     ):
@@ -126,6 +128,29 @@ def plots(rows, output):
     ax.legend(fontsize=9, loc="lower left")
     for ext in ("svg", "png"):
         fig.savefig(output / ("temporal_grammar." + ext), dpi=180)
+    plt.close(fig)
+    fig, ax = plt.subplots(figsize=(9, 4.5), layout="constrained")
+    cases = (("lifetime_initial.jsonl", "candidate", None, "Original pruning"),
+             ("lifetime_confirmation.jsonl", "candidate", None, "Consolidation protected"),
+             ("lifetime_confirmation.jsonl", "no_retention", None, "Protection removed"),
+             ("lifetime_confirmation.jsonl", "no_pruning", None, "Pruning removed"))
+    for i, (file, variant, condition, label) in enumerate(cases):
+        rr = select(rows, file, variant, condition)
+        if not rr:
+            continue
+        ax.bar(i-.18, statistics.mean(r["phases"][1]["last_400"]["accuracy"] for r in rr), .34,
+               color="#177d76", label="New context, final 400" if i == 0 else None)
+        ax.bar(i+.18, statistics.mean(r["metrics"]["accuracy"] for r in rr), .34,
+               color="#d18a32", label="Old return, first 50 (learning)" if i == 0 else None)
+        ax.plot(i+.18, statistics.mean(r["phases"][2]["first_1"]["accuracy"] for r in rr),
+                "ko", markersize=5, label="First old response (before teaching)" if i == 0 else None)
+    ax.set_xticks(range(len(cases)), [x[3] for x in cases])
+    ax.set(title="One lifetime: original mapping → reversed context → original context",
+           ylabel="Prequential accuracy", ylim=(0, 1.05))
+    ax.yaxis.set_major_formatter(PercentFormatter(1))
+    ax.legend(fontsize=9, loc="lower left")
+    for ext in ("svg", "png"):
+        fig.savefig(output / ("lifetime_retention." + ext), dpi=180)
     plt.close(fig)
 
 
