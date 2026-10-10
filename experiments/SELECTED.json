@@ -1,0 +1,25 @@
+{
+  "selected_before_confirmation": true,
+  "date": "2026-10-10",
+  "seeds": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "overrides": {
+    "hidden_rule": "competitive",
+    "hidden_learning_rate": 0.05,
+    "persistence": false,
+    "recurrence": false,
+    "trace_bank": true,
+    "trace_rule": "peak"
+  },
+  "reason": "All five exploratory seeds passed gaps 0,4,16; the first gap-64 run also passed. No additional rate tuning. Retain trace-only and no-temporal-state controls."
+}
