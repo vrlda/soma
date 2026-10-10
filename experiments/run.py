@@ -1,5 +1,6 @@
 """Reproducible prequential experiments: python -m experiments.run --help."""
 from dataclasses import asdict
+from contextvars import ContextVar
 import argparse
 import hashlib
 import json
@@ -11,6 +12,8 @@ import time
 
 from brain import Config, Organism
 
+CHECKPOINT = ContextVar("checkpoint_destination", default=None)
+
 VARIANTS = {
     "candidate": {},
     "no_learning": {"learning": False},
@@ -21,6 +24,14 @@ VARIANTS = {
     "no_hidden_plasticity": {"hidden_plasticity": False},
     "metaplasticity": {"metaplasticity": True},
     "structure": {"growth": True, "pruning": True},
+    "no_drive_memory": {"drive_trace_rule": "none"},
+    "no_growth": {"growth": False},
+    "no_vigilance": {"vigilance": 0.0},
+    "no_pruning": {"pruning": False},
+    "no_retention": {"retention_protection": False},
+    "no_structural_safeguards": {"retain_active_representations": False,
+                                 "regrow_predictions": False, "match_evidence": False,
+                                 "retention_protection": False},
 }
 
 
@@ -45,12 +56,16 @@ def score(probabilities, target):
 
 def config(seed, inputs, outputs, variant, overrides):
     values = dict(inputs=inputs, outputs=outputs, seed=seed)
-    values.update(VARIANTS[variant])
     values.update(overrides)
+    values.update(VARIANTS[variant])  # An ablation cannot be undone by an override.
     return Config(**values)
 
 
 def finish(brain, scores, trajectory, **extra):
+    checkpoint = CHECKPOINT.get()
+    if checkpoint is not None:
+        brain.save(checkpoint)
+        extra["checkpoint"] = str(checkpoint)
     return dict(config=asdict(brain.config), metrics=metrics(scores),
                 brain=brain.summary(), trajectory=trajectory, **extra)
 
@@ -173,14 +188,85 @@ def contextual(seed, variant, overrides, rehearsal="none"):
                   replay_capacity=128)
 
 
+def grammar(seed, variant, overrides, gap=2, budget_seconds=None):
+    brain = Organism(config(seed, 6, 2, variant, overrides))
+    stream = random.Random(seed + 60000)
+    scores, trajectory = [], []
+    start = time.monotonic()
+    for episode in range(1200):
+        if budget_seconds is not None and time.monotonic() - start > budget_seconds:
+            break
+        for _ in range(8):
+            brain.experience([0.0] * 6)
+        first, second = stream.randrange(2), stream.randrange(2)
+        brain.experience(onehot(first, 6))
+        for _ in range(gap):
+            brain.experience(onehot(4, 6))
+        brain.experience(onehot(2 + second, 6))
+        target = first ^ second  # Environment only; never an internal feature.
+        probabilities = brain.experience(onehot(5, 6), target)
+        scores.append(score(probabilities, target))
+        if episode % 100 == 99:
+            trajectory.append(brain.summary())
+    return finish(brain, scores[-400:], trajectory, gap=gap,
+                  first_200=metrics(scores[:200]), controls={"uniform_accuracy": .5},
+                  complete=len(scores) == 1200, episodes=len(scores),
+                  termination="finished" if len(scores) == 1200 else "time_budget")
+
+
+def lifetime(seed, variant, overrides, budget_seconds=None):
+    brain = Organism(config(seed, 7, 2, variant, overrides))
+    stream = random.Random(seed + 70000)
+    phases, trajectory = [], []
+    start = time.monotonic()
+    complete = True
+    for context, count in ((0, 1200), (1, 1200), (0, 400)):
+        scores = []
+        for episode in range(count):
+            if budget_seconds is not None and time.monotonic() - start > budget_seconds:
+                complete = False
+                break
+            def signal(index=None):
+                values = [0.0] * 7
+                values[6] = float(context)
+                if index is not None:
+                    values[index] = 1.0
+                return values
+            for _ in range(8):
+                brain.experience(signal())
+            first, second = stream.randrange(2), stream.randrange(2)
+            brain.experience(signal(first))
+            for _ in range(2):
+                brain.experience(signal(4))
+            brain.experience(signal(2 + second))
+            target = first ^ second ^ context
+            scores.append(score(brain.experience(signal(5), target), target))
+            if episode % 100 == 99:
+                trajectory.append(dict(context=context, **brain.summary()))
+        phases.append({"context":context, "episodes":len(scores),
+                       "first_1":metrics(scores[:1]), "first_50":metrics(scores[:50]),
+                       "last_400":metrics(scores[-400:])})
+        if not complete:
+            break
+    old_return = phases[2]["first_50"] if len(phases) == 3 else metrics([])
+    result = finish(brain, [], trajectory, phases=phases, complete=complete,
+                    termination="finished" if complete else "time_budget")
+    result["metrics"] = old_return
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", choices=("sequence", "delay", "conflict", "reversal", "structure", "contextual", "all"), default="all")
+    parser.add_argument("--suite", choices=("sequence", "delay", "conflict", "reversal", "structure", "contextual", "grammar", "lifetime", "all"), default="all")
     parser.add_argument("--seeds", default="0,1,2,3,4")
     parser.add_argument("--variants", default="candidate,no_learning,no_traces,no_hidden,no_recurrence,no_hidden_plasticity")
     parser.add_argument("--gaps", default="0,4,16,64")
     parser.add_argument("--overrides", default="{}", help="JSON config overrides recorded in every result")
     parser.add_argument("--output", default="experiments/results/initial.jsonl")
+    parser.add_argument("--budget-seconds", type=float, default=60,
+                        help="per-run grammar budget; partial results never pass a gate")
+    parser.add_argument("--checkpoint-dir", default=None,
+                        help="optional final brain checkpoints, including incomplete runs")
     args = parser.parse_args()
     source_hashes = {str(p.relative_to(Path(__file__).resolve().parents[1])):
                      hashlib.sha256(p.read_bytes()).hexdigest()
@@ -199,7 +285,7 @@ def main():
                 if variant not in VARIANTS:
                     raise ValueError("unknown variant: " + variant)
                 conditions = [None]
-                if suite == "delay":
+                if suite in ("delay", "grammar"):
                     conditions = [int(g) for g in args.gaps.split(",")]
                 elif suite == "structure":
                     conditions = [False, True]
@@ -207,6 +293,13 @@ def main():
                     conditions = ["none", "rest", "wake", "sleep"]
                 for condition in conditions:
                     for seed in seeds:
+                        if args.checkpoint_dir:
+                            directory = Path(args.checkpoint_dir)
+                            directory.mkdir(parents=True, exist_ok=True)
+                            destination = directory / f"{suite}_{variant}_{condition}_{seed}.json"
+                            if destination.exists():
+                                raise SystemExit("Refusing to overwrite checkpoint: " + str(destination))
+                            CHECKPOINT.set(destination)
                         start = time.monotonic()
                         if suite == "sequence":
                             result = sequence(seed, variant, overrides)
@@ -216,6 +309,10 @@ def main():
                             result = reversal(seed, variant, overrides)
                         elif suite == "structure":
                             result = structure(seed, variant, overrides, noise=condition)
+                        elif suite == "grammar":
+                            result = grammar(seed, variant, overrides, gap=condition, budget_seconds=args.budget_seconds)
+                        elif suite == "lifetime":
+                            result = lifetime(seed, variant, overrides, budget_seconds=args.budget_seconds)
                         else:
                             result = contextual(seed, variant, overrides, rehearsal=condition)
                         row = dict(suite=suite, variant=variant, condition=condition,

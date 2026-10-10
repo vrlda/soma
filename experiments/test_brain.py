@@ -4,6 +4,7 @@ import math
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from brain import Config, Organism
 
 
@@ -107,6 +108,108 @@ class BrainTests(unittest.TestCase):
         a.synapses = [s for s in a.synapses if not (s.kind == "drive" and s.target == missing)]
         a.experience([1, 0])
         self.assertEqual(a.neurons[missing].activity, 0)
+
+    def test_unlabelled_experience_can_recruit_structure(self):
+        a = Organism(Config(inputs=2, outputs=2, initial_hidden=1,
+                            hidden_rule="competitive", growth=True,
+                            growth_rule="representation", growth_clock="experience",
+                            growth_interval=1, growth_threshold=-1, growth_cost=0,
+                            vigilance=.001, growth_requires_current_novelty=True,
+                            seed_birth_from_activity=True, persistence=False))
+        a.experience([1, 0])
+        self.assertEqual(a.births, 1)
+        self.assertEqual(a.observations, 0)
+
+    def test_representation_growth_does_not_duplicate_a_current_match(self):
+        a = Organism(Config(inputs=2, outputs=2, initial_hidden=1,
+                            hidden_rule="competitive", growth=True,
+                            growth_rule="representation", growth_clock="experience",
+                            growth_interval=1, growth_threshold=-1, growth_cost=0,
+                            vigilance=.001, growth_requires_current_novelty=True,
+                            seed_birth_from_activity=True, persistence=False))
+        a.experience([1, 0])
+        births = a.births
+        a.experience([1, 0])
+        self.assertEqual(a.births, births)
+
+    def test_matched_zero_afferent_is_a_useful_constraint(self):
+        a = Organism(Config(inputs=2, outputs=2, initial_hidden=1,
+                            hidden_rule="competitive", vigilance=.01,
+                            persistence=False, traces=False, pruning=True, prune_age=10,
+                            prune_interval=1, prune_threshold=.001))
+        for s in a.synapses:
+            if s.kind == "drive":
+                s.strength = 1.0 if s.source == a.sensory[0] else 0.0
+        for _ in range(25):
+            a.experience([1, 0], 0)
+        constraints = [s for s in a.synapses if s.kind == "drive" and s.source == a.sensory[1]]
+        self.assertEqual(len(constraints), 1)
+        self.assertEqual(constraints[0].strength, 0)
+        self.assertGreater(constraints[0].usefulness, .001)
+
+    def test_temporal_competitive_checkpoint_continuation(self):
+        a = Organism(Config(inputs=2, outputs=2, initial_hidden=1,
+                            hidden_rule="competitive", growth=True, pruning=True,
+                            growth_rule="representation", growth_clock="experience",
+                            growth_interval=1, growth_threshold=.001, growth_cost=.001,
+                            vigilance=.01, growth_requires_current_novelty=True,
+                            seed_birth_from_activity=True, persistence=False,
+                            drive_trace_rule="peak", drive_density=0,
+                            prune_age=10, prune_interval=5))
+        for i in range(20):
+            a.experience([i % 2, (i + 1) % 2], i % 2)
+        b = Organism.from_state(json.loads(json.dumps(a.state())))
+        for i in range(50):
+            self.assertEqual(a.experience([i % 2, 0], i % 2), b.experience([i % 2, 0], i % 2))
+        self.assertEqual(a.state(), b.state())
+
+    def test_failed_checkpoint_replacement_preserves_previous_lifetime(self):
+        a = Organism(Config(inputs=2, outputs=2))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "brain.json"
+            a.save(path)
+            previous = path.read_bytes()
+            a.experience([1, 0], 0)
+            with patch("brain.organism.os.replace", side_effect=OSError("simulated failure")):
+                with self.assertRaises(OSError):
+                    a.save(path)
+            self.assertEqual(previous, path.read_bytes())
+            self.assertEqual(list(Path(directory).iterdir()), [path])
+
+    def test_consolidated_local_path_survives_inactivity(self):
+        a = Organism(Config(inputs=2, outputs=2, initial_hidden=0,
+                            trace_bank=True, trace_rule="peak", metaplasticity=True,
+                            pruning=True, prune_age=100, prune_interval=10,
+                            retention_protection=True))
+        b = Organism(Config(inputs=2, outputs=2, initial_hidden=0,
+                            trace_bank=True, trace_rule="peak", metaplasticity=True,
+                            pruning=True, prune_age=100, prune_interval=10))
+        for i in range(400):
+            cue = i % 2
+            for organism in (a, b):
+                organism.experience([float(cue == 0), float(cue == 1)], cue)
+        for _ in range(2000):
+            a.experience([0, 0])
+            b.experience([0, 0])
+        self.assertGreater(a.experience([1, 0])[0], .8)
+        self.assertFalse(any(s.source == b.sensory[0] and s.kind == "prediction" for s in b.synapses))
+        self.assertTrue(any(s.source == a.sensory[0] and s.kind == "prediction" for s in a.synapses))
+
+    def test_missing_prediction_path_can_regrow_from_local_coactivity(self):
+        a = Organism(Config(inputs=2, outputs=2, initial_hidden=1,
+                            hidden_rule="competitive", persistence=False,
+                            traces=False, regrow_predictions=True,
+                            synapse_growth_interval=1, synapse_growth_threshold=0))
+        nid = a.hidden[0]
+        for s in a.synapses:
+            if s.kind == "drive":
+                s.strength = 1.0 if s.source == a.sensory[0] else 0.0
+        a.synapses = [s for s in a.synapses if not (s.source == nid and s.kind == "prediction")]
+        a.experience([1, 0], 0)
+        self.assertTrue(any(s.source == nid and s.kind == "prediction" for s in a.synapses))
+        for _ in range(40):
+            p = a.experience([1, 0], 0)
+        self.assertGreater(p[0], .9)
 
 
 if __name__ == "__main__":

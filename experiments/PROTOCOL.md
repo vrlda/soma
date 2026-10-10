@@ -133,3 +133,118 @@ intervals, and gates remain unchanged. Compare each mechanism alone and in
 combination on seeds 0–4. Choose a setting before confirmation seeds 10–19.
 A noise diagnostic must show no continual expansion after input novelty is
 exhausted. Keep earlier failed growth results intact.
+
+## Temporal conjunction grammar (registered 2026-10-10)
+
+Confirmation shows frozen random competitive cells also pass the simple context
+task: it establishes nonlinear separation, not necessary learned organization.
+The next task presents two independently sampled binary symbols in separate
+sensory alphabets, then a query; its legal terminal class is their parity.
+A linear predictor over independent traces cannot represent this interaction.
+Between episodes, eight blank experiences clear recent activity gradually;
+there is never an internal reset. A configurable neutral-symbol gap separates
+the two symbols. Score predictions before the terminal class is revealed.
+
+Candidate: competitive cells (16), rate .05, immediate neuronal activity,
+no recurrence, no prediction traces, local peak drive traces with decay .8.
+The same local traces feed each neuron's dendritic mismatch and afferent
+learning. No task-specific conjunction features or parity rule inside the
+brain. Controls: no drive traces, hidden plasticity off, no hidden neurons,
+no learning. Gaps 0 and 2: 1200 episodes, final 400, mean accuracy >= .90 and
+>= .20 advantage over no-hidden. Gap 8 exploratory. Seeds 0–4 first, selected
+setting then confirmation 10–19. Report whether hidden plasticity earns a
+measurable benefit; success with frozen cells remains a random-feature result.
+This finite grammar does not establish open-ended composition or hierarchy.
+
+## Temporal representation recruitment (registered 2026-10-10)
+
+The first grammar candidate passes gap 0 on average (94.4%) but fails gap 2
+(60.1%): the gate remains failed. Test novelty-driven recruitment rather than
+adding a task-specific interaction feature. A newborn copies locally active
+parent afferent traces into its own traces and initial weights. When no neuron
+matches within a generic mismatch tolerance, lateral competition may abstain
+instead of overwriting an established prototype (vigilance). All operations
+use sensory traces and neuronal mismatch, never the terminal label.
+
+Settings: initial hidden 1; growth interval 1, representation threshold .01,
+size cost .003; peak drive decay .8, hidden rate .05, vigilance .03. Compare
+vigilance on/off, hidden plasticity off, fixed-one-cell, and no drive memory.
+First isolate pruning off; then test pruning on. Keep the original grammar
+gates (.90 at gaps 0 and 2, .20 over no-hidden), gap 8 exploratory. Seeds 0–4
+first. Record neuron trajectory, so a growing lookup of numerous state
+prototypes is not mistaken for compact compositional reasoning.
+Vigilant competitive afferents treat correctly matched zero inputs as useful
+constraints; pruning them purely for zero strength would invalidate mismatch
+computation. That usefulness rule is enabled only with vigilance, preserving
+legacy candidate definitions.
+
+## Matched noise-growth control (registered 2026-10-10)
+
+The original prediction-growth and novelty-growth runs differed in initial
+size and learning rule. Add a matched control: same competitive rule, one
+initial cell, rate .05, no temporal state, growth every 20 observations,
+threshold .07, cost .02, pruning enabled; change only growth_rule from
+representation to prediction. Predictable and random outcomes, 3000 steps,
+seeds 0–4. This isolates irreducible prediction error versus input novelty.
+Do not infer a rule benefit from the unmatched earlier size curves.
+
+## Align growth with the unmet experience (registered 2026-10-10)
+
+The query-only recruitment run was interrupted for excessive cost. A separately
+reproduced 120-episode diagnostic records its partial trajectory and accuracy;
+it is not a completed gate. Births were allowed only on labelled outcomes,
+while persistent mismatch included every blank/prefix experience. Change the
+growth clock to every experience and require CURRENT mismatch above vigilance
+as well as persistent surprise. Keep .01/.003 pressure coefficients and .03
+vigilance initially. Remove unused recurrent candidate edges (density zero)
+for these explicitly nonrecurrent competitive runs, avoiding quadratic cost.
+Use a 60-second per-run experiment budget, record incomplete runs explicitly,
+and never count a partial run as a passed gate. Brain size remains uncapped.
+Same grammar streams/gates, seeds 0–4, controls as before. Keep the failed
+outcome-clock run and diagnostic intact.
+
+## One lifetime across changed meanings (registered 2026-10-10)
+
+The recruited grammar passed gaps 0/2 on ten confirmation seeds; gap 8 failed.
+Pruning preserved accuracy on initial seeds but caused roughly 90–120 births
+and almost as many deaths, versus about 15 births without pruning. Test a longer
+single lifetime: same two-symbol grammar (gap 2), with an explicit sensory
+context channel. Context 0 uses the original terminal mapping, context 1 its
+reversal. Learn 1200 episodes in context 0, 1200 in context 1, then return for
+400 episodes to context 0. Seven inputs, same selected neural parameters.
+All context information is sensory; no internal task identifiers or resets.
+
+Compare pruning on/off first (seeds 0–4), no replay. Record first 50 return
+predictions separately from final relearning; gates: >= .90 new-context final
+400 AND >= .90 first-50 old-context return. Do not call later relearning
+retention. Checkpoints and structure trajectory must preserve the whole brain.
+A failed return directs a consolidation/pruning experiment, not text scaling.
+
+## Consolidation protects an old context (registered 2026-10-10)
+
+Lifetime baseline: pruning-on mean first-50 return accuracy 86.4% (gate failed),
+whereas completed pruning-off runs scored 100%. Pruning repeatedly kills
+unlabelled prefix representations and prunes inactive old-context pathways.
+Test four local structural safeguards: keep an active sensory representation
+when its prediction pathways are unused; regrow missing prediction connections
+from current local coactivity/error magnitude; accumulate afferent stability
+for correctly matched absence as well as presence; protect consolidated
+synapses from pruning using their own evidence. No labels enter hidden cells.
+
+Registered settings: selected lifetime rules plus hidden/outcome metaplasticity,
+match evidence, evidence decay .99999 per update, retention weight .001;
+active-representation retention and prediction regrowth enabled (one candidate
+per 10 observed outcomes). Compare pruning protection enabled/disabled with
+other settings matched, no pruning, and all safeguards off (original baseline).
+Five exploratory seeds, unchanged .90 new-context and first-50 return gates.
+Confirm selected setting on seeds 10–19 if it passes. The evidence decay is
+an explicit slow forgetting rate, not permanent immunity or a capacity cap.
+A stability gain does not establish biological sleep; replay remains a separate
+controlled scaffolding experiment.
+
+Clarification for the safeguards-off consolidation control: other common
+metaplasticity settings remain enabled; it is not numerically identical to the
+original `lifetime_initial.jsonl` baseline. The protection-off control changes
+only pruning protection. Configurations in each raw row are authoritative.
+The selected lifetime configuration is frozen in `SELECTED_LIFETIME.json`
+before confirmation on the independent lifetime streams at seeds 10–19.

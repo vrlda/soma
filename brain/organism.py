@@ -9,8 +9,10 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 import json
 import math
+import os
 from pathlib import Path
 import random
+import tempfile
 
 
 @dataclass
@@ -45,8 +47,22 @@ class Config:
     growth_rule: str = "prediction"
     seed_birth_from_activity: bool = False
     hidden_metaplasticity: bool = False
+    drive_trace_rule: str = "none"
+    drive_decay: float = 0.8
+    vigilance: float = 0.0
+    growth_clock: str = "outcome"
+    growth_requires_current_novelty: bool = False
+    retain_active_representations: bool = False
+    regrow_predictions: bool = False
+    synapse_growth_interval: int = 10
+    synapse_growth_threshold: float = 0.05
+    match_evidence: bool = False
+    evidence_decay: float = 0.999
+    retention_protection: bool = False
+    retention_weight: float = 0.001
 
     def __post_init__(self):
+        self.trace_decays = tuple(self.trace_decays)
         if self.inputs < 1 or self.outputs < 2 or self.initial_hidden < 0:
             raise ValueError("positive inputs, at least two outputs, nonnegative hidden size required")
         if self.growth_interval < 1 or self.prune_interval < 1 or self.prune_age < 1:
@@ -65,6 +81,14 @@ class Config:
             raise ValueError("unknown growth rule")
         if self.growth_rule == "representation" and self.hidden_rule != "competitive":
             raise ValueError("representation growth requires the competitive hidden rule")
+        if self.drive_trace_rule not in ("none", "ema", "peak") or not 0 <= self.drive_decay < 1:
+            raise ValueError("invalid drive trace rule or decay")
+        if self.vigilance < 0:
+            raise ValueError("vigilance must be nonnegative")
+        if self.growth_clock not in ("outcome", "experience"):
+            raise ValueError("invalid growth clock")
+        if not 0 <= self.evidence_decay <= 1 or self.synapse_growth_interval < 1:
+            raise ValueError("invalid evidence decay or synapse growth interval")
 
 
 @dataclass
@@ -107,6 +131,7 @@ class Organism:
         self.observations = 0
         self.surprise = 0.5
         self.representation_surprise = 0.0
+        self.current_representation_surprise = 0.0
         self.births = 0
         self.deaths = 0
         self.synapse_births = 0
@@ -133,11 +158,15 @@ class Organism:
 
     def _wire_hidden(self, target, newborn=False):
         # Exploratory candidate connections; none encode a task or an answer.
+        parent = next((nid for nid in self.hidden if nid != target), None)
+        local_traces = {s.source: s.trace for s in self.synapses
+                        if s.kind == "drive" and s.target == parent}
         for source in self.sensory:
             weight = self.rng.random() if self.config.hidden_rule == "competitive" else self.rng.uniform(-1, 1)
             if newborn and self.config.seed_birth_from_activity:
-                weight = self.neurons[source].activity
-            self.synapses.append(Synapse(source, target, "drive", weight))
+                weight = local_traces.get(source, self.neurons[source].activity) if self.config.drive_trace_rule != "none" else self.neurons[source].activity
+            trace = weight if newborn and self.config.seed_birth_from_activity and self.config.drive_trace_rule != "none" else 0.0
+            self.synapses.append(Synapse(source, target, "drive", weight, trace=trace))
             self.synapse_births += 1
         for source in self.hidden:
             if self.rng.random() < self.config.drive_density:
@@ -179,6 +208,14 @@ class Organism:
             pre = old[s.source] if recurrent else self.neurons[s.source].activity
             if recurrent and not self.config.recurrence:
                 pre = 0.0
+            if not recurrent and self.config.drive_trace_rule != "none":
+                decay = self.config.drive_decay
+                if self.config.drive_trace_rule == "peak":
+                    residual = decay * s.trace
+                    s.trace = pre if abs(pre) >= abs(residual) else residual
+                else:
+                    s.trace = decay * s.trace + (1 - decay) * pre
+                pre = s.trace
             pre_values[index] = pre
             drive[s.target] += s.strength * pre
         for nid in self.hidden:
@@ -190,20 +227,22 @@ class Organism:
         if self.config.hidden_rule == "competitive" and self.hidden:
             mismatch = {nid: 0.0 for nid in self.hidden}
             fan_in = {nid: 0 for nid in self.hidden}
-            for s in self.synapses:
+            for index, s in enumerate(self.synapses):
                 if s.kind == "drive" and self.neurons[s.source].role == "sensory":
-                    mismatch[s.target] += (self.neurons[s.source].activity - s.strength) ** 2
+                    mismatch[s.target] += (pre_values[index] - s.strength) ** 2
                     fan_in[s.target] += 1
             for nid in self.hidden:
                 mismatch[nid] = mismatch[nid] / fan_in[nid] if fan_in[nid] else float("inf")
             # Generic lateral competition; no target or task information.
             winner = min(self.hidden, key=lambda nid: (mismatch[nid], nid))
             novelty = mismatch[winner] if math.isfinite(mismatch[winner]) else 1.0
+            self.current_representation_surprise = novelty
             self.representation_surprise = 0.95 * self.representation_surprise + 0.05 * novelty
+            represented = self.config.vigilance == 0 or novelty <= self.config.vigilance
             for nid in self.hidden:
                 n = self.neurons[nid]
                 p = n.persistence if self.config.persistence else 0.0
-                n.activity = p * old[nid] + (1 - p) * float(nid == winner)
+                n.activity = p * old[nid] + (1 - p) * float(nid == winner and represented)
                 n.surprise = mismatch[nid] if math.isfinite(mismatch[nid]) else 1.0
         logits = {nid: 0.0 for nid in self.outcome}
         for s in self.synapses:
@@ -218,8 +257,13 @@ class Organism:
                     s.trace = decay * s.trace + (1 - decay) * pre
                 logits[s.target] += s.strength * s.trace
             else:
-                s.trace = self.neurons[s.source].activity
+                if self.config.drive_trace_rule == "none" or self.neurons[s.source].role == "hidden":
+                    s.trace = self.neurons[s.source].activity
             contribution = abs(s.strength * s.trace)
+            if (self.config.vigilance > 0 and self.config.hidden_rule == "competitive"
+                    and s.kind == "drive" and self.neurons[s.source].role == "sensory"):
+                # Matched absence is a meaningful dendritic constraint too.
+                contribution = abs(self.neurons[s.target].activity) * max(0.0, 1 - abs(s.trace - s.strength))
             s.usefulness = 0.99 * s.usefulness + 0.01 * contribution
         offset = max(logits.values())
         exps = [math.exp(logits[nid] - offset) for nid in self.outcome]
@@ -239,7 +283,9 @@ class Organism:
                         change = self.config.hidden_learning_rate * gate * s.plasticity * post * (pre - s.strength)
                         if self.config.hidden_metaplasticity:
                             evidence = abs(pre) * post * max(0.0, 1 - self.neurons[s.target].surprise)
-                            s.evidence = 0.999 * s.evidence + evidence
+                            if self.config.match_evidence:
+                                evidence = post * max(0.0, 1 - abs(pre - s.strength))
+                            s.evidence = self.config.evidence_decay * s.evidence + evidence
                             s.plasticity = 1 / (1 + self.config.consolidation_rate * s.evidence)
                     else:
                         # Local Oja normalization; no outcome error.
@@ -265,7 +311,7 @@ class Organism:
                     change = self.config.learning_rate * gate * s.plasticity * s.trace * error / energy[s.target]
                     s.strength += change
                     if self.config.metaplasticity:
-                        s.evidence = 0.999 * s.evidence + abs(s.trace) * (1 - abs(error))
+                        s.evidence = self.config.evidence_decay * s.evidence + abs(s.trace) * (1 - abs(error))
                         s.plasticity = 1 / (1 + self.config.consolidation_rate * s.evidence)
         self.tick += 1
         for n in self.neurons.values():
@@ -277,11 +323,28 @@ class Organism:
 
     def _structure(self, observed):
         cfg = self.config
-        if cfg.growth and observed and self.observations % cfg.growth_interval == 0:
+        if cfg.regrow_predictions and observed and self.observations % cfg.synapse_growth_interval == 0:
+            connected = {(s.source, s.target) for s in self.synapses if s.kind == "prediction"}
+            candidates = []
+            for source in self.sensory + [self.tonic] + self.hidden:
+                for target in self.outcome:
+                    coactivity = abs(self.neurons[source].activity) * self.neurons[target].surprise
+                    if (source, target) not in connected and coactivity > cfg.synapse_growth_threshold:
+                        candidates.append((coactivity, source, target))
+            if candidates:
+                _, source, target = max(candidates, key=lambda x: (x[0], -x[1], -x[2]))
+                decay = self.rng.choice(cfg.trace_decays)
+                self.synapses.append(Synapse(source, target, "prediction", 0.0, decay,
+                                             trace=self.neurons[source].activity))
+                self.synapse_births += 1
+        clock = self.tick if cfg.growth_clock == "experience" else self.observations
+        due = (cfg.growth_clock == "experience" or observed) and clock % cfg.growth_interval == 0
+        if cfg.growth and due:
             # Cost increases smoothly: rate/cost regulation, no fixed size cap.
             pressure = cfg.growth_threshold + cfg.growth_cost * math.log1p(len(self.hidden))
             surprise = self.representation_surprise if cfg.growth_rule == "representation" else self.surprise
-            if surprise > pressure:
+            unmet = not cfg.growth_requires_current_novelty or self.current_representation_surprise > cfg.vigilance
+            if surprise > pressure and unmet:
                 nid = self._neuron("hidden")
                 self.hidden.append(nid)
                 self._wire_hidden(nid, newborn=True)
@@ -290,13 +353,18 @@ class Organism:
         if cfg.pruning and self.tick % cfg.prune_interval == 0:
             kept = []
             for s in self.synapses:
-                if s.age > cfg.prune_age and s.usefulness < cfg.prune_threshold:
+                importance = s.usefulness
+                if cfg.retention_protection:
+                    importance += cfg.retention_weight * s.evidence / (1 + s.evidence)
+                if s.age > cfg.prune_age and importance < cfg.prune_threshold:
                     self.synapse_deaths += 1
                 else:
                     kept.append(s)
             self.synapses = kept
             connected = {s.source for s in kept if s.kind == "prediction"}
-            dead = {nid for nid in self.hidden if self.neurons[nid].age > 2 * cfg.prune_age and nid not in connected}
+            dead = {nid for nid in self.hidden if self.neurons[nid].age > 2 * cfg.prune_age
+                    and nid not in connected and (not cfg.retain_active_representations
+                                                  or self.neurons[nid].usefulness < cfg.prune_threshold)}
             if dead:
                 self.hidden = [nid for nid in self.hidden if nid not in dead]
                 for nid in dead:
@@ -314,6 +382,7 @@ class Organism:
                     synapse_births=self.synapse_births, synapse_deaths=self.synapse_deaths,
                     surprise=self.surprise,
                     representation_surprise=self.representation_surprise,
+                    current_representation_surprise=self.current_representation_surprise,
                     mean_activity=sum(abs(n.activity) for n in self.neurons.values()) / len(self.neurons),
                     mean_plasticity=sum(s.plasticity for s in predictive) / max(1, len(predictive)))
 
@@ -324,7 +393,7 @@ class Organism:
                     **{key: (getattr(self, key)[:] if isinstance(getattr(self, key), list) else getattr(self, key)) for key in
                        ("next_id", "tick", "observations", "surprise", "births", "deaths",
                         "synapse_births", "synapse_deaths", "sensory", "tonic", "outcome", "hidden",
-                        "representation_surprise")})
+                        "representation_surprise", "current_representation_surprise")})
 
     @classmethod
     def from_state(cls, state):
@@ -343,10 +412,23 @@ class Organism:
             value = state[key]
             setattr(obj, key, value[:] if isinstance(value, list) else value)
         obj.representation_surprise = state.get("representation_surprise", 0.0)
+        obj.current_representation_surprise = state.get("current_representation_surprise", 0.0)
         return obj
 
     def save(self, path):
-        Path(path).write_text(json.dumps(self.state(), allow_nan=False))
+        path = Path(path)
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                             prefix="." + path.name + ".", delete=False) as stream:
+                temporary = Path(stream.name)
+                json.dump(self.state(), stream, allow_nan=False)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, path)
+        finally:
+            if temporary is not None and temporary.exists():
+                temporary.unlink()
 
     @classmethod
     def load(cls, path):
