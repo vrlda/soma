@@ -284,7 +284,7 @@ class PredictiveBrainTests(unittest.TestCase):
 
     def test_predictive_save_resume_exact_with_shuffle_and_growth(self):
         from brain.predictive import PredictiveBrain
-        a=self.make(shuffled=True,growth_interval=1,growth_threshold=-1.,growth_cost=0.)
+        a=self.make(shuffled=True,normalize_activity=True,growth_interval=1,growth_threshold=-1.,growth_cost=0.)
         for i in range(3):a.experience([1.,-.5,.2],i%2)
         with tempfile.TemporaryDirectory() as d:
             path=Path(d)/'state.json';a.save(path);b=PredictiveBrain.load(path)
@@ -322,6 +322,14 @@ class PredictiveBrainTests(unittest.TestCase):
             self.assertEqual(x.activity_variance,y.activity_variance)
             self.assertEqual(x.axon,y.axon)
         self.assertNotEqual(a.units[0].activity_variance,1.)
+
+    def test_predictive_hebbian_control_ignores_observation_error(self):
+        from brain.predictive import PredictiveBrain
+        a=self.make(hidden_rule='oja');a.experience([1.,0.,0.]);a.experience([0.,1.,0.])
+        b=PredictiveBrain.from_state(a.state())
+        a._local_prediction_update(a.units[0], -100., 1.)
+        b._local_prediction_update(b.units[0], 100., 1.)
+        self.assertEqual(a.units[0].basal,b.units[0].basal)
 
     def test_predictive_snapshot_and_invalid_signal_are_safe(self):
         a=self.make();state=a.state()

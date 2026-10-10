@@ -411,3 +411,53 @@ these as separate conditions, not an edit to the failed initial experiment.
 Also record genuinely frozen-hidden single-combination probes: no hidden
 updates during the probe, no cumulative test adaptation. The normal test
 continues intrinsic learning without outcome feedback as before.
+
+### Stronger matched-capacity control (registered 2026-10-11)
+
+The initial frozen and matched-capacity controls were numerically redundant.
+Retain both raw records and their original definitions. Add a distinct
+`hebbian_capacity` control: identical populations, synapses, birth/death
+schedule, axon normalization and step, but local Oja afferent adaptation rather
+than predictive error. Its update uses only its own source trace, receiving
+activity, and strength. It asks whether generic unsupervised plasticity,
+rather than temporal prediction specifically, explains transfer. A selected
+candidate must also exceed this control by .10, with the same gate on initial
+checkpoint probes. Run with the .02 homeostatic condition on seeds 0–4 before
+selection. Do not claim necessity from a redundant frozen comparison.
+
+### Representation geometry diagnostic (registered 2026-10-11)
+
+Before confirmation, inspect learned predictor afferents without teaching or
+modifying the brain. The evaluator knows the environment's two sensory
+emission directions. Measure the fraction of each basal neuron's sensory
+weight energy in their two-dimensional span versus the orthogonal nuisance
+span, for .02/homeostatic candidate and frozen, shuffled, Oja controls.
+This is a labelled diagnostic of learned denoising, not an internal decoder,
+not a new accuracy gate, and not evidence that neurons discovered named factors.
+Use the exact 600-episode streams, seeds 0–4; no new task or tuning.
+
+### Linear memory baseline and the scope of a positive result (2026-10-11)
+
+The proposed predictor and outcome readout are linear between sensory state
+and logits (axon centering/scaling changes that affine map, not its depth).
+Even a passed task cannot establish nonlinear hierarchy. Add an explicitly
+labelled experiment-only linear neural readout over the previous sensory state,
+with the same local .2 outcome step and per-afferent activity normalization.
+It has no hidden prediction, no factor decoder, and no task rule. Use identical
+600-episode streams, seeds 0–4, later confirmation if a candidate is selected.
+This baseline is a diagnostic of whether supervised linear learning suffices;
+if it matches the candidate, do not attribute task solvability to hidden credit
+assignment. Preserve the registered required-control gates, additionally report
+this stronger comparison and avoid claiming necessity if it is not exceeded.
+
+### Probe precision (registered 2026-10-11)
+
+The original independent-checkpoint metric samples just four first views, so
+retain it and its gate unchanged but supplement it with all 160 held-out noisy
+views, each from its own identical checkpoint clone with basal updates,
+structural updates and axon-statistic updates disabled. No target is supplied.
+This supplementary metric distinguishes transfer from intrinsic adaptation
+and reports uncertainty from 160 probes per seed. It is not used to replace a
+failed original four-probe gate. Restrict this expensive clone diagnostic to
+new-module controls; the old pool retains its original four boundary probes.
+Add a deterministic stream hash and assert training/test pair disjointness.

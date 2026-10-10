@@ -43,8 +43,8 @@ def summarize(rows):
         complete = [r for r in rr if r.get("complete", True)]
         summaries.append(dict(file=name, variant=variant, condition=condition,
             runs=len(rr), complete_runs=len(complete), seeds=[r["seed"] for r in rr],
-            accuracy=describe([r["metrics"]["accuracy"] for r in complete if r["metrics"]["accuracy"] is not None]),
-            log_loss=describe([r["metrics"]["log_loss"] for r in complete if r["metrics"]["log_loss"] is not None]),
+            accuracy=describe([r.get("metrics", {}).get("accuracy") for r in complete if r.get("metrics", {}).get("accuracy") is not None]),
+            log_loss=describe([r.get("metrics", {}).get("log_loss") for r in complete if r.get("metrics", {}).get("log_loss") is not None]),
             new_context=describe([r["phases"][1]["last_200"]["accuracy"] for r in complete if r["suite"] == "contextual"]),
             old_probe=describe([r["recall_first_20"]["accuracy"] for r in complete if r["suite"] == "contextual"]),
             oracle=describe([r["oracle"]["accuracy"] for r in complete if "oracle" in r]),
@@ -79,7 +79,7 @@ def plots(rows, output):
             rr = select(rows, "delay64_confirmation.jsonl" if gap == 64 and variant == "candidate" and "confirmation" in file else file, variant, gap)
             if not rr:
                 continue
-            values = [r["metrics"]["accuracy"] for r in rr]
+            values = [r.get("metrics", {}).get("accuracy") for r in rr]
             x.append(gap); mean.append(statistics.mean(values)); low.append(min(values)); high.append(max(values))
         axes[0].plot(x, mean, "o-", label=label, color=color)
         axes[0].fill_between(x, low, high, color=color, alpha=.12)
@@ -121,7 +121,7 @@ def plots(rows, output):
         for gap in (0, 2, 8):
             rr = select(rows, file, variant, gap)
             if rr:
-                values = [r["metrics"]["accuracy"] for r in rr]
+                values = [r.get("metrics", {}).get("accuracy") for r in rr]
                 x.append(gap); y.append(statistics.mean(values)); low.append(min(values)); high.append(max(values))
         ax.plot(x, y, "o-", label=label, color=color)
         ax.fill_between(x, low, high, color=color, alpha=.12)
@@ -142,7 +142,7 @@ def plots(rows, output):
             continue
         ax.bar(i-.18, statistics.mean(r["phases"][1]["last_400"]["accuracy"] for r in rr), .34,
                color="#177d76", label="New context, final 400" if i == 0 else None)
-        ax.bar(i+.18, statistics.mean(r["metrics"]["accuracy"] for r in rr), .34,
+        ax.bar(i+.18, statistics.mean(r.get("metrics", {}).get("accuracy") for r in rr), .34,
                color="#d18a32", label="Old return, first 50 (learning)" if i == 0 else None)
         ax.plot(i+.18, statistics.mean(r["phases"][2]["first_1"]["accuracy"] for r in rr),
                 "ko", markersize=5, label="First old response (before teaching)" if i == 0 else None)

@@ -70,3 +70,36 @@ The selected competitive candidate is one representation pool with local
 outcome connections. It cannot establish a hierarchy just by making the pool
 larger; additional local prediction/connectivity mechanisms must earn that
 claim in later experiments.
+
+## Pass 2: distributed next-input prediction
+
+`predictive.py` is a separate reference hypothesis, preserving all existing
+`Organism` defaults and historic results. It contains two interacting hidden
+populations: fixed, random sensory observation dendrites and distributed
+predictor neurons. A predictor emits a forecast of its observation partner's
+current activity from the previous sensory state. It then receives that
+activity and updates its own basal synapses from its OWN mismatch. The partner
+supplies activity, never its error. Labels reach only outcome neurons.
+
+| New rule | Local information |
+|---|---|
+| Observation dendrite | Fixed random afferent strengths and current source sensory activity |
+| Hidden future prediction | Own basal strengths and previous source activities |
+| Predictive basal adaptation | Own source eligibility × receiving neuron's own forecast error, normalized by its own afferent energy |
+| Output axon homeostasis | Own emitted activity mean and variance; no label or other neuron error |
+| Local outcome learning | Source axon × receiving outcome's own error and scalar learning gate |
+| Population growth | Broadcast scalar average of local surprise, elapsed interval, smooth cost |
+| Connected-unit pruning | Own age/usefulness; removes associated observation/prediction cells and all their connections |
+| Oja capacity control | Source trace, receiving activity and own strength; no predictive mismatch |
+
+The readout consumes predictions, not raw sensory inputs. Axon normalization
+is local homeostasis, not a directional global signal. Growth can continue
+without a population cap, while its costs and cadence regulate speed. Structural
+controls can replay the candidate's exact birth/death schedule; that yoking
+exists solely to compare matched capacity and is not a candidate learning rule.
+Saved states include both RNG streams and every synapse/neuron's history.
+
+This architecture does not transport outcome credit into hidden neurons,
+learn deep hierarchies, or discover symbolic factor identities. The question
+is whether its self-supervised predictive features become useful for unseen
+combinations. Read the protocol and notebook for the gates and failures.

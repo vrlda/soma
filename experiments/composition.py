@@ -69,13 +69,21 @@ def episode(brain,frames,target=None,events=None,event_offset=0):
 
 def experiment(seed,variant,options,schedule=None,budget=600):
     train,test,seen=stream(seed,options['episodes'],options['noise'],options['amplitude'])
-    if variant=='competitive':
+    assert not ({pair for pair,_ in train} & {pair for pair,_ in test})
+    assert {pair[0] for pair,_ in train} == {0,1,2,3}
+    assert {pair[1] for pair,_ in train} == {0,1,2,3}
+    stream_hash=hashlib.sha256(json.dumps([train,test,seen]).encode()).hexdigest()
+    if variant=='linear_memory':
+        from experiments.linear_memory import LinearMemoryBaseline
+        brain=LinearMemoryBaseline()
+    elif variant=='competitive':
         preset=json.loads(Path('experiments/SELECTED_COMBINED.json').read_text())['overrides']
         brain=Organism(Config(**dict(preset,inputs=25,outputs=2,seed=seed)))
     else:
         settings=dict(options.get('brain',{}),seed=seed)
         if variant in ('frozen','matched_capacity'):settings['hidden_learning']=False
         if variant=='shuffled':settings['shuffled']=True
+        if variant=='hebbian_capacity':settings['hidden_rule']='oja'
         brain=PredictiveBrain(PredictiveConfig(**settings))
     start=time.monotonic();scores=[];trajectory=[];events=[];loss=[]
     train_complete=True
@@ -97,6 +105,13 @@ def experiment(seed,variant,options,schedule=None,budget=600):
             frozen.config=replace(frozen.config,hidden_learning=False,growth=False,pruning=False,activity_rate=0.)
             p,_,_=episode(frozen,first_frames)
             frozen_transfer.append(score(p,label(pair)))
+    frozen_all=[]
+    if isinstance(brain,PredictiveBrain):
+        for pair,frames in test:
+            frozen=clone(brain)
+            frozen.config=replace(frozen.config,hidden_learning=False,growth=False,pruning=False,activity_rate=0.)
+            p,_,_=episode(frozen,frames)
+            frozen_all.append(score(p,label(pair)))
     probe=clone(brain);seen_scores=[]
     for pair,frames in seen:
         p,_,_=episode(probe,frames);seen_scores.append(score(p,label(pair)))
@@ -109,16 +124,17 @@ def experiment(seed,variant,options,schedule=None,budget=600):
         probes.append(dict(pair=pair,target=label(pair),probabilities=p))
     complete=train_complete and len(held_scores)==len(test)
     result=dict(suite='composition',condition='noisy_factor_sum',variant=variant,seed=seed,
-        config=asdict(brain.config),task=options,complete=complete,
+        config=asdict(brain.config) if variant != "linear_memory" else vars(brain.config),task=options,complete=complete,stream_hash=stream_hash,
         metrics=metrics(held_scores),seen_probe=metrics(seen_scores),first_occurrences=metrics(first),
-        initial_transfer=metrics(initial),frozen_hidden_transfer=metrics(frozen_transfer),train_last_200=metrics(scores[-200:]),trained_episodes=trained,
+        initial_transfer=metrics(initial),frozen_hidden_transfer=metrics(frozen_transfer),
+        frozen_hidden_holdout=metrics(frozen_all),train_last_200=metrics(scores[-200:]),trained_episodes=trained,
         hidden_prediction_first_200=sum(loss[:200])/max(1,len(loss[:200])),
         hidden_prediction_last_200=sum(loss[-200:])/max(1,len(loss[-200:])),
         brain=brain.summary(),trajectory=trajectory,probes=probes,seconds=time.monotonic()-start,
         controls={'chance':.5,'majority':.5,'exact_unseen_template':.5},
         source_hashes={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in
-                       ('brain/predictive.py','brain/organism.py','experiments/composition.py')})
-    if variant!='competitive':
+                       ('brain/predictive.py','brain/organism.py','experiments/composition.py','experiments/linear_memory.py')})
+    if isinstance(brain,PredictiveBrain):
         result['structure_events']=events
         result['capacity_schedule_matched']=schedule is None or events==schedule
         assert result['capacity_schedule_matched']
@@ -141,9 +157,9 @@ def main():
         for seed in map(int,args.seeds.split(',')):
             schedule=None
             for variant in args.variants.split(','):
-                if variant!='predictive' and variant!='competitive' and schedule is None:
+                if variant not in ('predictive','competitive','linear_memory') and schedule is None:
                     raise ValueError('Paired controls require predictive first')
-                row,ee,_=experiment(seed,variant,options,schedule if variant not in ('predictive','competitive') else None,args.budget)
+                row,ee,_=experiment(seed,variant,options,schedule if variant not in ('predictive','competitive','linear_memory') else None,args.budget)
                 if variant=='predictive':schedule=ee
                 f.write(json.dumps(row)+'\n');f.flush()
                 print(json.dumps({k:row[k] for k in ('seed','variant','complete','metrics','seen_probe','initial_transfer','brain','seconds')}),flush=True)

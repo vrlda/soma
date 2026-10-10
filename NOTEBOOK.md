@@ -5,6 +5,41 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: local axon homeostasis and learned predictive geometry
+
+**Question.** Does input prediction create useful distributed features after
+controlling the frozen features' smaller scale and generic Hebbian adaptation?
+
+**Setup.** Preregistered local source-axon mean/variance normalization in every
+new-module variant. Hidden step .02/.05, unchanged 600 episodes and task,
+exploratory seeds 0–4. Added Oja with exactly matched population/connections and
+candidate birth/death schedule. Environment-aware weight-span diagnostics never
+teach the brain or produce its answers. Added a labelled linear-memory baseline.
+
+**Result.** Step .02: withheld 97%, seen 95.167%, independent four-probe initial
+transfer 95%; frozen/matched withheld 68%, initial 85%; shuffled withheld
+66.625%, initial 70%; Oja withheld 53.25%, initial 55%. Step .05: withheld
+95.5%, seen 92%, initial 90%, which fails the .10 initial-transfer advantage
+against frozen 85%. The .02 setting is the eligible hypothesis; original-pool
+control is still running before selection/confirmation. Exact matched controls
+had zero births/deaths and eight units throughout.
+
+The fraction of learned sensory weight energy in the true signal span was
+69.4% for prediction, 8.1% frozen, 23.1% Oja, 47.8% shuffled. The second/first
+signal eigenvalue ratio was .571 for prediction but .047 shuffled and .039 Oja:
+shuffling can retain signal while collapsing its independent dimensions.
+The stronger linear-memory baseline achieved 93.875% withheld and 97.5% seen.
+
+**Meaning.** This is evidence of local self-supervised denoising, retaining two
+independent signal directions; the full required-control/confirmation gate is
+not yet established. The linear baseline shows the task does not require deep
+hidden credit assignment. Even a positive confirmation will support useful
+predictive features and transfer on this linear task, not hierarchy or general
+nonlinear composition. The candidate's hidden map itself is affine. Preserve
+these qualifications rather than calling the linear baseline a failure.
+
+---
+
 ## 2026-10-11: seed 11 failed to acquire A before it learned B
 
 **Question.** Is the 80% return caused by pruned old representations, damaged

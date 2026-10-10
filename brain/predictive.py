@@ -23,6 +23,7 @@ class PredictiveConfig:
     hidden_rate: float = .2
     outcome_rate: float = .2
     hidden_learning: bool = True
+    hidden_rule: str = "prediction"
     shuffled: bool = False
     normalize_activity: bool = False
     activity_rate: float = .01
@@ -41,6 +42,8 @@ class PredictiveConfig:
             raise ValueError('Invalid interface or initial population')
         if min(self.growth_interval,self.prune_interval,self.prune_age) < 1:
             raise ValueError('Structural intervals must be positive')
+        if self.hidden_rule not in ('prediction','oja'):
+            raise ValueError('Unknown hidden rule')
         if min(self.hidden_rate,self.outcome_rate,self.growth_cost) < 0:
             raise ValueError('Rates/cost must be nonnegative')
 
@@ -105,7 +108,11 @@ class PredictiveBrain:
         if self.config.hidden_learning:
             energy=1.+sum(s.trace*s.trace for s in unit.basal)
             for s in unit.basal:
-                s.strength+=self.config.hidden_rate*gate*s.trace*unit.error/energy
+                if self.config.hidden_rule == "prediction":
+                    change=s.trace*unit.error
+                else:
+                    change=unit.activity*(s.trace-unit.activity*s.strength)
+                s.strength+=self.config.hidden_rate*gate*change/energy
 
     def experience(self, signal, target=None, gate=1., structure_override=None):
         cfg=self.config
