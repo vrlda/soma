@@ -1,4 +1,8 @@
-"""Summarize preserved results and export scientific figures (Matplotlib)."""
+"""Summarize preserved results and export figures (figures need Matplotlib).
+
+SUMMARY.json is generated and git-ignored; SUMMARY.md and the PNG figures are
+committed so the results can be read without running anything.
+"""
 from collections import defaultdict
 import hashlib
 import json
@@ -62,7 +66,7 @@ def plots(rows, output):
     import matplotlib.pyplot as plt
     from matplotlib.ticker import PercentFormatter
     plt.rcParams.update({"font.size": 10, "axes.spines.top": False,
-                         "axes.spines.right": False, "svg.fonttype": "none"})
+                         "axes.spines.right": False})
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.5), layout="constrained")
     gaps = (0, 4, 16, 64)
     for file, variant, label, color in (
@@ -103,8 +107,7 @@ def plots(rows, output):
     axes[2].set(title="Matched growth on random labels", xlabel="Experiences", ylabel="Hidden neurons")
     axes[2].legend(fontsize=8)
     fig.suptitle("SOMA: controlled experiments on local memory and growth", fontsize=13)
-    for ext in ("svg", "png"):
-        fig.savefig(output / ("first_results." + ext), dpi=180)
+    fig.savefig(output / "first_results.png", dpi=180)
     plt.close(fig)
     fig, ax = plt.subplots(figsize=(8, 4.5), layout="constrained")
     for file, variant, label, color in (
@@ -126,8 +129,7 @@ def plots(rows, output):
     ax.set(title="Two-symbol grammar: terminal class depends on both symbols", xlabel="Neutral symbols between the two cues", ylabel="Prequential accuracy", ylim=(0, 1.05))
     ax.yaxis.set_major_formatter(PercentFormatter(1))
     ax.legend(fontsize=9, loc="lower left")
-    for ext in ("svg", "png"):
-        fig.savefig(output / ("temporal_grammar." + ext), dpi=180)
+    fig.savefig(output / "temporal_grammar.png", dpi=180)
     plt.close(fig)
     fig, ax = plt.subplots(figsize=(9, 4.5), layout="constrained")
     cases = (("lifetime_initial.jsonl", "candidate", None, "Original pruning"),
@@ -149,8 +151,7 @@ def plots(rows, output):
            ylabel="Prequential accuracy", ylim=(0, 1.05))
     ax.yaxis.set_major_formatter(PercentFormatter(1))
     ax.legend(fontsize=9, loc="lower left")
-    for ext in ("svg", "png"):
-        fig.savefig(output / ("lifetime_retention." + ext), dpi=180)
+    fig.savefig(output / "lifetime_retention.png", dpi=180)
     plt.close(fig)
 
 
@@ -178,9 +179,10 @@ def main():
                   "Raw rows from early runs predate per-run source hashing; configurations and seeds are preserved.",
                   "Later rows include hashes of the source used. The notebook and protocol explain changes.", ""))
     (output / "SUMMARY.md").write_text("\n".join(lines))
-    plots(rows, output)
-    for path in output.glob("*.svg"):
-        path.write_text("\n".join(line.rstrip() for line in path.read_text().splitlines()) + "\n")
+    try:
+        plots(rows, output)
+    except ImportError:
+        print("Matplotlib not installed: tables written, figures skipped")
     print(json.dumps({"runs":len(rows), "complete_runs":data["complete_runs"], "groups":len(summaries), "output":str(output)}))
 
 

@@ -11,8 +11,6 @@ It is a dream we are researching, aiming at a breakthrough, not a product.
 - **[VISION.md](VISION.md)**: what we are building and why. Start here.
 - **[NOTEBOOK.md](NOTEBOOK.md)**: the research log.
 - **[AGENTS.md](AGENTS.md)**: instructions for AI agents (and humans) working on it.
-- `archive/`: earlier work (2025–2026), kept for its lessons.
-
 - **[RESEARCH_REPORT.md](RESEARCH_REPORT.md)**: current measured results, limitations, and next research steps.
-- **[experiments/README.md](experiments/README.md)**: reproduce controlled experiments.
-- **[RESTORE.md](RESTORE.md)**: restore the local research branch and artifacts.
+- **[brain/](brain/README.md)**: the neural substrate. **[experiments/](experiments/README.md)**: controlled experiments and how to reproduce them.
+- `archive/`: earlier work (2025–2026), kept for its lessons.

@@ -8,3 +8,4 @@ venv/
 data/modern/*
 !data/modern/MANIFEST.json
 archive/v1/data/e3full/
+experiments/report/SUMMARY.json

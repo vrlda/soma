@@ -24,11 +24,20 @@
 |---|---|
 | `VISION.md` | the vision: read first, re-read often |
 | `NOTEBOOK.md` | the research log, newest first |
-| `brain/` | the SOMA brain: neurons, synapses, rules (starts empty; built from here on) |
-| `experiments/` | small experiments, each recorded in the notebook |
+| `RESEARCH_REPORT.md` | current measured results, limits, and next steps (keep it up to date) |
+| `brain/organism.py` | the SOMA brain: neurons, synapses, local rules, growth, pruning, save/resume |
+| `experiments/` | protocol, runner, frozen selections (`SELECTED_*.json`), tests, raw results, saved brains |
 | `scripts/build_modern_corpus.py` | builds the modern text corpus into `data/modern/` (Wikipedia, SQuAD, dialogue; sealed test splits) |
 | `data/modern/MANIFEST.json` | hashes and counts of that corpus (the text is git-ignored) |
 | `archive/` | everything before 2026-10-02, reference only (see `archive/README.md`) |
+
+Run the tests before every commit: `python -B -m unittest experiments.test_brain`.
+Never overwrite or edit files in `experiments/results/`: they are the record.
+
+Every mechanism in `brain/` is currently an on/off switch in `Config`, so that
+ablations stay reproducible. Once a mechanism has earned its place in confirmed
+experiments, aim to make it part of the one shared brain rather than adding more
+per-task switches: SOMA should end up as one brain with one set of rules.
 
 Code style: Python standard library first, clear and inspectable. Add a faster
 implementation (Rust, NumPy) only when an experiment needs the speed, and keep

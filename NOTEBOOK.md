@@ -5,6 +5,34 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-10: overnight pass merged, with a review
+
+**What happened.** A second agent built `brain/organism.py` and the controlled
+experiments below in one overnight pass, without GitHub write access. Its commits
+were merged unchanged; a follow-up commit removed generated files
+(`SUMMARY.json`, SVG copies of the figures) and restore notes. Tests pass, and
+`python -B -m experiments.report` regenerates `SUMMARY.md` byte-identically from
+the raw results.
+
+**Review against the vision.** The work respects the substrate rules (local
+learning, no backpropagation, growth/pruning without size caps, lifelong
+save/resume) and is honestly controlled. Cautions for whoever continues:
+
+- The competitive hidden pool is winner-take-all prototype matching with
+  recruitment (close to ART). On small finite tasks, success can mean one
+  recruited neuron per memorized combination. Do not mistake it for learned
+  structure; test generalization to unseen combinations.
+- Only outcome synapses learn from error, and all tasks are labelled
+  classification. The brain does not yet predict its own next input, and hidden
+  neurons get no learning signal: credit assignment (VISION.md section 6.1) is untouched.
+- Mechanisms accumulate as `Config` switches with per-task selections. That is
+  right for ablations, but the goal is one brain with one rule set.
+
+**Next.** Its own next step 2: local prediction between hidden populations,
+tested on composition of unseen combinations, with frozen and shuffled controls.
+
+---
+
 ## 2026-10-10: combined lifetime confirmation, with one failed return
 
 **Question.** Do longer temporal representation and consolidation work together
@@ -28,8 +56,7 @@ to discard. Gap-2 lifetime and gap-8 grammar remain separately confirmed.
 **Pass record.** 1537 JSONL records, 1534 complete, three partial budget stops;
 39 files including the empty aborted recruitment file. Twenty behavioral tests
 pass; twelve representative historic runs reproduce exactly. Full final report:
-`RESEARCH_REPORT.md`. GitHub push and connector branch creation both rejected
-writes (403); commits, ZIP, patch, and incremental bundle remain local.
+`RESEARCH_REPORT.md`.
 
 ---
 
