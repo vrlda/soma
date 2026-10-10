@@ -179,6 +179,8 @@ def main():
                   "Later rows include hashes of the source used. The notebook and protocol explain changes.", ""))
     (output / "SUMMARY.md").write_text("\n".join(lines))
     plots(rows, output)
+    for path in output.glob("*.svg"):
+        path.write_text("\n".join(line.rstrip() for line in path.read_text().splitlines()) + "\n")
     print(json.dumps({"runs":len(rows), "complete_runs":data["complete_runs"], "groups":len(summaries), "output":str(output)}))
 
 
