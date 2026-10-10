@@ -5,6 +5,65 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: seed 11 failed to acquire A before it learned B
+
+**Question.** Is the 80% return caused by pruned old representations, damaged
+outcome connections, or interference? Do not retune the original selection.
+
+**Setup.** Replayed exact unchanged streams 10/11/12, comparing complete final
+states with their saved checkpoints; all three matched exactly. Independent
+boundary probes, actual query winners, and a focused seed-11 replay recording
+last-400 winner counts and boundary synapse profiles. New raw diagnostic files
+`pass2_retention_diagnostic.jsonl` and `pass2_retention_boundary_diagnostic.jsonl`.
+
+**Result.** Seed 11's INITIAL A final-400 accuracy was only 73.5%, before B;
+B was 100%, return final-400 75%, first-50 80%. Passing seeds 10/12 learned A
+at 100%. In seed 11, cell 16 won both (0,1) and (1,1) throughout initial A's
+last 400 trials (97 and 114 occurrences), which require opposite answers.
+All ten first-50 return errors selected this same cell. Its seven sensory
+connections and both prediction connections survived B, their strengths
+exactly unchanged. First-factor afferents (.0505/.0576) blurred the small
+older traces; the second-factor response was strong (.8000). It is a surviving
+representation collision, not erased output weights or neuron deletion.
+
+**Meaning.** The earlier report treated seed 11 as failed retention, but the
+acquisition failure predates the context switch. The original gate omitted
+initial-A acquisition. Keep its scores unchanged and correct the causal
+interpretation: return accuracy is not a clean forgetting measure for a mapping
+that never became reliable. A future retention protocol must require acquisition
+first. Boundary probes with all learning disabled also disable variance
+adaptation and suppress winners even in passing brains; these probes alone
+cannot diagnose deletion. Actual uninterrupted trajectories provide the evidence.
+
+---
+
+## 2026-10-11: distributed future prediction, first composition gates failed
+
+**Question.** Can self-supervised hidden prediction support combinations absent
+from every training experience, beyond fixed random features?
+
+**Setup.** Preregistered two independent four-valued factors, random sensory
+directions plus independent orthogonal nuisance, three views and a query.
+Twelve combinations in 600 learning episodes; four held out, 160 unlabelled
+test episodes. Eight distributed next-input predictors learn their own
+observation activity locally. Outcomes teach only the readout. Initial steps
+.2, .02 and .05, seeds 0–4; frozen/shuffled/exact-capacity controls on the same
+streams. No structural births/deaths occurred at registered costs. Competitive
+control is running separately at the identical task and exposure.
+
+**Result.** Withheld/seen accuracy: step .2 = 80.875%/80.833%; .02 =
+82.75%/86.667%; .05 = 85.375%/88.5%. Every condition FAILS the unchanged
+90% gates. Frozen/matched withheld 53.625%; shuffled about 50–52%.
+All settings and attempted streams are retained in separate result files.
+
+**Meaning.** Local hidden learning helps this task but is not yet a confirmed
+composition result. Frozen random projections have smaller activity than
+learned ones, confounding readout speed. Preregister local axon homeostasis
+for every variant before attributing the difference solely to predictive
+structure. Do not expose confirmation seeds until selection is frozen.
+
+---
+
 ## 2026-10-10: overnight pass merged, with a review
 
 **What happened.** A second agent built `brain/organism.py` and the controlled

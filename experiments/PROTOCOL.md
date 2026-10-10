@@ -316,3 +316,98 @@ entropy, active query cell's prediction-synapse evidence, and novelty.
 No thresholded abstention, word "unknown", or special uncertainty rule is put
 inside SOMA. This is a qualitative diagnostic, not a self-knowledge success
 claim. Confident errors or poorly calibrated novelty are recorded explicitly.
+
+## Pass 2: local future prediction and unseen combinations (2026-10-11)
+
+Register before running the new task. The old parity grammar is not a test of
+composition: every combination occurs. Here two independent four-valued
+factors emit a sum of two randomly oriented sensory directions in 24 dimensions.
+Fresh independent nuisance occupies the orthogonal complement on every view.
+Three noisy views are followed by a generic query marker. The binary outcome
+is the sign of the sum of the two factor values (environment only). Thus each
+factor contributes an additive, learnable part. The sensor directions and
+factor level order are seeded; the brain receives neither factor identities
+nor factor values. Query outcomes are the only labels.
+
+Four of 16 combinations are withheld: factor indices (0,1), (1,3), (2,0),
+(3,2), using values -3,-1,1,3. All factor values occur during learning; withheld
+labels are balanced. No withheld combination is shown even without a label
+before the test. Train 600 episodes sampled uniformly from the other twelve;
+then test 40 episodes per withheld pair in a shuffled order, with ZERO outcome
+feedback. Intrinsic input learning continues during testing; additionally
+record the first occurrence of each withheld pair and immutable-checkpoint
+single-pair probes to distinguish adaptation from initial transfer. Report
+seen-combination unlabelled probes from separate clones, not further training.
+A pure exact-template memorizer without a compositional rule has no learned
+answer for any withheld conjunction: its unknown-template prediction is chance.
+The actual selected competitive pool has sensory shortcuts/nearest matching;
+run it as a stronger empirical control rather than assuming it must fail.
+
+New module candidate: eight initially distributed predictor neurons, each
+with an independent fixed random sensory observation dendrite. A predictor
+receives a projected current sensory activity, but its basal synapses predicted
+that activity from the PREVIOUS sensory state. Its own error updates its own
+basal synapses with their local eligibility. Outcome neurons read the emitted
+prediction, never raw sensory input. The observation population supplies
+activity, never another neuron's error. Prediction is produced before current
+sensory observation and before any outcome update. This is self-supervised
+next-input prediction; there is no gradient or feedback from the outcome.
+
+Initial settings: 24 sensory coordinates plus one marker; nuisance amplitude
+2, signal amplitude .6; hidden step .2 divided by its own afferent energy,
+outcome step .2 with analogous local normalization. Observation dendrites
+have random weights scaled by input dimension; basal weights initialize at
+random with scale .1. Initial growth pressure .5 + .2 log(1 + population),
+interval 200; pruning interval 200, age 2000, usefulness threshold .00001.
+Use costs/rates, not population caps. Treat these settings as a hypothesis;
+record any follow-up before trying different rules or settings.
+
+Required paired controls: original selected competitive organism
+(`SELECTED_COMBINED.json` unchanged, interface dimensions adjusted), hidden
+predictor updates frozen at birth, shuffled observation signal, matched-capacity
+nonpredictive random projections, and chance/majority/exact-template baselines.
+The three new-module controls receive exactly the candidate's birth/death
+schedule and identical initial wiring, so population and edge counts match
+throughout. Shuffling uses a separate RNG, preserving initialization and
+structural RNG. A capacity control uses the same neurons and dendrites but
+fixed random basal synapses without a prediction rule; it is deliberately
+redundant with frozen learning when no structural events occur.
+
+Exploration seeds 0–4, confirmation 10–19 only after a frozen selection.
+Pass: mean withheld accuracy >= .90 AND >= .10 absolute over EVERY required
+neural control, seen accuracy >= .90, and advantage on the immutable initial
+transfer probes too. Individual seed ranges are reported; require at least
+9/10 confirmation seeds >= .85. No claim of hidden credit assignment or
+compositional generalization without all controls passing on confirmation.
+A predictive loss decrease alone establishes local input prediction only.
+Per-run budget 600 seconds, incomplete runs never pass. Save only diagnostic
+states; preserve every result. No real text in this pass.
+
+### Composition follow-up: reduce noisy plasticity (registered 2026-10-11)
+
+Initial distributed predictor: withheld mean 80.875%, seen 80.833%, immutable
+first-combination probes 80%; frozen/matched 53.625%, shuffled 50.5%. Gates
+FAILED. The receiving error includes unpredictable observation noise; large
+constant steps chase that noise. Test the same network/task/gates with hidden
+step .02 (one tenth), then .05 (one quarter), keeping outcome step .2 and all
+600 episodes unchanged. These are exploratory seeds 0–4 only. If neither
+meets the gates, test .02 with 1800 episodes and matched streams/controls;
+more exposure is a separately recorded condition, never a rescue of the
+600-episode failure. The competitive control must be run at every selected
+condition, not assumed weak. There is no structural/event change.
+
+### Control for activity scale (registered 2026-10-11)
+
+The frozen random basal weights initialize at one tenth the observation scale.
+Poor frozen readout learning could therefore reflect amplitude, not meaningful
+prediction. Before interpreting a hidden-learning benefit, add a stronger
+control and a separately recorded candidate: local output-axon homeostasis.
+Each predictor tracks ONLY its own emitted activity mean/variance (rate .01,
+floor .0001); normalize its axon for outcome synapses. This never uses labels or
+another neuron's error. Enable it in ALL new-module variants, preserving the
+original default/runs. Test .02 and .05 hidden steps, 600 episodes, then .02 at
+1800 if needed. Keep every accuracy gate and the noise/task unchanged. Report
+these as separate conditions, not an edit to the failed initial experiment.
+Also record genuinely frozen-hidden single-combination probes: no hidden
+updates during the probe, no cumulative test adaptation. The normal test
+continues intrinsic learning without outcome feedback as before.

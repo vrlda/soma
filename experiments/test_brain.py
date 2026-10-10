@@ -241,5 +241,94 @@ class BrainTests(unittest.TestCase):
             self.assertEqual((s.pre_mean, s.pre_variance), (0, 1))
 
 
+
+class PredictiveBrainTests(unittest.TestCase):
+    def make(self, **kwargs):
+        from brain.predictive import PredictiveBrain, PredictiveConfig
+        return PredictiveBrain(PredictiveConfig(inputs=3, initial_hidden=3, **kwargs))
+
+    def test_predictive_hidden_updates_ignore_outcome_label(self):
+        from brain.predictive import PredictiveBrain
+        a=self.make();a.experience([1.,-.5,.2])
+        b=PredictiveBrain.from_state(a.state())
+        self.assertEqual(a.experience([.2,1.,-.5],0), b.experience([.2,1.,-.5],1))
+        for x,y in zip(a.units,b.units):
+            self.assertEqual(x.basal,y.basal)
+            self.assertEqual(x.observation,y.observation)
+            self.assertEqual(x.error,y.error)
+        self.assertNotEqual(a.bias,b.bias)
+
+    def test_predictive_update_ignores_distant_error(self):
+        from brain.predictive import PredictiveBrain
+        a=self.make();a.experience([1.,-.5,.2]);a.experience([.2,1.,-.5])
+        b=PredictiveBrain.from_state(a.state())
+        b.units[1].error=1000000.
+        b.units[1].activity=-1000000.
+        a._local_prediction_update(a.units[0], .3, 1.)
+        b._local_prediction_update(b.units[0], .3, 1.)
+        self.assertEqual(a.units[0],b.units[0])
+
+    def test_predictive_local_rule_uses_previous_source_trace(self):
+        a=self.make(hidden_rate=.2)
+        a.experience([1.,0.,0.])
+        before=a.units[0].basal[1].strength
+        a.experience([0.,1.,0.])
+        self.assertEqual(a.units[0].basal[1].strength,before)
+        self.assertEqual(a.units[0].basal[0].trace,1.)
+
+    def test_predictive_frozen_control_preserves_hidden_weights(self):
+        a=self.make(hidden_learning=False,growth=False,pruning=False)
+        old=[[s.strength for s in u.basal] for u in a.units]
+        for i in range(20):a.experience([i%2,.5,-.2],i%2)
+        self.assertEqual(old,[[s.strength for s in u.basal] for u in a.units])
+
+    def test_predictive_save_resume_exact_with_shuffle_and_growth(self):
+        from brain.predictive import PredictiveBrain
+        a=self.make(shuffled=True,growth_interval=1,growth_threshold=-1.,growth_cost=0.)
+        for i in range(3):a.experience([1.,-.5,.2],i%2)
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d)/'state.json';a.save(path);b=PredictiveBrain.load(path)
+        for i in range(5):
+            self.assertEqual(a.experience([.1,float(i%2),-.3],i%2),
+                             b.experience([.1,float(i%2),-.3],i%2))
+        self.assertEqual(a.state(),b.state())
+        self.assertGreater(a.births,0)
+
+    def test_predictive_pruning_removes_whole_connected_unit(self):
+        a=self.make(growth=False,prune_interval=1,prune_age=1,prune_threshold=1e9)
+        a.experience([1.,0.,0.]);p=a.experience([1.,0.,0.])
+        self.assertEqual(len(a.units),0)
+        self.assertEqual(a.deaths,3)
+        self.assertEqual(a.summary()['synapses'],0)
+        self.assertAlmostEqual(sum(p),1.)
+        self.assertEqual(a.experience([0.,0.,0.]),[.5,.5])
+
+    def test_predictive_structural_yoking_matches_capacity(self):
+        a=self.make(growth_interval=1,growth_threshold=-1.,growth_cost=0.)
+        b=self.make(hidden_learning=False,growth=False)
+        for i in range(3):
+            a.experience([1.,.2,-.3]);b.experience([1.,.2,-.3],structure_override=a.last_event)
+            self.assertEqual(a.summary()['synapses'],b.summary()['synapses'])
+            self.assertEqual([u.id for u in a.units],[u.id for u in b.units])
+        self.assertEqual(a.rng.getstate(),b.rng.getstate())
+
+    def test_predictive_axon_homeostasis_is_label_independent(self):
+        from brain.predictive import PredictiveBrain
+        a=self.make(normalize_activity=True)
+        a.experience([1.,0.,0.]);b=PredictiveBrain.from_state(a.state())
+        a.experience([0.,1.,0.],0);b.experience([0.,1.,0.],1)
+        for x,y in zip(a.units,b.units):
+            self.assertEqual(x.activity_mean,y.activity_mean)
+            self.assertEqual(x.activity_variance,y.activity_variance)
+            self.assertEqual(x.axon,y.axon)
+        self.assertNotEqual(a.units[0].activity_variance,1.)
+
+    def test_predictive_snapshot_and_invalid_signal_are_safe(self):
+        a=self.make();state=a.state()
+        with self.assertRaises(ValueError):a.experience([1.,float('nan'),0.])
+        self.assertEqual(state,a.state())
+        state['units'][0]['basal'][0]['strength']=10000.
+        self.assertNotEqual(a.units[0].basal[0].strength,10000.)
+
 if __name__ == "__main__":
     unittest.main()
