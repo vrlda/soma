@@ -5,6 +5,30 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: predictive selection frozen before confirmation
+
+**Question.** Does the eligible exploratory hypothesis survive unused streams?
+
+**Setup.** All five original competitive runs completed on exactly the same
+600-episode task: every withheld and initial-probe score was 50%. Freeze
+`SELECTED_PREDICTIVE.json`: hidden step .02, local axon homeostasis, same
+noise/exposure/gates. Confirmation 10–19, every required control plus linear
+memory, two independent CPython workers. No tuning afterward.
+
+**Result.** Exploration's full required-control gates pass. Supplementary
+160 independent frozen-hidden probes per seed score 96.5% candidate, 68.625%
+frozen, 66.25% shuffled, 56.375% Oja. They do not replace the original four-probe
+gate. Structural events are now yoked through primary testing as well as
+training; actual exploratory capacities were already identical (no events).
+Confirmation is pending; do not call its outcomes before completion.
+
+**Meaning.** A single frozen brain configuration is used across the task and
+future unlabelled uncertainty probes. The earlier failed candidates remain
+failed. A rejected PyPy runtime check preserved scores but changed numerical
+state; retain CPython and exact historical reproducibility for the study.
+
+---
+
 ## 2026-10-11: local axon homeostasis and learned predictive geometry
 
 **Question.** Does input prediction create useful distributed features after

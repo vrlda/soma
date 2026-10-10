@@ -9,3 +9,6 @@ data/modern/*
 !data/modern/MANIFEST.json
 archive/v1/data/e3full/
 experiments/report/SUMMARY.json
+
+# Scientific figure vector copies are generated, not committed.
+experiments/report/*.svg

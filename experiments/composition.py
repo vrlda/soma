@@ -6,11 +6,15 @@ import json
 import math
 from pathlib import Path
 import random
+import platform
 import time
 
 from brain import Config, Organism
 from brain.predictive import PredictiveBrain, PredictiveConfig
 from experiments.run import metrics, score
+
+SOURCE_HASHES={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in
+               ('brain/predictive.py','brain/organism.py','experiments/composition.py','experiments/linear_memory.py')}
 
 VALUES=(-3.,-1.,1.,3.)
 HELD=((0,1),(1,3),(2,0),(3,2))
@@ -116,9 +120,10 @@ def experiment(seed,variant,options,schedule=None,budget=600):
     for pair,frames in seen:
         p,_,_=episode(probe,frames);seen_scores.append(score(p,label(pair)))
     held_scores=[];first=[];visited=set();probes=[]
-    for pair,frames in test:
+    for index,(pair,frames) in enumerate(test):
         if time.monotonic()-start>budget:break
-        p,_,_=episode(brain,frames)
+        p,ee,_=episode(brain,frames,events=schedule,event_offset=(trained+index)*4)
+        events.extend(ee)
         ss=score(p,label(pair));held_scores.append(ss)
         if pair not in visited:first.append(ss);visited.add(pair)
         probes.append(dict(pair=pair,target=label(pair),probabilities=p))
@@ -132,10 +137,12 @@ def experiment(seed,variant,options,schedule=None,budget=600):
         hidden_prediction_last_200=sum(loss[-200:])/max(1,len(loss[-200:])),
         brain=brain.summary(),trajectory=trajectory,probes=probes,seconds=time.monotonic()-start,
         controls={'chance':.5,'majority':.5,'exact_unseen_template':.5},
-        source_hashes={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in
-                       ('brain/predictive.py','brain/organism.py','experiments/composition.py','experiments/linear_memory.py')})
+        source_hashes=SOURCE_HASHES,
+        runtime=dict(implementation=platform.python_implementation(),version=platform.python_version()))
     if isinstance(brain,PredictiveBrain):
-        result['structure_events']=events
+        result['structure_events']=[dict(tick=i+1,**event) for i,event in enumerate(events) if event['births'] or event['deaths']]
+        result['schedule_ticks']=len(events)
+        result['schedule_hash']=hashlib.sha256(json.dumps(events).encode()).hexdigest()
         result['capacity_schedule_matched']=schedule is None or events==schedule
         assert result['capacity_schedule_matched']
     return result,events,saved

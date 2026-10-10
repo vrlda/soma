@@ -461,3 +461,61 @@ and reports uncertainty from 160 probes per seed. It is not used to replace a
 failed original four-probe gate. Restrict this expensive clone diagnostic to
 new-module controls; the old pool retains its original four boundary probes.
 Add a deterministic stream hash and assert training/test pair disjointness.
+
+### Runtime check (2026-10-11)
+
+The old noisy prototype control is expensive. A trial of the unchanged
+standard-library reference under PyPy 3.10 preserved seed-0 scores and
+structural counts but FAILED exact brain/trajectory equality; a short neural
+state comparison also differed. Reject it for the paired scientific study.
+Keep CPython as the study runtime; the original twelve historical CPython
+receipts still match exactly. The rejected interpreter receipt is a technical
+failure record, not evidence that a model/task gate passed.
+
+## Pass 2 phase C: self-knowledge precursor, contingent diagnostic (2026-10-11)
+
+Only run after B is confirmed or clearly blocked; this is the ONE C direction.
+Clone the .02/homeostatic trained brains (initial seeds 0–4) per condition.
+Continue intrinsic learning, supply NO outcome labels during 200 probe episodes
+per condition. Conditions: familiar training combinations, withheld combinations,
+same familiar inputs with nuisance amplitudes 4/8, reduced signal amplitude .2,
+and unchanged familiar inputs whose evaluator labels are reversed. The last
+condition exposes an information limit: an unseen outcome rule change cannot
+be inferred from identical unlabelled inputs.
+
+Measure pre-outcome hidden prediction residual on the three views, query
+residual, outgoing probability entropy, confidence, accuracy and log loss.
+All labels are evaluator-only. Measure ROC AUC for errors within each condition
+(pooled per-seed ranks to avoid interpreting between-brain scale shifts), not
+just across easy/hard distributions. Report error counts and undefined AUCs
+when there are no correct/incorrect examples. No hard-coded abstention or
+unknown policy, no threshold selection, no success claim of self-knowledge.
+This qualitative study checks whether these local signals are plausible
+precursors and records confident errors, including the impossible label shift.
+
+Provenance note: initial long-running competitive trials loaded the initial
+runner while reporting-only code evolved for new-module probes. Their hashes
+were captured from disk at completion, so the runner hash does not guarantee
+the executed snapshot. The stream generator and original organism were never
+changed, and configs/seeds remain authoritative and numerically reproducible.
+For confirmation, capture all source hashes at module import and freeze source
+until every trial finishes. This is a provenance limitation of the initial
+records; do not edit those records retroactively.
+
+Clarification: factor level values/order are fixed (-3,-1,1,3); sensory
+directions are seeded. The initial phrase "factor level order is seeded" was
+inaccurate. The generator never permuted level order; brain inputs never
+included factor indices. No data, task definition, or gate changes.
+
+Confirmation uses two independent CPython worker processes (two CPU cores are
+available). Each worker runs all controls for a seed, including the original
+competitive pool, with the unchanged 600-second per-run budget. Neither brain
+nor stream state is shared between seeds. Source is frozen from dispatch until
+completion. No additional candidate tuning after confirmation starts.
+
+Before confirmation, extend exact structural yoking through the primary
+unlabelled test stream as well as training. Earlier settings had zero test
+births/deaths, so actual capacities already matched; the implementation now
+also enforces it if a structural event occurs. Independent checkpoint probes
+freeze structure for every new-module variant. Record sparse nonzero events
+plus a full schedule hash instead of thousands of identical zero-event rows.

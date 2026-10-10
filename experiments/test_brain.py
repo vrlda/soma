@@ -331,6 +331,26 @@ class PredictiveBrainTests(unittest.TestCase):
         b._local_prediction_update(b.units[0], 100., 1.)
         self.assertEqual(a.units[0].basal,b.units[0].basal)
 
+    def test_predictive_hidden_lifetime_is_independent_of_labels(self):
+        a=self.make(normalize_activity=True)
+        b=self.make(normalize_activity=True)
+        for i in range(40):
+            x=[float(i%3==0),float(i%3==1),float(i%3==2)]
+            a.experience(x,i%2);b.experience(x)
+        for x,y in zip(a.units,b.units):
+            self.assertEqual(x.basal,y.basal)
+            self.assertEqual(x.observation,y.observation)
+            self.assertEqual(x.activity_mean,y.activity_mean)
+            self.assertEqual(x.activity_variance,y.activity_variance)
+        self.assertNotEqual(a.bias,b.bias)
+
+    def test_uncertainty_auc_counts_ties_and_missing_classes(self):
+        from experiments.predictive_uncertainty import auc
+        self.assertEqual(auc([(0.,0),(1.,1)]),1.)
+        self.assertEqual(auc([(1.,0),(0.,1)]),0.)
+        self.assertEqual(auc([(1.,0),(1.,1)]),.5)
+        self.assertIsNone(auc([(1.,0)]))
+
     def test_predictive_snapshot_and_invalid_signal_are_safe(self):
         a=self.make();state=a.state()
         with self.assertRaises(ValueError):a.experience([1.,float('nan'),0.])

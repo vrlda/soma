@@ -103,3 +103,9 @@ This architecture does not transport outcome credit into hidden neurons,
 learn deep hierarchies, or discover symbolic factor identities. The question
 is whether its self-supervised predictive features become useful for unseen
 combinations. Read the protocol and notebook for the gates and failures.
+
+For counting, a "unit" pairs one observation neuron with one learned predictor;
+`hidden` and birth/death counters count these pairs, while `neurons` includes
+both populations. `synapses` counts weighted afferents and output connections;
+the fixed observation-to-partner activity coupling is implicit. These counters
+must not be equated with the original organism's single-cell birth counts.

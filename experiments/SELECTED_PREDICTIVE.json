@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-11",
+  "selected_before_confirmation": true,
+  "seeds": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "task": {
+    "episodes": 600,
+    "noise": 2.0,
+    "amplitude": 0.6,
+    "brain": {
+      "hidden_rate": 0.02,
+      "normalize_activity": true
+    }
+  },
+  "reason": "Five initial seeds: candidate withheld 97%, seen 95.167%, independent initial probes 95%; frozen 68% / initial 85%, shuffled 66.625% / initial 70%, Oja 53.25% / initial 55%, competitive 50% / initial 50%. Every registered required-control exploratory gate passes (numeric tolerance 1e-12). Linear-memory diagnostic also reaches 93.875%, so do not infer hierarchy or necessary hidden credit assignment.",
+  "gates": {
+    "withheld_mean": 0.9,
+    "seen_mean": 0.9,
+    "required_control_advantage": 0.1,
+    "initial_probe_advantage": 0.1,
+    "individual_min": 0.85,
+    "individual_passing_count": 9
+  },
+  "required_controls": [
+    "frozen",
+    "shuffled",
+    "matched_capacity",
+    "hebbian_capacity",
+    "competitive"
+  ],
+  "scope": "Locally learned predictive denoising on held-out linear factor combinations; not nonlinear hierarchy."
+}
