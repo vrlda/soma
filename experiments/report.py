@@ -102,7 +102,7 @@ def plots(rows, output):
             axes[2].plot(ticks, [statistics.mean(r["trajectory"][i]["hidden"] for r in rr) for i in range(len(ticks))], color=color, label=label)
     axes[2].set(title="Matched growth on random labels", xlabel="Experiences", ylabel="Hidden neurons")
     axes[2].legend(fontsize=8)
-    fig.suptitle("SOMA: small-task evidence, not language or general intelligence", fontsize=13)
+    fig.suptitle("SOMA: controlled experiments on local memory and growth", fontsize=13)
     for ext in ("svg", "png"):
         fig.savefig(output / ("first_results." + ext), dpi=180)
     plt.close(fig)

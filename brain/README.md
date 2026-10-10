@@ -24,6 +24,7 @@ learning signal through the interface.
 | Oja afferent update | Source activity, receiving activity, own strength |
 | Competitive representation | Each neuron's own sensory mismatch, generic lateral competition |
 | Competitive afferent update | Source/afferent trace, receiving activity, own strength/plasticity |
+| Afferent variance normalization | The synapse's own source-trace mean and variance, no outcomes |
 | Recruitment | Current/persistent representation surprise, smooth size cost, elapsed interval |
 | Newborn afferents | Local source activity or parent afferent traces; no task labels |
 | Metaplasticity | Synapse-local matching/use evidence and an explicit decay rate |
@@ -64,3 +65,8 @@ that each plasticity mechanism is necessary. Sleep-labelled raw-data replay is
 currently experimental scaffolding matched against wake replay, not an
 internal neural replay mechanism. Read the notebook before choosing the next
 rule or scaling a task.
+
+The selected competitive candidate is one representation pool with local
+outcome connections. It cannot establish a hierarchy just by making the pool
+larger; additional local prediction/connectivity mechanisms must earn that
+claim in later experiments.

@@ -12,3 +12,7 @@ It is a dream we are researching, aiming at a breakthrough, not a product.
 - **[NOTEBOOK.md](NOTEBOOK.md)**: the research log.
 - **[AGENTS.md](AGENTS.md)**: instructions for AI agents (and humans) working on it.
 - `archive/`: earlier work (2025–2026), kept for its lessons.
+
+- **[RESEARCH_REPORT.md](RESEARCH_REPORT.md)**: current measured results, limitations, and next research steps.
+- **[experiments/README.md](experiments/README.md)**: reproduce controlled experiments.
+- **[RESTORE.md](RESTORE.md)**: restore the local research branch and artifacts.

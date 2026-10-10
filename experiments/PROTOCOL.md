@@ -297,3 +297,22 @@ run was interrupted to avoid more uninformative partials. This is a compute
 limit, not evidence of task failure. Rerun the unchanged model/streams/gates
 with a 600-second budget after the other suites finish. The population remains
 uncapped; do not count partial scores as successes or choose settings from them.
+
+The extended-budget combined study completed all 15 runs: selected combination
+100% new context, 99.2% old return (five seeds); no protection 80.0% old return;
+normalization off did not learn the gap-8 mappings. Freeze the unchanged
+combination in `SELECTED_COMBINED.json`, then confirm candidate and paired
+protection-off control on streams 10–19 with the same 600-second budget.
+
+## Confidence/familiarity diagnostic (registered 2026-10-10)
+
+Use saved, completed combined-lifetime brains (initial seeds 0–4), clone each
+checkpoint per probe condition so main lifetimes stay untouched. Probe 40
+unlabelled episodes in familiar contexts 0/1 (gap 8), unseen contexts .5/-.5,
+and familiar context 0 at unseen gaps 16/32/64. The brain still changes through
+intrinsic rules; no outcomes are supplied. The evaluator knows labels only
+for familiar integer contexts. Record accuracy where defined, max probability,
+entropy, active query cell's prediction-synapse evidence, and novelty.
+No thresholded abstention, word "unknown", or special uncertainty rule is put
+inside SOMA. This is a qualitative diagnostic, not a self-knowledge success
+claim. Confident errors or poorly calibrated novelty are recorded explicitly.

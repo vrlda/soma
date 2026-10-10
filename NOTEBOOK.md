@@ -5,6 +5,89 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-10: combined lifetime confirmation, with one failed return
+
+**Question.** Do longer temporal representation and consolidation work together
+on independent lifelong streams, without replay or reset?
+
+**Setup.** Frozen `SELECTED_COMBINED.json`, gap 8, 1200 A / 1200 reversed B /
+400 A episodes, confirmation seeds 10–19, paired protection-off control.
+All 20 runs completed; final states saved in `checkpoints/combined_confirmation`.
+
+**Result.** Both variants learned B at 100%. Candidate first-50 A return mean
+98.0%, range 80–100%; protection-off 78.2%, range 64–90%. Nine candidate seeds
+meet the 90% return gate; seed 11 fails at 80%. All ten candidate first return
+responses were correct, versus five protection-off. Candidate final hidden
+population mean 39.8, protection-off 35.5. No retuning after confirmation.
+
+**Meaning.** Protection improves mean retention, but the longer lifetime is
+not robust across all seeds. First-50 metrics include subsequent learning and
+are not frozen recall. Preserve seed 11 as the next diagnostic, not an outlier
+to discard. Gap-2 lifetime and gap-8 grammar remain separately confirmed.
+
+**Pass record.** 1537 JSONL records, 1534 complete, three partial budget stops;
+39 files including the empty aborted recruitment file. Twenty behavioral tests
+pass; twelve representative historic runs reproduce exactly. Full final report:
+`RESEARCH_REPORT.md`. GitHub push and connector branch creation both rejected
+writes (403); commits, ZIP, patch, and incremental bundle remain local.
+
+---
+
+## 2026-10-10: local homeostasis extends temporal representation, confirmed
+
+**Question.** Can a weaker old trace matter alongside a stronger recent input
+without exposing output errors to hidden cells?
+
+**Setup.** Preregistered source-variance normalization: each afferent maintains
+its own incoming-trace mean/variance, rate .01, floor .0001. Competitive
+mismatch divides by that variance. Recruitment, outcome learning, and the
+finite grammar remain unchanged. Five exploratory seeds; frozen selection in
+`SELECTED_HOMEOSTASIS.json`, then ten confirmation streams. Controls remove
+normalization, freeze scale statistics, or remove recruitment.
+
+**Result.** Confirmation candidate 100% at gaps 0/2/8. Gap-8 normalization-off
+and scale-frozen controls average 49.825%; recruitment-off also stays near
+chance. Initial gap-16 runs score 50.1%: that limit is still present. Normalized
+representations cost about 30–35 cells versus roughly 14–17 without scaling.
+The result supports scaling PLUS recruitment; it does not isolate a benefit
+independent of the added representational capacity.
+
+**Meaning.** Useful information was already in the traces. Local homeostasis
+changes which differences the neurons represent. This is an experimentally
+earned primitive, not global backpropagation or a task-specific parity feature.
+The combined longer-contextual lifetime passed initial gates (100% new,
+99.2% old return; protection-off 80.0%). Its final paired confirmation is
+recorded separately when complete; do not infer it from separate component tests.
+
+---
+
+## 2026-10-10: confidence and developmental-history diagnostic
+
+**Question.** Do internal prediction/evidence signals distinguish familiar
+knowledge, novel contexts, and longer delays?
+
+**Setup.** Completed combined-lifetime checkpoints, initial seeds 0–4, cloned
+per condition. Forty episodes each, zero outcome labels supplied. Intrinsic
+learning continues. Probe familiar contexts, unseen context values .5/-.5,
+and familiar context at unseen gaps 16/32/64. No unknown-response rule or
+abstention threshold exists in SOMA. `results/confidence_diagnostic.jsonl`.
+
+**Result.** Familiar contexts: 100% accuracy, about 99% confidence. Novel
+contexts: about 66–67% confidence (truth undefined, so no accuracy claim).
+Transfer from the learned gap-8 lifetime to gap 16: 95.5% accuracy with 97.2%
+confidence, without receiving any new outcomes. That is different from the
+50.1% gap-16 result when starting from scratch. Gaps 32/64: about 51–52%
+accuracy despite about 66% confidence.
+
+**Meaning.** Developmental history matters: an already acquired representation
+can transfer farther than a fresh brain discovers it. Confidence decreases on
+novelty but is imperfect and overconfident on harder delays. This is not learned
+self-knowledge, a calibrated ignorance detector, or an ability to explain why
+something is unknown. Evidence and predictive entropy are candidate signals
+for a future local metacognitive experiment, not a hard-coded answer policy.
+
+---
+
 ## 2026-10-10: consolidated contextual lifetime, confirmed
 
 **Question.** Can one growing/pruning brain keep an earlier temporal mapping

@@ -28,7 +28,9 @@ python -B -m experiments.reproduce --selection experiments/SELECTED_GRAMMAR.json
 `SELECTED.json` selects the event-trace delay candidate;
 `SELECTED_GRAMMAR.json` selects temporal representation recruitment;
 `SELECTED_LIFETIME.json` adds consolidation/protected pruning for the longer
-contextual lifetime. Selected settings are experiment hypotheses, not a
+contextual lifetime. `SELECTED_HOMEOSTASIS.json` adds local afferent scaling;
+`SELECTED_COMBINED.json` freezes their combination for the gap-8 lifetime.
+Selected settings are experiment hypotheses, not a
 universal production configuration. Defaults retain the initial failed rules.
 
 The runner refuses to overwrite result files or checkpoints. Optional
@@ -51,3 +53,8 @@ whether afferent traces retain information; it never changes or answers for
 SOMA. The contextual replay buffer is raw-experience scaffolding, never an
 inference path. Sleep/wake replay use the same presentations so a shared gain
 is not misrepresented as a sleep-specific effect.
+
+`confidence.py` probes checkpoint clones without supplying labels. It measures
+confidence/evidence and transfer to novel inputs; it never implements a rule
+that tells SOMA to say "unknown". `check_reproducibility.py` reruns representative
+historical configurations and checks exact scores and recorded neural counters.

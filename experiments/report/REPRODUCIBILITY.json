@@ -1,0 +1,132 @@
+[
+  {
+    "file": "sequence_initial.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true,
+      "phases": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "delay_initial.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "delay_ema_bank.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "delay_peak_bank.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "contextual_competitive.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true,
+      "phases": true,
+      "recall_first_20": true,
+      "recall_last_100": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "structure_novelty.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "growth_both.jsonl",
+    "seed": 0,
+    "variant": "structure",
+    "checks": {
+      "metrics": true,
+      "brain": true,
+      "phases": true,
+      "recall_first_20": true,
+      "recall_last_100": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "grammar_aligned_growth.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "grammar_pruning.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "lifetime_initial.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true,
+      "phases": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "lifetime_consolidation.jsonl",
+    "seed": 0,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true,
+      "phases": true
+    },
+    "exact_match": true
+  },
+  {
+    "file": "lifetime_confirmation.jsonl",
+    "seed": 10,
+    "variant": "candidate",
+    "checks": {
+      "metrics": true,
+      "brain": true,
+      "phases": true
+    },
+    "exact_match": true
+  }
+]
