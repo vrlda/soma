@@ -519,3 +519,13 @@ births/deaths, so actual capacities already matched; the implementation now
 also enforces it if a structural event occurs. Independent checkpoint probes
 freeze structure for every new-module variant. Record sparse nonzero events
 plus a full schedule hash instead of thousands of identical zero-event rows.
+
+Final audit correction: exploratory Oja seed 0 grew a ninth unit during its
+unlabelled test. The earlier "zero test events" statement applied to the
+original candidate/frozen/shuffled controls, not all later Oja trials.
+Full-test structural yoking was implemented before confirmation and all final
+new-module capacities/schedules match exactly. Earlier raw data remain intact.
+Adding Oja also regrouped floating arithmetic in the new kernel; exact early
+replay requires its recorded source version. Five pinned-source case checks
+pass, including the source-frozen confirmation. The twelve legacy current-code
+replays remain exact. No model selection or gate was changed during confirmation.

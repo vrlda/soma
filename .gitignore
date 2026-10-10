@@ -12,3 +12,4 @@ experiments/report/SUMMARY.json
 
 # Scientific figure vector copies are generated, not committed.
 experiments/report/*.svg
+experiments/report/PASS2.json

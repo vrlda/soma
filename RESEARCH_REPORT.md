@@ -1,129 +1,211 @@
-# SOMA research pass — 2026-10-10
+# SOMA pass 2 — 2026-10-11
 
-SOMA now has an inspectable, standard-library neural substrate and controlled
-experiments on temporal memory, self-recruited representations, and continual
-learning. This is a foundation for researching the vision, not a conversational
-brain or a demonstration of general intelligence.
+Hidden synapses now learn useful features by predicting sensory activity,
+without receiving outcome labels. On a preregistered linear factor task, the
+frozen candidate reached **95.5% on combinations absent from every learning
+experience**, across ten confirmation seeds. All registered required-control
+gates passed. A stronger linear-memory baseline reached 91.3%, so this result
+does not establish a need for hierarchy or deep hidden credit assignment.
 
-The work builds on the fresh start (commit `524a0b2`). It was done by a second
-agent in one overnight pass and merged into `claude/youthful-ritchie-vq1bog`.
+The other important finding corrects the previous report: seed 11's apparent
+retention failure began as an acquisition failure, before the context switch.
+This pass builds on the reviewed fresh-start tip `7139c10`; `VISION.md`, the
+original organism, its defaults, and previous raw results remain unchanged.
 
-## What the measurements support
+## A: diagnose the old return failure
 
-All task scores are prequential: predict first, then receive the outcome and
-continue learning. Seeds 0–4 were exploratory; frozen selections precede
-confirmation streams 10–19. These are new streams of small finite tasks, not
-held-out concepts or language generalization. Means below are across seeds.
+The exact original lifetimes for seeds 10/11/12 were replayed without retuning.
+All three final states matched their saved checkpoints completely, including
+RNG, synapses and neuronal state. A focused seed-11 replay recorded boundary
+connections and actual query winners.
 
-| Experiment | Result | What the control establishes |
-|---|---|---|
-| Single-cue delayed recall | 100% through 64 blank steps in confirmation | Temporal mechanisms earn their place; a linear readout also solves this task, so it does not establish hidden representation learning. |
-| Two-symbol temporal grammar, gap 8 | 100% on ten confirmation seeds | Normalization-off is 49.825%; recruitment-off and frozen scale statistics also fail. Gaps 0/2 remain 100%. |
-| One lifetime: context A → reversed B → A, gap 2 | New context and first-50 old return both 100% on ten seeds | Removing pruning protection reduces old return to 82.4%. |
-| Same lifetime, gap 8, combined mechanisms | New context 100%; old return 98.0%, range 80–100%, ten seeds | Removing protection: new context 100%, old return 78.2%, range 64–90%. Nine candidate seeds meet the 90% return threshold; seed 11 fails. |
-| Fresh grammar at gap 16 | About 50.1% in exploration | The longer temporal problem remains unsolved from this starting history. |
-| Unlabelled probes after a learned gap-8 lifetime | Gap 16: 95.5%; gaps 32/64: 51.5%/51.0%, five checkpoint seeds | Developmental history changes transfer; no outcome feedback was supplied during these probes. This does not overturn the fresh gap-16 failure. |
-| Matched external replay | Sleep-labelled replay equals wake-labelled replay | No distinct sleep benefit or endogenous replay has been established. |
+Seed 11 learned original context A at only **73.5% in its final 400 trials**.
+It then learned B at 100%, returned to A at 80% in the first 50 and 75% in the
+final 400. The other nine confirmation seeds had originally learned A at 100%.
+Cell 16 already served both `(0,1)` and `(1,1)` during original learning,
+although their outcomes are opposite. Every first-50 return error selected
+that same surviving cell. Its seven sensory and two prediction connections
+survived B with exactly unchanged strengths.
 
-In the gap-8 lifetime, every candidate's first old-context response was correct;
-the first-50 window then includes further learning. The 98% figure must not be
-presented as frozen retention. Seed 11's 80% result remains a failed individual
-return gate, despite the passing mean. No configuration was retuned afterward.
+The cause is representation aliasing, rather than a lost cell or erased output
+weights. Weak early-symbol afferents averaged together, and the representation
+mismatch did not demand another cell. The earlier 98% mean return score remains
+unchanged, but it mixes reliable retention with a mapping that was never
+reliably acquired. Future retention studies must require acquisition first.
 
-## What was built
+Fully disabling learning also freezes variance adaptation, suppressing old
+winners even in passing brains after a context switch. Such frozen boundary
+probes alone cannot establish pruning damage; the uninterrupted trajectories
+and surviving connections supply the evidence.
 
-[brain/organism.py](brain/organism.py) contains neurons, synapses, local traces,
-plasticity/evidence, growth, pruning, and atomic save/resume including RNG state.
-Knowledge resides in neural state. There is no backpropagation, pretrained
-language model, count-table brain, or task-specific decoder inside SOMA.
-Outcome synapses use their receiving neuron's own error; hidden afferents never
-receive the target. A scalar global signal gates update magnitude.
+## B: local prediction and held-out combinations
 
-The most useful additions were event-preserving traces, competitive
-representations, recruitment on unlabelled experience, and local afferent
-variance normalization. Without normalization, a weak older signal survives
-but scarcely affects matching. An explicitly labelled oracle diagnostic could
-decode those traces; it never answered for or taught the brain. Normalization
-made the older signal matter and enabled the gap-8 grammar. It also increased
-the recruited population, so improved resolution and additional capacity are
-not separated by these experiments.
+Two four-valued factors generate a sum along two seeded sensory directions,
+with independent nuisance in the orthogonal complement. The brain sees raw
+sensory coordinates, never factor identities, values, directions or the task
+rule. Three noisy views precede a query. The outcome is the sign of the sum of
+the factors; each contributes an additive learnable part.
 
-Consolidated synapses carry local evidence that protects them from pruning.
-Active prefix representations survive missing outcome connections, and useful
-prediction connections can regrow. The combined lifetime ends with a mean of
-39.8 hidden cells, starting from one. Growth has costs and rates, no fixed
-population cap. Random labels exposed an earlier failure: prediction-error
-growth caused 150 births per seed without improving chance accuracy. The
-matched representation-novelty rule recruited far fewer cells.
+Learning contains 600 episodes from twelve combinations. All factor values
+occur, but four combinations are absent even from unlabelled experience.
+Evaluation contains 160 episodes over those four combinations, with **no outcome
+feedback**. Intrinsic learning continues. Additional independent checkpoint
+probes freeze hidden weights, axon statistics and structure during each probe,
+so they test transfer without test-time representation adaptation.
 
-## Records and verification
+### The rule
 
-The raw record contains **1,537 run records: 1,534 complete and three incomplete**
-wall-budget-stopped lifetimes, across 39 JSONL files. This includes controls,
-exploration, confirmation, and diagnostic runs; it is not 1,534 independent
-successful experiments. An additional aborted recruitment attempt is recorded
-separately, including its partial diagnostic. All failures are retained.
+[brain/predictive.py](brain/predictive.py) implements paired observation and
+prediction populations. An observation neuron has fixed random sensory
+synapses. Its predictor forecasts that observation activity from the previous
+sensory state. After the observation arrives, the receiving predictor's own
+error updates its own basal synapses using their source traces and a scalar
+gate. No other neuron's error or outcome label enters this update. Outcome
+neurons learn separately through their own local errors.
 
-Twenty behavioral tests pass, covering target isolation, unlabelled growth,
-pruning integrity, checkpoint continuation, local scale statistics, and atomic
-checkpoint replacement. Twelve representative historic runs were reproduced
-exactly for recorded scores, phase metrics, and brain counters. This sample
-check is not a rerun of the entire study.
+Several predictors are active together. Local axon mean/variance normalization
+controls activity scale for every new-module variant. The selected setting
+uses eight learned predictors and eight observation counterparts, 424 weighted
+connections, and unchanged growth/pruning costs and rates. There is no size
+cap; no structural event occurred in the confirmed composition lifetimes.
+The controls receive exactly the candidate's structural schedule throughout
+learning and primary testing. Stream and schedule hashes verify pairing.
 
-- [NOTEBOOK.md](NOTEBOOK.md): questions, methods, results, and failures.
-- [experiments/PROTOCOL.md](experiments/PROTOCOL.md): registered gates and follow-ups.
-- [experiments/report/SUMMARY.md](experiments/report/SUMMARY.md): all configurations and observed ranges.
-- `experiments/report/SUMMARY.json`: machine-readable summaries and raw-file hashes (generated by `python -B -m experiments.report`, not committed).
-- [experiments/report/REPRODUCIBILITY.json](experiments/report/REPRODUCIBILITY.json): exact-match receipts.
-- [experiments/checkpoints](experiments/checkpoints): completed lifetime states.
+One configuration, [SELECTED_PREDICTIVE.json](experiments/SELECTED_PREDICTIVE.json),
+was frozen before seeds 10–19 and reused unchanged for the uncertainty study.
+It is an experimental hypothesis, not a replacement for every older brain.
 
-![Temporal grammar measurements](experiments/report/temporal_grammar.png)
+### Confirmation
 
-## What remains missing
+Means and observed ranges across ten seeds; ranges are not confidence intervals.
 
-The substrate currently has one competitive representation pool and a local
-outcome readout. It has not discovered a hierarchy of meaning or demonstrated
-deep hidden credit assignment. Freezing hidden afferent weights often preserves
-short-task success; recruitment and scale adaptation do much of the work.
-Finite repeated symbol combinations are much easier than language.
+| Model | Held-out accuracy | Seen-combination probe |
+|---|---:|---:|
+| Local prediction | **95.50% [90.63–99.38]** | 93.92% |
+| Predictive synapses frozen | 66.81% | 75.75% |
+| Prediction signal shuffled | 67.94% | 73.67% |
+| Matched random capacity | 66.81% | 75.75% |
+| Matched capacity, Oja learning | 50.13% | 66.75% |
+| Original selected competitive pool | 50.00% | 66.67% |
+| Linear-memory baseline, experiment only | 91.31% | 96.58% |
+| Chance / majority / unknown exact template | 50.00% | — |
 
-Replay uses external experiment scaffolding, not internally generated sleep.
-Confidence decreases on unfamiliar contexts, but unsupported long gaps still
-produce roughly 66% confidence at chance accuracy. There is no learned
-self-knowledge or unknown-response policy. The single failed combined-lifetime
-seed also shows that consolidation is not robust across all tested histories.
+All ten candidate seeds exceeded 90% on held-out combinations. The original
+four-probe checkpoint metric averaged 90%, versus 75% frozen, 65% shuffled,
+and 50% Oja/original pool. Supplementary 160-probe frozen-hidden evaluation
+averaged **95.31%**, versus 67.75% frozen random features. These supplementary
+probes did not replace or relax the original gate.
 
-## Next research steps
+The initially redundant frozen/matched controls are retained, and the Oja
+control adds matched trainable capacity without predictive error. Shuffling
+preserves a mean predictable direction: seed 15's shuffled control even scored
+100%. The alignment benefit is an ensemble result, not a necessity in every
+individual run. The linear baseline also ties the candidate's four-probe mean.
 
-1. Diagnose seed 11 using its saved state: distinguish lost representations,
-   damaged prediction edges, and interference. Compare matched-capacity controls
-   before attributing normalization's gain solely to its scale rule.
-2. Add local prediction between hidden populations. Start with a task requiring
-   composition across unfamiliar combinations; compare one pool, two interacting
-   populations, frozen hidden learning, and shuffled hidden predictions. Require
-   improvement before claiming hierarchy or hidden credit assignment.
-3. Test developmental curricula against matched-exposure direct learning across
-   longer delays. The unlabelled gap-16 transfer makes this a useful experiment,
-   but not yet a proven general principle.
-4. Generate replay from saved neural activity rather than external example
-   storage, with equal-update wake controls and old/new retention measurements.
-5. Test whether local evidence predicts errors under controlled distribution
-   changes before attempting a learned uncertainty response.
+Exploratory geometry helps explain the result. Learned basal weights placed
+69.4% of sensory weight energy in the true two-dimensional signal span, versus
+8.1% frozen. Shuffling retained 47.8% signal energy but nearly collapsed its
+independent directions: second/first signal eigenvalue ratio .047, versus .571
+for prediction. This diagnostic used evaluator knowledge only and never taught
+or answered for the brain. It supports denoising and preservation of independent
+signals, not discovered named factors or an emergent hierarchy.
 
-Real text should follow earned progress on these mechanisms. Scaling the
-current finite-template pool would not resolve the central open problems.
+![Confirmation and exploratory geometry](experiments/report/pass2_predictive.png)
 
-## Reproduce and restore
+### Failures and limits
 
-The core and experiments use Python's standard library; figures additionally
-need Matplotlib. Start with:
+Initial unnormalized predictors scored 80.9% held out; smaller steps alone
+scored 82.8% and 85.4%. Those gates remain failed. Frozen features initially
+had smaller activity, confounding readout learning; local axon normalization
+was preregistered and applied to all variants before selecting the candidate.
+The faster .05 homeostatic setting failed the original initial-probe advantage
+gate. It was not selected after looking at confirmation.
 
-```sh
-python -B -m unittest experiments.test_brain -v
-python -B -m experiments.run --help
-python -B -m experiments.report
-```
+The task is linear in its clean sensory factors. With parameters/statistics
+fixed, the prediction/readout map is affine; a supervised linear-memory model
+already solves much of it. The result establishes useful self-supervised hidden
+learning and transfer on this task. It does not establish nonlinear composition,
+deep outcome credit assignment, language, or a hierarchy of meaning. There
+are no new claims of long-range retention or sleep in this architecture.
 
-Use the frozen `SELECTED_*.json` files with the reproduction wrapper; it refuses
-to overwrite prior results. Exact invocation details are in
-[experiments/README.md](experiments/README.md).
+## C: unlabelled uncertainty probes
+
+Five exploratory learned brains were cloned per condition and received 200
+probe episodes each, with no outcome labels. Hidden learning and structure
+continued. AUC was measured within each seed and condition, preventing a simple
+between-distribution shift from masquerading as error prediction.
+
+| Condition | Accuracy | Mean confidence | View-error AUC | Output-entropy AUC |
+|---|---:|---:|---:|---:|
+| Familiar combinations | 94.9% | 88.7% | .556 | .954 |
+| Held-out combinations | 95.4% | 92.2% | .513 | .941 |
+| Nuisance doubled | 86.9% | 88.1% | .505 | .887 |
+| Nuisance quadrupled | 79.5% | 87.3% | .487 | .761 |
+| Signal reduced | 83.2% | 86.5% | .497 | .813 |
+| Same inputs, reversed evaluator labels | 5.1% | 88.7% | .444 | .046 |
+
+Hidden sensory-prediction residuals are poor predictors of classification
+errors. Output entropy ranks errors much better under the original outcome
+rule, but confidence is miscalibrated under shift. Reversed-label probes have
+exactly identical probabilities and brain summaries to familiar probes on
+all five seeds: no unlabelled input signal identifies the hidden rule change.
+Feedback would be needed to discover it.
+
+There is no learned unknown response, abstention rule, or self-knowledge claim.
+The useful precursor is outcome uncertainty, not raw input-prediction error.
+Two small seed-0 checkpoints preserve the learned state and the state after
+quadrupled nuisance for later diagnosis; that probe was reproduced exactly.
+
+## Verification and records
+
+**32 behavioral tests pass**, including hidden-label isolation over a lifetime,
+independence from distant errors, eligibility timing, local homeostasis,
+checkpoint continuation with shuffling/growth, pruning integrity, structural
+yoking, and AUC tie/missing-class handling. The twelve representative legacy
+runs still reproduce exactly in the current reference.
+
+Five pass-2 cases reproduce exactly with their pinned source revisions,
+including the confirmation candidate. Exact early replay needs its source
+revision: adding the Oja rule regrouped floating-point multiplication in the
+new kernel, changing tiny numerical values, and later structural yoking
+intentionally changed the exploratory Oja test's population from nine to eight.
+The earlier claim of zero test events did not hold for that Oja control; this
+was corrected before confirmation. Latest-code replay alone matches only two
+of the five sampled early/current cases. Neither failure is hidden or counted
+as an exact current-code reproduction. The versioned verifier preserves the
+original data and checks the actual recorded source.
+
+The scientific runtime is CPython 3.12.14. PyPy changed numerical state and was
+rejected. Initial source hashes captured at completion cannot prove the exact
+loaded runner snapshot; confirmation captures hashes at import and its source
+was frozen until every trial finished. These provenance limits are recorded.
+
+- [NOTEBOOK.md](NOTEBOOK.md): every attempted condition and correction.
+- [PROTOCOL.md](experiments/PROTOCOL.md): preregistered gates and follow-ups.
+- [PASS2.md](experiments/report/PASS2.md): ranges, every gate, uncertainty results and raw-file hashes.
+- [Experiment instructions](experiments/README.md): reproduce the studies.
+- [Versioned replay verifier](experiments/check_pass2_reproducibility.py): exact source-specific receipts.
+- [Original reproducibility receipts](experiments/report/REPRODUCIBILITY.json): twelve unchanged legacy checks.
+
+Raw files include exploratory failures, diagnostic repeats and a rejected
+runtime; their record count is not a count of independent successful studies.
+Generated machine summaries and SVGs are excluded from commits. Previous
+results and the vision were not edited.
+
+## Next
+
+1. Preregister a nonlinearly separable factor task, with unseen combinations and
+   a strong linear baseline. Add generic nonlinear dendritic prediction or
+   interacting learned populations; require every component to beat frozen,
+   shuffled and matched-capacity controls before claiming hierarchy.
+2. Include predictable nuisance and different outcome functions, so successful
+   sensory prediction cannot be assumed to represent task-relevant information.
+3. Revisit temporal/contextual lifetimes with explicit initial acquisition gates.
+   The new one-step predictor has not replaced the older temporal mechanisms.
+4. Learn outcome reliability from local outcome evidence, then test calibration
+   under shift. Raw sensory surprise alone is insufficient. Keep unknown actions
+   learned, rather than imposed by a threshold.
+
+Real text and endogenous sleep remain later research. This pass earns a local
+predictive primitive and a better diagnosis, while the central deep problems
+remain open.

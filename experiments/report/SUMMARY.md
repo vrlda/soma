@@ -244,6 +244,66 @@ Context recall uses the first 20 predictions of a learning checkpoint clone; it 
 | lifetime_consolidation.jsonl | no_structural_safeguards | None | 5/5 | 85.2% [74.0, 88.0] | — | 4.4 | 251.4 | 248.0 |
 | lifetime_initial.jsonl | candidate | None | 5/5 | 86.4% [84.0, 88.0] | — | 4.4 | 246.6 | 243.2 |
 | lifetime_initial.jsonl | no_pruning | None | 5/5 | 100.0% [100.0, 100.0] | — | 27.8 | 26.8 | 0.0 |
+| pass2_composition_competitive_initial.jsonl | competitive | noisy_factor_sum | 5/5 | 50.0% [50.0, 50.0] | — | 1241.0 | 3040.0 | 1800.0 |
+| pass2_composition_confirmation.jsonl | competitive | noisy_factor_sum | 10/10 | 50.0% [50.0, 50.0] | — | 1241.0 | 3040.0 | 1800.0 |
+| pass2_composition_confirmation.jsonl | frozen | noisy_factor_sum | 10/10 | 66.8% [56.9, 75.6] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_confirmation.jsonl | hebbian_capacity | noisy_factor_sum | 10/10 | 50.1% [48.8, 52.5] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_confirmation.jsonl | linear_memory | noisy_factor_sum | 10/10 | 91.3% [83.8, 97.5] | — | 0.0 | 0.0 | 0.0 |
+| pass2_composition_confirmation.jsonl | matched_capacity | noisy_factor_sum | 10/10 | 66.8% [56.9, 75.6] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_confirmation.jsonl | predictive | noisy_factor_sum | 10/10 | 95.5% [90.6, 99.4] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_confirmation.jsonl | shuffled | noisy_factor_sum | 10/10 | 67.9% [44.4, 100.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_hebbian_control.jsonl | hebbian_capacity | noisy_factor_sum | 5/5 | 53.2% [50.0, 66.2] | — | 9.0 | 1.0 | 0.0 |
+| pass2_composition_hebbian_control.jsonl | predictive | noisy_factor_sum | 5/5 | 97.0% [93.8, 100.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_homeostasis_medium.jsonl | frozen | noisy_factor_sum | 5/5 | 68.0% [58.8, 78.8] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_homeostasis_medium.jsonl | matched_capacity | noisy_factor_sum | 5/5 | 68.0% [58.8, 78.8] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_homeostasis_medium.jsonl | predictive | noisy_factor_sum | 5/5 | 95.5% [87.5, 99.4] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_homeostasis_medium.jsonl | shuffled | noisy_factor_sum | 5/5 | 60.6% [42.5, 72.5] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_homeostasis_slow.jsonl | frozen | noisy_factor_sum | 5/5 | 68.0% [58.8, 78.8] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_homeostasis_slow.jsonl | matched_capacity | noisy_factor_sum | 5/5 | 68.0% [58.8, 78.8] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_homeostasis_slow.jsonl | predictive | noisy_factor_sum | 5/5 | 97.0% [93.8, 100.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_homeostasis_slow.jsonl | shuffled | noisy_factor_sum | 5/5 | 66.6% [48.8, 76.9] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_initial.jsonl | frozen | noisy_factor_sum | 5/5 | 53.6% [50.0, 68.1] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_initial.jsonl | matched_capacity | noisy_factor_sum | 5/5 | 53.6% [50.0, 68.1] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_initial.jsonl | predictive | noisy_factor_sum | 5/5 | 80.9% [73.1, 88.8] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_initial.jsonl | shuffled | noisy_factor_sum | 5/5 | 50.5% [41.2, 55.6] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_linear_baseline.jsonl | linear_memory | noisy_factor_sum | 5/5 | 93.9% [89.4, 97.5] | — | 0.0 | 0.0 | 0.0 |
+| pass2_composition_medium.jsonl | frozen | noisy_factor_sum | 5/5 | 53.6% [50.0, 68.1] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_medium.jsonl | matched_capacity | noisy_factor_sum | 5/5 | 53.6% [50.0, 68.1] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_medium.jsonl | predictive | noisy_factor_sum | 5/5 | 85.4% [76.9, 98.8] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_medium.jsonl | shuffled | noisy_factor_sum | 5/5 | 51.6% [45.0, 57.5] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_probe_validation.jsonl | frozen | noisy_factor_sum | 5/5 | 68.0% [58.8, 78.8] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_probe_validation.jsonl | hebbian_capacity | noisy_factor_sum | 5/5 | 53.2% [50.0, 66.2] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_probe_validation.jsonl | linear_memory | noisy_factor_sum | 5/5 | 93.9% [89.4, 97.5] | — | 0.0 | 0.0 | 0.0 |
+| pass2_composition_probe_validation.jsonl | matched_capacity | noisy_factor_sum | 5/5 | 68.0% [58.8, 78.8] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_probe_validation.jsonl | predictive | noisy_factor_sum | 5/5 | 97.0% [93.8, 100.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_probe_validation.jsonl | shuffled | noisy_factor_sum | 5/5 | 66.6% [48.8, 76.9] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_slow.jsonl | frozen | noisy_factor_sum | 5/5 | 53.6% [50.0, 68.1] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_slow.jsonl | matched_capacity | noisy_factor_sum | 5/5 | 53.6% [50.0, 68.1] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_slow.jsonl | predictive | noisy_factor_sum | 5/5 | 82.8% [61.9, 100.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_composition_slow.jsonl | shuffled | noisy_factor_sum | 5/5 | 50.2% [46.9, 53.1] | — | 8.0 | 0.0 | 0.0 |
+| pass2_interpreter_validation.jsonl | pypy_same_reference | competitive_seed_0 | 1/1 | 50.0% [50.0, 50.0] | — | 1241.0 | 3040.0 | 1800.0 |
+| pass2_predictive_geometry.jsonl | frozen | factor_span | 5/5 | — | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_geometry.jsonl | hebbian_capacity | factor_span | 5/5 | — | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_geometry.jsonl | predictive | factor_span | 5/5 | — | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_geometry.jsonl | shuffled | factor_span | 5/5 | — | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_rank_diagnostic.jsonl | frozen | factor_span | 5/5 | — | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_rank_diagnostic.jsonl | hebbian_capacity | factor_span | 5/5 | — | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_rank_diagnostic.jsonl | predictive | factor_span | 5/5 | — | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_rank_diagnostic.jsonl | shuffled | factor_span | 5/5 | — | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_uncertainty.jsonl | predictive | familiar | 5/5 | 94.9% [90.0, 99.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_uncertainty.jsonl | predictive | low_signal | 5/5 | 83.2% [76.5, 91.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_uncertainty.jsonl | predictive | noise4 | 5/5 | 86.9% [81.0, 93.5] | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_uncertainty.jsonl | predictive | noise8 | 5/5 | 79.5% [74.5, 86.5] | — | 12.0 | 4.0 | 0.0 |
+| pass2_predictive_uncertainty.jsonl | predictive | reversed_labels | 5/5 | 5.1% [1.0, 10.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_predictive_uncertainty.jsonl | predictive | withheld | 5/5 | 95.4% [90.0, 100.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_retention_boundary_diagnostic.jsonl | unchanged | 8 | 1/1 | — | — | 39.0 | 119.0 | 81.0 |
+| pass2_retention_diagnostic.jsonl | unchanged | 8 | 3/3 | — | — | 39.3 | 116.0 | 77.7 |
+| pass2_source_reproducibility.jsonl | frozen | current | 1/1 | 50.0% [50.0, 50.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_source_reproducibility.jsonl | frozen | pinned | 1/1 | 50.0% [50.0, 50.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_source_reproducibility.jsonl | hebbian_capacity | current | 1/1 | 50.0% [50.0, 50.0] | — | 9.0 | 1.0 | 0.0 |
+| pass2_source_reproducibility.jsonl | hebbian_capacity | pinned | 1/1 | 50.0% [50.0, 50.0] | — | 9.0 | 1.0 | 0.0 |
+| pass2_source_reproducibility.jsonl | predictive | current | 3/3 | 95.0% [88.8, 100.0] | — | 8.0 | 0.0 | 0.0 |
+| pass2_source_reproducibility.jsonl | predictive | pinned | 3/3 | 95.0% [88.8, 100.0] | — | 8.0 | 0.0 | 0.0 |
 | reversal_initial.jsonl | candidate | None | 5/5 | 90.5% [72.5, 100.0] | — | 16.0 | 0.0 | 0.0 |
 | reversal_initial.jsonl | metaplasticity | None | 5/5 | 90.8% [75.8, 100.0] | — | 16.0 | 0.0 | 0.0 |
 | reversal_initial.jsonl | no_learning | None | 5/5 | 50.0% [50.0, 50.0] | — | 16.0 | 0.0 | 0.0 |

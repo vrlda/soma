@@ -5,6 +5,89 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: final reproducibility audit and a capacity correction
+
+**Question.** Can every sampled record be replayed exactly, and were early
+capacity controls actually yoked through their complete tests?
+
+**Setup.** Twelve legacy current-code receipts; five pass-2 cases each replayed
+with current code and an immutable source revision (b3b6d3f, 9bd06b5, 935aae1).
+Raw receipts: `pass2_source_reproducibility.jsonl`. No results edited.
+
+**Result.** All twelve legacy cases match current code exactly. All five
+pass-2 pinned-source cases match exactly, including the confirmation candidate;
+only two match the latest code exactly. The Oja addition regrouped floating
+point multiplication in the new predictive kernel, changing tiny loss/state
+values in older predictive runs. Early Oja testing also autonomously grew one
+unit (seed 0 ends at nine), despite matched training capacity. Before
+confirmation, yoking was explicitly extended through testing; all confirmed
+new-module variants match eight units/424 weighted connections and the same
+complete structural schedule. Earlier "zero test events" wording did not apply
+to that exploratory Oja control. Keep that flawed control and correct its
+interpretation rather than altering its record.
+
+**Meaning.** Exact replay needs code and runtime, not just seed/parameters.
+The versioned verifier reproduces the early data without inventing compatibility
+switches or overwriting it. Original `Organism` code/defaults remain unchanged.
+Current confirmation is source-frozen and exactly replayed. The exploratory
+provenance/capacity limitations are explicit in the final report.
+
+---
+
+## 2026-10-11: uncertainty precursor, sensory surprise fails
+
+**Question.** Do local hidden prediction errors forecast the brain's own errors?
+
+**Setup.** Five learned checkpoint seeds, cloned per six preregistered conditions,
+200 unlabelled episodes each (6000 total). Intrinsic learning continues; no
+outcomes supplied. Within-condition/per-seed ROC AUC for residuals and entropy.
+
+**Result.** Familiar/held-out accuracy 94.9%/95.4%, entropy AUC .954/.941.
+Doubled/quadrupled nuisance accuracy 86.9%/79.5%, confidence 88.1%/87.3%,
+entropy AUC .887/.761. Reduced signal 83.2%, entropy AUC .813. View residual
+AUC only .487–.556 across the ordinary conditions; query residuals also fail.
+Same inputs with reversed evaluator labels: 5.1% accuracy, unchanged 88.7%
+confidence, entropy AUC .046. Every seed has exactly identical probabilities
+and summaries in familiar/reversed conditions. Two small seed-0 states before
+and after noise8 are saved; the 200-probe replay matches probabilities exactly.
+
+**Meaning.** Outcome entropy ranks mistakes under the learned rule, but raw
+sensory surprise is not outcome self-knowledge. Confidence is miscalibrated
+under shift. An unobserved label-rule change has no input evidence; do not
+pretend a network could infer it without feedback. No unknown-response policy,
+thresholded abstention, or self-knowledge success claim was introduced.
+
+---
+
+## 2026-10-11: local predictive features confirmed on held-out linear factors
+
+**Question.** Does the frozen local-prediction hypothesis beat required controls
+on unused seed streams and combinations absent from all learning experience?
+
+**Setup.** `SELECTED_PREDICTIVE.json`, confirmation seeds 10–19, same 600
+learning episodes/160 held-out episodes, all seven variants, paired streams.
+All 70 runs completed. No tuning after dispatch; source hashes at import.
+
+**Result.** All registered required-control gates PASS. Held-out mean 95.50%,
+range 90.625–99.375%; seen 93.917%. Frozen/matched random 66.813%, shuffled
+67.938%, Oja 50.125%, original pool 50%. Four-probe initial transfer 90%,
+versus frozen 75%, shuffled 65%, Oja/original 50%. Supplementary 160-probe
+frozen-hidden transfer 95.313%; random frozen 67.75%. Every candidate seed
+exceeded 90% on primary held-out combinations. All confirmed new-module
+capacities and structural schedules match exactly. Eight predictors/eight
+observation counterparts; weighted connections 424, no structural events.
+
+**Meaning.** Hidden basal synapses learn useful denoising through local input
+prediction without task labels, and their codes transfer to missing linear
+combinations. The stronger linear-memory baseline scores 91.313% and ties
+initial four-probe transfer at 90%, so the task does not establish hierarchy
+or necessary deep credit assignment. Shuffled seed 15 scores 100%, better
+than the full candidate's 98.75%; teacher alignment helps on average, not
+necessarily every individual lifetime. Frozen/weight-scale/structural controls
+and the linear baseline remain visible. Phase C can now run; no real text.
+
+---
+
 ## 2026-10-11: predictive selection frozen before confirmation
 
 **Question.** Does the eligible exploratory hypothesis survive unused streams?
