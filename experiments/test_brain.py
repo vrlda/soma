@@ -565,6 +565,19 @@ class Pass4EnvironmentTests(unittest.TestCase):
         self.assertEqual(records_for('original', 0)[0], nonlinear.stream(0))
         self.assertEqual(records_for('stronger', 0)[0], nonlinear_hard.stream(0, dict(episodes=1200, noise=.3)))
 
+    def test_observer_readout_cannot_change_brain_and_predicts_before_its_label(self):
+        from brain.soma import SharedSoma, SharedConfig
+        from experiments.pass4_diagnose import NormalizedReadoutReference
+        brain = SharedSoma(SharedConfig())
+        brain.experience([.2] * 13)
+        previous = brain.state()
+        sources = [n.axon for n in brain.neurons]
+        a = NormalizedReadoutReference()
+        b = NormalizedReadoutReference.from_state(a.state())
+        self.assertEqual(a.experience(sources, 0), b.experience(sources, 1))
+        self.assertNotEqual(a.weights, b.weights)
+        self.assertEqual(brain.state(), previous)
+
     def test_mlp_reference_predictions_precede_feedback_and_resume(self):
         from experiments.pass4 import MLPReference
         a = MLPReference(seed=1)
