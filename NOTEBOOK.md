@@ -5,6 +5,34 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: signed underfit stops noise growth but can extinguish the brain
+
+**Question.** Does signed error/forecast covariance regulate recruitment
+without destroying nonlinear learning?
+
+**Setup.** Hypothesis2 source4a527b5; unchanged1200/160 task, seeds0–4,
+eight models including episode-shuffled observations. Signed positive underfit,
+threshold .001/cost .002; bounded predictive evidence increment .001.
+
+**Result.** All40 task runs complete. Candidate61.875%, seen65%, frozen
+transfer56%; fixed-final66.25%, frozen55.25%, temporal-shuffled58.375%.
+Two candidate lifetimes lose all neurons, with zero births. The fixed-size
+control needs a one-neuron fallback in those two runs, so its capacity is not
+exactly zero; that limitation is explicit, not a matched-size success.
+Noise: every independent seed has zero births/four deaths; repeated inputs
+produce4–11 births/zero deaths. The task gate fails strongly.
+
+**Meaning.** Noise regulation improved, but absence of a correlated existing
+forecast cannot reveal a missing nonlinear representation. Lowering evidence
+increment tenfold without lowering its pruning threshold also made pruning
+tenfold more aggressive relative to the evidence scale. This exposes an
+extinction trap: a zero population supplies no predictive growth signal.
+The last preregistered hypothesis separates observation covariance from
+self-forecast covariance and fixes the evidence/threshold scale relationship.
+Do not erase the extinct lifetimes or retune after confirmation.
+
+---
+
 ## 2026-10-11: nonlinear dendrites work, first growth rule mistakes noise for structure
 
 **Question.** Can generic nonlinear predictive dendrites transfer interactions

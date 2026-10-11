@@ -693,3 +693,27 @@ Repeat4000-tick independent/repeated noise under hypothesis2. Select the
 best-understood hypothesis after both complete batches, prioritizing noise
 regulation over an inflated score from continuous recruitment. If blocked,
 freeze and confirm a diagnostic hypothesis without relaxing any gate.
+
+
+### Pass 3 hypothesis 3: teacher covariance minus forecast covariance
+
+Registered after the complete40-run hypothesis2 failure and before execution.
+Candidate61.875%, with two extinct lifetimes; independent noise zero births
+and four deaths, repeated inputs4–11 births. Signed forecast/error pressure
+misses structure when the forecast has not formed. For each branch separately,
+keep centered EMA(observation × previous branch activity) and EMA(previous
+forecast × previous branch activity). Structural pressure is the positive
+part of abs(observation covariance) minus abs(forecast covariance). Thus a
+branch's sensory relation can demand capacity without a successful existing
+forecast; self-generated prediction variance on independent noise does not
+by itself count as unrepresented structure. All terms are local to the
+receiving neuron/branch. No outcome information enters pressure.
+
+Use original threshold .02/cost .01/120 interval, evidence increment .001
+with pruning threshold .0015 (both scaled tenfold relative to hypothesis1),
+same240 interval/1200 age/.999 decay. All learning/task settings unchanged.
+This is the third and final exploratory hypothesis. Run the complete eight
+controls on0–4 and independent/repeated noise before freezing. No further
+candidate tuning. Prefer the interpretable noise-regulating candidate if
+its task transfer survives; otherwise explicitly confirm a blocked hypothesis.
+All original gates, including fixed-final and population shuffle, remain.
