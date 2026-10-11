@@ -161,3 +161,29 @@ growth actually helps; a large-model score does not earn that claim.
 tasks to specialist kernels. Specialist comparison rows are explicitly labelled
 controls. Each lifetime gates retention on original-context acquisition; all
 failed acquisitions remain in the report. Ablations are not per-task retuning.
+
+The additional `nonlinear_hard.py` falsification retains the frozen candidate
+and all original gates, but changes the environment's factor property to
+`q(v)=v*(v*v-5)/6`. Adjacent factor values have opposite property signs, so
+nearest seen examples answer withheld pairs incorrectly. Its future property
+product still arrives after the query. No earlier runner or brain was changed.
+
+```sh
+python -B -m experiments.nonlinear_hard --selection experiments/SELECTED_SOMA.json \
+  --output /tmp/soma-pass3-hard-exploration.jsonl
+python -B -m experiments.nonlinear_hard --selection experiments/SELECTED_SOMA.json \
+  --seeds 10,11,12,13,14,15,16,17,18,19 --output /tmp/soma-pass3-hard-confirmation.jsonl
+```
+
+These seeds/directions were used in the first benchmark; this is a fixed-model
+falsification, not independent evidence for a newly tuned selection. Nearest
+exemplars are an explicitly labelled raw-memory baseline, not a brain. Their
+99% probability is a metric-interface convention; interpret accuracy, not
+calibration or the arbitrary log loss. Both tasks and every failed gate remain.
+
+The initial pass-3 replay receipt compares Python tuple pairs with JSON lists
+and fails only the probe-format check. Keep it. The corrected verifier compares
+exact JSON representations, without numerical tolerance, and writes a new
+receipt file. The report distinguishes this harness failure from successful
+exact replay. It also separates acquisition-eligible from ineligible returns
+for both the new candidate and the old specialist, including specialist seed 3.

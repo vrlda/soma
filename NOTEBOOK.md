@@ -5,6 +5,100 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: stronger frozen-config task falsifies nonlinear composition
+
+**Question.** Does the already frozen shared candidate compose nonlinear
+factor properties when nearest seen examples give the wrong answer?
+
+**Setup.** Additional preregistered falsification after A/B/C, no model or
+configuration changes. q(v)=v*(v*v-5)/6; future sensory q(x)*q(y) after
+query; same withheld pairs, axes, nuisance, counts and all original gates.
+All eight neural variants plus nearest exemplar. Seeds0–4 measurement,
+then 10–19 fixed-model falsification; these seed/direction identities were
+already used, so this is not independent evidence for a newly tuned model.
+
+**Result.** All45 exploratory and90 later runs complete. Exploratory
+candidate45.125%, frozen46.875%, supervised linear50.625%, nearest0%.
+Later candidate26.875% [5–47.5], seen60.833%, frozen transfer26.0625%;
+frozen random45.3125%, population-shuffled37.375%, episode-shuffled39.5625%,
+Oja47.6875%, fixed-final27.875%, pass2 linear48.6875%, supervised linear
+48.5%. Nearest0% held and100% seen in every seed. Mean4 births/1.6 deaths;
+five of ten have both. Every accuracy/advantage/transfer success gate FAILS;
+pairing and the anti-nearest construction pass. Two new strict numerical
+replays (candidate and episode-shuffled13) match exactly.
+
+**Meaning.** Learned prediction is actively worse than random nonlinear
+features on this stronger task. Seen acquisition is weak too; do not describe
+it only as forgetting or a fully learned mapping that failed to generalize.
+The easier task could reward a low-order geometric proxy. In this environment
+raw sign(x*y) agrees with two-thirds of seen labels and NONE of the withheld
+labels, consistent with an attractive wrong extrapolation; this observation
+does not identify the actual neuronal function. Under factorization, each
+withheld product M[i,j] is determined by three SEEN entries:
+M[i,0]*M[1,j]/M[1,0]. This is an environment identity, never a brain solver.
+Capacity should repair the receiving neuron's deficient dendrites, rather
+than just add random observation targets. That is a hypothesis for the next
+pass, not a result earned here. Preserve both benchmarks and every failure.
+
+---
+
+## 2026-10-11: replay harness tuple/list failure corrected without tolerance
+
+**Question.** Do current source and runtime exactly replay the new records?
+
+**Setup.** Three exploratory candidate cases, four selected confirmation
+variants on seed 13 (17 births/4 deaths), three shared-task cases. Original
+12 legacy cases and five pinned-source pass2 cases rerun separately.
+
+**Result.** First new audit preserved a FAILED receipt: probe pairs emitted
+as tuples compared against JSON lists, while all aggregate/state/schedule
+checks passed. Its exact source snapshot is committed9db3000. Correct only
+the serialization comparison: JSON-normalize values, never round or tolerate
+floating differences. Regression test verifies 1e-12 drift still fails.
+Corrected verifier: all10 new cases EXACT, including individual probabilities,
+trajectories, full structural schedules, and contextual phases. All12 legacy
+current cases EXACT; pass2 pinned5/5, current2/5 as previously documented.
+One small selected seed 13 pre-test brain saved for later dendritic diagnosis.
+
+**Meaning.** This was a harness type mismatch, not evidence of a numerical
+replay success until the corrected audit ran. Keep both receipts. All new
+hypotheses remain replayable with current defaults/ablation settings, while
+the pass2 early-version limitation remains unchanged and explicit.
+
+---
+
+## 2026-10-11: one shared substrate loses to specialists; long time remains open
+
+**Question.** Can one fixed configuration inherit the earlier small-task
+successes, with acquisition required before any retention interpretation?
+
+**Setup.** SELECTED_SOMA unchanged, only interfaces/seed differ. Thirty
+unified/specialist runs on0–4: original linear composition, gap 8 grammar,
+gap 8 contextual lifetime. Nonlinear selected0–4 already measured75.125%
+with this exact substrate/configuration. After A/B finish, C chooses ONLY
+fresh gap 16 grammar, same configuration, paired trace-off. Separate gap 8
+trace-off and contextual protection-off diagnostics, no retuning.
+
+**Result.** All30 comparisons complete. Linear75% vs specialist97%; grammar8
+65.8% vs100%. Initial-A acquisition56% mean; all five unified lifetimes
+fail .90 acquisition (range49–69%). Their return43.2% is NOT a valid
+retention score. Specialists acquire94.3% on average (four of five pass); overall return99.2%,
+eligible-only return100%. Preserve the fifth acquisition failure. Gap8 trace-off
+50.1%; gap 16 unified50.3% and trace-off50.2%. Protection-off return46.4%,
+also all five acquisitions fail; no retention benefit claim. New substrate
+contains traces/prediction/homeostasis/growth/protection but has not inherited
+the specialist mechanisms' reliability. All raw runs complete.
+
+**Meaning.** Temporal state helps the selected gap 8 candidate on average,
+but sparse generic dendrites and input-prediction pressure do not reliably
+represent the outcome's factor interaction. The old event/recruitment/pruning
+results remain valid; this is a beginning of unification with explicit losses,
+not a replacement. Long time and acquisition-first retention remain unsolved
+in the shared candidate. Proceed to a frozen-config anti-nearest-template
+falsification after discovering the original task's geometric shortcut.
+
+---
+
 ## 2026-10-11: confirmation fails the task gate; geometric memorization caveat
 
 **Question.** Does the frozen diagnostic hypothesis generalize robustly and
@@ -44,7 +138,7 @@ remain intact. Proceed to the required single-config comparisons without tuning.
 counting the predictor's own noise variance as surprise?
 
 **Setup.** Third and final hypothesis, source d3e0151, all eight controls,
-seeds0–4. Original growth threshold/cost; evidence and pruning threshold
+seeds 0–4. Original growth threshold/cost; evidence and pruning threshold
 scaled together. Independent/repeated4000-tick probe.
 
 **Result.** All40 task runs complete. Candidate held75.125%,
@@ -70,7 +164,7 @@ not hide a failed mechanism behind the earlier99% score.
 **Question.** Does signed error/forecast covariance regulate recruitment
 without destroying nonlinear learning?
 
-**Setup.** Hypothesis2 source4a527b5; unchanged1200/160 task, seeds0–4,
+**Setup.** Hypothesis2 source4a527b5; unchanged1200/160 task, seeds 0–4,
 eight models including episode-shuffled observations. Signed positive underfit,
 threshold .001/cost .002; bounded predictive evidence increment .001.
 
@@ -98,7 +192,7 @@ Do not erase the extinct lifetimes or retune after confirmation.
 **Question.** Can generic nonlinear predictive dendrites transfer interactions
 and can correlation pressure regulate living structure?
 
-**Setup.** Preregistered 1200/160 episodes, seeds0–4, seven paired models;
+**Setup.** Preregistered 1200/160 episodes, seeds 0–4, seven paired models;
 source d8724e6. Four initial neurons/four branches. Future product view arrives
 after query; no held-out outcome feedback. Additional 4000-tick independent
 versus four-tick-repeated sensory noise, same configuration.
