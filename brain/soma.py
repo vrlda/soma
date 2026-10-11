@@ -466,7 +466,7 @@ class SharedSoma:
     def _birth(self, parent, values, channels=None):
         cfg = self.config
         channels = range(cfg.outputs) if channels is None else channels
-        # Outcome source IDs belong to the emitting compartment, not a label.
+        # Here source stores the receiving channel; this branch is the emitter.
         outcomes = [Synapse(k, 0.) for k in channels]
         afferents = [Synapse(i, value) for i, value in enumerate(values)]
         branch = ReceptiveBranch(self.next_id, afferents, outcomes)

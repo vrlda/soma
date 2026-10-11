@@ -1,287 +1,195 @@
 # SOMA current research state — 2026-10-11
 
-**Pass 3 did not establish learned nonlinear composition or a reliable unified
-brain.** It built and measured a single experimental substrate, exposed a
-noise-driven growth failure, improved recruitment regulation, and produced a
-stronger benchmark that the frozen candidate fails. The earlier pass-1 and
-pass-2 measured results remain valid and are retained below.
+**Pass 4 establishes reliable finite nonlinear acquisition by local prediction
+plus recruited conjunctive branches. It does not establish nonlinear
+composition or a reliable unified brain.** On a leak-free raw-factor task,
+all ten confirmation seeds pass: final-window mean 99.80%,
+frozen mean 99.95%. Independent-noise recruitment
+falls from 395 to zero births per 12000 ticks across five seeds.
 
-The sharpest result is the additional nonlinear falsification: **26.9% on
-withheld combinations**, against **45.3% frozen nonlinear features** and
-**48.5% supervised linear**. Prediction learning can worsen the representation
-used for transfer. This failure is more informative than the first task's
-77.6% because the first task also admits a perfect nearest-example shortcut.
+The same configuration still loses the older tasks: linear transfer 80% versus
+97%, grammar gap 8 49.05% versus 100%, and initial-context acquisition 51.05%
+with zero of five eligible for retention. Generalization to calibrated held-out
+pairs is only 47.69%, versus nearest-exemplar 100%. Real text, emergent hierarchy,
+self-knowledge and endogenous sleep remain unearned.
 
-This pass starts from the reviewed `6f92673`. `VISION.md`, `organism.py`,
-`predictive.py`, old defaults/selections and every previous raw record remain
-unchanged. No task rule or factor identity was added to `brain/`.
+## Pass 4: calibrate before building
 
-## Pass 3 A: one substrate with nonlinear local prediction
+The experiment-only online backprop MLP uses one tanh hidden layer, sizes
+16/64 and rates .03/.15, one query update per episode, 1200 episodes. Full grid
+and linear/nearest controls: 90 complete exploratory rows. Best MLP held means:
+original task 95.25%, stronger task 49.75%; best seen stronger 79.83%. The
+stronger held benchmark is not conventionally calibrated by this small grid
+and does not gate SOMA. This is not a proof that another learner cannot solve
+it. Acquisition reference (16, .15) reaches 100% on all exploratory final
+windows/probes. Selected references were frozen before confirmation; the full
+grid and partial failed dispatch remain in [PASS4.md](experiments/report/PASS4.md).
 
-[brain/soma.py](brain/soma.py) contains sensory event traces, source-variance
-normalization, neurons with generic saturating dendrites, local future
-prediction, outcome synapses, growth and predictive-evidence pruning. It
-instantiates one population directly; it does not choose a specialist by task.
+## Pass 4 A: one substrate with reliable acquisition
 
-Each neuron has four initially random tanh branches and a sensory observation
-dendrite. Fixed excitatory/inhibitory branch polarities combine activity at
-the soma. An arriving observation teaches the PREVIOUS forecast: a synapse
-changes from its own stored source eligibility, its own soma's error, its
-branch polarity and unsaturated-activity gate, plus a scalar learning amount.
-There is no differentiation through other neurons or transport of learned
-outcome weights. Only outcome neurons receive labels. All predictive
-observation projections remain fixed in this hypothesis.
+`SharedSoma` in [soma.py](brain/soma.py) instantiates one graph directly, without
+specialist routing. Local linear next-input prediction learns from each soma's
+own sensory observation and prior eligibility. Sensory/predictive event traces
+and homeostasis feed competitive receptive branches. Three consistent local
+matches were too restrictive; two matches and wider vigilance acquire reliably
+but grow on noise. The final rule gates birth with RAW presynaptic lag covariance,
+before traces can manufacture persistence. New branches copy provisional local
+afferents at a failing predictor and also learn a branch-to-own-soma predictive
+current. Only outcome synapses receive labels. [brain/README.md](brain/README.md)
+states local inputs, competition, counting and remaining approximations.
 
-The selected architecture begins with four neurons. It has no size cap.
-It preserves exact state/RNG save/resume and removes every connection when
-a neuron dies. Soma counts one complete neuron with all dendrites; the old
-predictive module counts paired populations differently. Weighted synapse
-counts exclude fixed branch-to-soma polarities. [brain/README.md](brain/README.md)
-states each rule's local information and these counting conventions.
-
-### Three hypotheses, all failures retained
-
-| Exploratory hypothesis, seeds 0–4 | Held out | Fully frozen probe | Independent-noise births | Repeated-input births |
-|---|---:|---:|---:|---:|
-| Absolute residual/branch covariance | 99.13% | 87.38% | 33.0 | 33.0 |
-| Signed error/own-forecast underfit | 61.88% | 56.00% | 0.0 | 7.8 |
-| Observation covariance minus forecast covariance | 75.13% | 79.50% | 0.4 | 5.8 |
-
-Noise probes last 4000 unlabelled ticks, five seeds. These are finite-duration
-observations, not proof of asymptotic size stability. The first rule recruits
-at every opportunity on noise: its negative self-prediction covariance is
-mistaken for missing structure. The signed rule suppresses that expansion,
-but aggressive pruning and a missing growth signal extinguish two task brains
-and every independent-noise brain. Those extinct runs are not successes.
-Its fixed-size comparison needs a one-neuron fallback in the two zero-size
-case lifetimes, an explicit capacity limitation.
-
-The third rule compares each branch's centered sensory/activity covariance
-with its own forecast/activity covariance, using only the positive unexplained
-part as structural pressure. Predictive evidence and pruning threshold scale
-together. It reduces noise recruitment, but exposes inadequate nonlinear
-capacity. [SELECTED_SOMA.json](experiments/SELECTED_SOMA.json) freezes this
-**blocked diagnostic hypothesis**, not a passing default. No further model
-tuning occurred.
-
-### First nonlinear task: registered confirmation fails
-
-Two four-valued factors emit raw randomly oriented sensory coordinates plus
-orthogonal nuisance. The outcome depends on their product. Four combinations
-are absent from all learning experience; each factor value appears elsewhere.
-A product-bearing future view arrives AFTER the query. It teaches prediction
-on the next tick, never supplies the current query answer.
-
-Training has 1200 episodes; testing has 160 balanced withheld episodes with
-no outcome labels. Input-driven learning continues. A separate checkpoint
-probe fixes weights, normalization statistics and structure, while ordinary
-sensory traces evolve. Its score distinguishes acquired transfer from
-adaptation to future views that reveal interaction structure after a query.
-
-Means across ten frozen confirmation seeds, 10–19:
-
-| Model | Held out | Frozen weights/statistics/structure probe |
-|---|---:|---:|
-| Selected nonlinear predictor | **77.56%** | **76.06%** |
-| Hidden synapses frozen at birth | 60.50% | 60.31% |
-| Observation signal shuffled across neurons | 66.00% | 61.25% |
-| Observation teachers shuffled across episodes | 63.44% | 61.63% |
-| Matched capacity, Oja branch learning | 50.44% | 51.38% |
-| Predictive learning, fixed at candidate final size | **80.56%** | 80.94% |
-| Pass-2 selected linear predictor | 45.25% | — |
-| Supervised linear memory, experiment only | 49.13% | — |
-| Chance / majority | 50.00% | — |
-
-All 80 runs complete; candidate range 41.25–95.63%, seen probe 84.5%.
-All original gates remain unchanged. Mean accuracy, seen accuracy, individual
-reliability, frozen-transfer threshold, fixed-size advantage and the living
-structure gate FAIL. Other required-control mean advantages and all pairing
-checks pass. Births average 5, deaths 1.7, final size 7.3; only **5/10**
-lifetimes contain both births and deaths, below the registered 9/10.
-Frozen/shuffled/Oja controls replay the candidate's exact structural schedule
-and wiring initialization throughout train/test. The fixed-final-size control
-starts larger and gets full exposure; its success prevents a growth-benefit
-claim. No candidate structural event is forced by an experimental schedule.
-
-The first task excludes exact lookup entries, but **nearest raw examples score
-100% on every withheld and seen stream**. Its geometry therefore does not
-exclude similarity-based memorization. This was measured as an explicitly
-experiment-only baseline after noticing the inadequate construction; it never
-teaches or answers for SOMA, and it did not change a gate.
-
-In the matched predictable-nuisance condition, the future view contains
-x²+y² instead of the outcome-relevant interaction. Candidate 61.13%, frozen
-60.25% on seeds 0–4, compared with 75.13%/56% in the matching interaction
-condition. Predicting something well need not create task-useful features.
-
-![Nonlinear confirmation and growth tradeoffs](experiments/report/pass3_tradeoffs.png)
-
-### Stronger frozen-config falsification
-
-To repair the nearest-template flaw, an additional preregistered condition
-uses q(v)=v(v²−5)/6. Its signs alternate across the four raw factor values.
-The future sensory view contains q(x)q(y), after the query, and the outcome
-is its sign. Adjacent seen examples now have the opposite answer. Factor
-values, sensory axes, nuisance, withheld pairs and episode counts are retained.
-The population affine-logistic optimum is chance in both tasks: classes have
-equal mass and zero raw class means. Actual linear controls are measured too.
-
-This tests the **already frozen model**. No configuration or original gate
-changes. Seeds 0–4 are measurements, then 10–19 are a fixed-model falsification;
-these seed/direction identities had already been used in the first benchmark.
-They are not independent new evidence for a newly tuned hypothesis.
-All 45 exploratory and 90 later runs complete.
-
-| Model, ten later seeds | Held out | Seen | Frozen probe |
+| Exploratory hypothesis, five seeds | Final window | Frozen end probe | Independent-noise births |
 |---|---:|---:|---:|
-| Selected nonlinear predictor | **26.88%** | 60.83% | 26.06% |
-| Frozen nonlinear features | **45.31%** | 54.50% | 44.75% |
-| Population shuffle | 37.38% | 58.08% | 40.50% |
-| Episode shuffle | 39.56% | 55.33% | 41.75% |
-| Oja capacity control | 47.69% | 49.67% | 43.13% |
-| Fixed-final-size predictor | 27.88% | 60.83% | 27.81% |
-| Pass-2 linear predictor | 48.69% | 51.08% | — |
-| Supervised linear memory | 48.50% | 50.58% | — |
-| Nearest raw exemplar | **0.00%** | **100.00%** | — |
+| Three matches, vigilance .20 | 81.70% | 89.80% | not measured |
+| Two matches, vigilance .50 | 99.45% | 100% | 395 per 12000 ticks |
+| Same, raw-source gate .12 | 99.45% | 100% | zero in every seed |
 
-Candidate range 5–47.5%. Every accuracy, transfer and control-advantage gate
-FAILS; the anti-nearest construction and pairing checks pass. Mean births 4,
-deaths 1.6; again only 5/10 have both. Its weak seen score shows an acquisition
-problem too, not just loss of a mapping already reliably acquired.
+The new task exposes two binary factors in twelve randomly oriented raw
+coordinates with orthogonal fresh nuisance .3. Eight blanks, two raw views,
+a third raw view/query, and a FOURTH RAW VIEW after feedback. No sensory view
+contains a product/parity/property target. All four combinations occur; this
+is seen-combination acquisition. Predictions precede feedback. Final 400 of
+1200 episodes and 200 fresh frozen probes are registered separately. A linear
+population logistic optimum is chance by symmetry. Block-balanced ordering
+can put adaptive weak readouts below chance; frozen probes expose that limit.
 
-The model learns an attractive wrong extrapolation rather than robust factor
-composition. A low-order proxy sign(xy) answers two-thirds of the seen pairs
-but NONE of the withheld pairs in this condition, consistent with the error
-pattern; this does not identify the actual learned neuronal function. Under
-factorization, withheld product M[i,j] is determined by three seen relations:
-M[i,0]M[1,j]/M[1,0]. This is an environment identity, never a solver or a
-training signal supplied to the brain.
+SELECTED_SHARED freezes every non-interface parameter before seeds 10–19.
+All 90 confirmation rows (including the slow raw-organism cohort) complete.
 
-The nearest-exemplar baseline's fixed 99% probability is an interface convention;
-only its accuracy is interpreted, not calibration or arbitrary log loss.
+| Model | Final 400 | End probe | Final-window seeds ≥ 95% | Mean branches / somas / weighted edges |
+| --- | --- | --- | --- | --- |
+| candidate | 99.80% | 99.95% | 10/10 | 11.0 / 8.0 / 516.2 |
+| pass1 | 32.75% | 50.50% | 0/10 | — / 789.8 / 7020.4 |
+| pass3 | 46.88% | 54.25% | 0/10 | — / 1.4 / 99.4 |
+| recruitment_off | 29.00% | 53.35% | 0/10 | 0.9 / 8.0 / 274.6 |
+| prediction_off | 80.95% | 86.60% | 0/10 | 53.7 / 8.0 / 1497.8 |
+| fixed_final | 28.98% | 52.65% | 0/10 | 11.0 / 8.0 / 516.4 |
+| shuffled | 61.62% | 79.55% | 0/10 | 270.9 / 8.0 / 6485.8 |
+| linear | 41.65% | 48.30% | 0/10 | reference |
+| mlp | 97.58% | 100.00% | 9/10 | reference |
 
-![Stronger fixed-model falsification](experiments/report/pass3_falsification.png)
+Both registered reliability gates pass: 10/10 final windows and
+10/10 frozen probes are at least 95%. All individual seeds:
 
-## Pass 3 B: one configuration across the specialists' interfaces
+| Seed | Final 400 | Frozen probe | Branches | Births | Deaths |
+| --- | --- | --- | --- | --- | --- |
+| 10 | 100.00% | 100.00% | 8 | 7 | 0 |
+| 11 | 99.75% | 100.00% | 13 | 13 | 1 |
+| 12 | 99.75% | 100.00% | 16 | 15 | 0 |
+| 13 | 100.00% | 100.00% | 7 | 6 | 0 |
+| 14 | 100.00% | 100.00% | 6 | 5 | 0 |
+| 15 | 99.75% | 100.00% | 10 | 9 | 0 |
+| 16 | 99.50% | 100.00% | 11 | 11 | 1 |
+| 17 | 100.00% | 100.00% | 9 | 8 | 0 |
+| 18 | 99.75% | 99.50% | 21 | 20 | 0 |
+| 19 | 99.50% | 100.00% | 9 | 9 | 1 |
 
-Only input/output counts and seed change. Every other selected parameter is
-shared. Five independent lifetimes per task, seeds 0–4; this is a compatibility
-measurement, not a second tuned selection.
+Prediction-off and shuffled controls show useful learned features; the
+recruitment-off ablation shows needed nonlinear receptive capacity for this
+configuration. The MLP's frozen probe is 100%, so this is not general
+superiority to backprop. The fixed-size random-wiring comparison is limited
+by vigilance and initialization, and targeted placement's independent value
+is not isolated. Branches are neural compartments, not new neurons: eight
+predictive somas stay fixed while branch and connection counts change.
+Growth/pruning events, protected matching evidence and exact state/RNG resume
+are observable. No hierarchy or compositional algorithm is claimed.
 
-| Task | Shared Soma | Specialist, same five streams |
-|---|---:|---:|
-| First nonlinear composition task | 75.13% | Pass-2 linear control 55.00% |
-| Original linear composition task | 75.00% | 97.00% |
-| Original temporal grammar, gap 8 | 65.80% | 100.00% |
-| Contextual lifetime, initial-A acquisition | **56.00%; 0/5 pass** | **94.30%; 4/5 pass** |
-| Contextual lifetime, new-B final 400 | 59.35% | 100.00% |
-| First50 old-context return, raw | 43.20% | 99.20% |
-| Acquisition-eligible return | **undefined** | **100.00%, four eligible brains** |
+![Acquisition and finite noise regulation](experiments/report/pass4_acquisition.png)
 
-Specialist seed 3 acquires initial A at only 71.5%. Its 96% return is not clean
-retention evidence. Preserve that case alongside the earlier seed 11 diagnosis.
-Every shared candidate fails acquisition, so **none of its returns establishes
-retention or forgetting**. Do not disguise its 43.2% as a retention comparison.
+Independent noise: all five 12000-tick runs have zero births. Random labels
+on 2400 episodes cause exactly the same hidden development as ordinary labels;
+last-third births are zero in each. Pruning can remove an unused initial branch;
+all predictive somas survive. These finite results do not establish asymptotic
+stability or suppression of every temporally structured noise process.
 
-Trace-off gap 8 scores 50.1%, versus 65.8% with traces. Temporal state helps on
-average but is unreliable. Protection-off returns 46.4% and also fails every
-acquisition gate: no retention benefit is established. These are diagnostic
-ablations, not per-task retuning. The new predictive-evidence protection is
-not numerically the old organism's afferent/pruning safeguards.
+## Pass 4 B: losses and their measured causes
 
-The substrate starts unification of principles, but has not inherited the
-specialists' reliability. Observation projections are still fixed; growth
-adds new random observation targets rather than repairing the dendrites of
-the neuron whose predictive function is insufficient.
+| Older task, five seeds | Shared selection | Specialist |
+| --- | --- | --- |
+| linear | 80.00% | 97.00% |
+| grammar8 | 49.05% | 100.00% |
 
-## Pass 3 C: longer time
+Initial-context acquisition: shared mean 51.05%, zero of five pass .90; B mean
+48.8%. Its 50.4% raw first-50 return is NOT retention evidence. Specialists
+acquire 94.3%, four of five pass, eligible return 100%; the ineligible seed 3
+remains explicitly reported. Per-seed eligibility is in PASS4.md.
 
-Only the longer-time direction was chosen after A/B measurements completed.
-The same shared configuration scores **50.3% at fresh gap 16**, trace-off 50.2%,
-five seeds each. All runs complete. Gap 16 remains unsolved; no replay/sleep
-mechanism or benefit is claimed.
+The seed-0 oracle decodes both retained traces at 100%, while actual query
+branches merge opposite answers: one groups both first symbols with second=0,
+the other both first symbols with second=1. Their best winner-only class
+assignment is 56.25%, versus native 53.5%. This is acquisition aliasing before
+B, not erased old weights. One small boundary brain is saved for diagnosis.
 
-## Verification and records
+On the linear task, an external normalized labelled readout over actual
+predictive axons scores 93.63% on average, versus native 80%. Native training
+states and test probabilities remain exact. Some native seeds outperform the
+observer; this is accessible-feature evidence and a conditioning hypothesis,
+not a per-task repaired SOMA or proof that scale is the sole cause.
 
-**46 tests pass**: local hidden/branch learning ignores outcomes and distant
-errors, event eligibility/homeostasis, growth/pruning integrity, exact
-checkpoint continuation, observation replacement controls, covariance pressure,
-future-view isolation, and both task constructions. The stricter task test
-verifies nearest memorization fails and classes retain equal raw means.
+![Shared-task losses and actual branch collisions](experiments/report/pass4_shared_limits.png)
 
-**12 representative pass-3 replays match exactly**: three exploratory
-hypotheses, four selected confirmation variants with living structure,
-three shared tasks, and two stronger-task cases. Comparisons include individual
-probabilities, trajectories, structural schedules and contextual phases.
-The first harness receipt fails because Python tuples were compared to JSON
-lists; its source snapshot and failure remain intact. The corrected verifier
-compares exact JSON representations, with **no numerical tolerance**; a test
-checks that 1e-12 drift still fails.
+## Transfer and longer time
 
-All twelve legacy current-code checks pass again. Pass-2 pinned-source checks
-remain 5/5 exact; current-code 2/5, the same documented early-version limitation
-as before. Scientific runtime: CPython 3.12.14. Source hashes captured at import,
-core source frozen throughout every batch. One 96 KB seed 13 pre-test state is
-saved for later dendritic diagnosis. The two old kernels, selections, vision
-and pre-pass3 raw files match base bytes.
+After the acquisition gate passes, the same frozen selection fails the old
+conventionally calibrated task's unseen combinations:
 
-- [PASS3.md](experiments/report/PASS3.md): every seed range, gate, acquisition guard, replay receipt and raw-file hash.
-- [PROTOCOL.md](experiments/PROTOCOL.md): preregistration and falsification scope.
-- [NOTEBOOK.md](NOTEBOOK.md): every failure, correction and interpretation.
-- [Experiment instructions](experiments/README.md): exact study/replay commands.
+| Original calibrated but leaky task | Held out | Seen | Frozen held out |
+| --- | --- | --- | --- |
+| candidate | 47.69% | 100.00% | 52.50% |
+| prediction_off | 55.44% | 92.25% | 50.19% |
+| nearest | 100.00% | 100.00% | — |
+| mlp | 99.75% | 99.92% | — |
 
-Copies, baselines and replay receipts are not additional independent successful
-studies. Generated JSON summaries/SVGs and delivery notes are excluded.
+Its future view still carries product structure after query, so both adaptive
+and fully frozen results are essential. Seen 100% is insufficient: nearest
+memory 100% and candidate held 47.69% rule out a composition claim here.
+The stronger uncalibrated held task remains a later target, not a moved gate.
 
-## Next research
+C chooses longer time only, after all A/B controls finish:
 
-1. Recruit generic branches/connections at the receiving neuron whose
-   predictive function is inadequate, instead of only creating a new random
-   observation target. Require a benefit over fixed-final-size capacity and
-   matched updates, plus noise suppression and genuine pruning.
-2. Use the stronger benchmark to test factor-level nonlinear representations
-   and their interactions. Grow complexity where local residual evidence
-   demands it. Keep frozen/random/episode-shuffled controls and strong
-   nearest-template baselines; do not infer hierarchy from a high easy-task score.
-3. Diagnose and fix seen-task acquisition before claiming generalization or
-   retention. Retain the same shared configuration across interfaces and
-   measure its losses to specialists. Preserve rare useful temporal pathways
-   with genuinely local evidence, rather than assuming prediction usefulness
-   is the same as outcome usefulness.
+| Gap 16, five seeds | Final 400 |
+| --- | --- |
+| candidate | 53.15% |
+| trace_off | 49.65% |
 
-Real text, learned self-knowledge and endogenous sleep remain later research.
-The synthetic-brain vision is unchanged; the new measurements identify what
-the current local rules are still missing.
+Only seed 2 reaches 73%; the other four remain 46.75–48.75%.
+The small mean gap does not earn reliable temporal acquisition. No endogenous
+replay or sleep benefit was tested.
 
-## Earlier results (pass 2, still valid)
+## Verification and next research
 
-`brain/predictive.py`: predictor neurons learn from their own next-input
-prediction error, without labels. Details: `experiments/report/PASS2.md` and
-the pass-2 entries in `NOTEBOOK.md`.
+All 60 final behavioral tests pass; exact replay covers nine representative new
+runs, twelve current-code pass-3 cases, strict complete-state/probability checks,
+source snapshots, unchanged historical files and frozen configurations. Two
+early shared schema snapshots replay at their recorded source revisions. The
+calibration adapter failure and one failed test/commit guard are preserved and
+corrected explicitly in NOTEBOOK. No raw results, VISION or old kernels were
+edited. CPython 3.12.14; brain uses only the standard library. Details and all
+raw hashes: [PASS4.md](experiments/report/PASS4.md).
 
-| Experiment | Result |
-|---|---|
-| Linear factor task, unseen combinations, ten confirmation seeds | 95.5% local prediction; 66.8% frozen; 67.9% shuffled; 50.1% Oja; 91.3% supervised linear baseline |
-| Seed-11 diagnosis (pass-1 lifetime) | acquisition failure by representation aliasing, not forgetting |
-| Unlabelled uncertainty probes | output entropy ranks errors (AUC about .95 familiar), hidden prediction error does not (about .5); overconfident under shift |
+Next: preserve weak early traces in local branch matching without sacrificing
+nuisance tolerance; condition each receiving outcome synapse's learning on its
+source scale. Test both mechanisms in one configuration across all four tasks,
+with acquisition gates first. Then pursue factor-level abstraction beyond
+prototype memorization on a conventionally calibrated anti-template benchmark.
+Do not scale to real text or replace these missing mechanisms with an LLM.
 
-The task is linear, so this shows self-supervised denoising, not nonlinear
-composition.
+## Earlier results, condensed and still valid
 
-## Earlier results (pass 1, still valid)
+| Pass | Earned result | Limit retained |
+|---|---|---|
+| 1: delayed cue | 100% through 64 blank steps | elementary associations, not hierarchy |
+| 1: gap-8 grammar | 100% with local variance normalization/recruitment; about 50% without | fresh gap 16 remains near chance |
+| 1: context lifetime gap 2 | 100% new/old; 82.4% return without pruning protection | finite labelled lifetime; sleep replay has no advantage over matched wake replay |
+| 1: lifetime gap 8 | 98% return vs 78.2% unprotected | seed 11 failed initial acquisition; return is not clean retention for it |
+| 2: linear withheld combinations | 95.5% prediction; frozen 66.8%, shuffled 67.9%, Oja 50.1%, linear memory 91.3% | denoising, not nonlinear composition; early sources need pinned replay |
+| 2: uncertainty | output entropy error AUC about .95 familiar; sensory surprise about .5 | overconfident under shift; no learned ignorance detector |
+| 3: original nonlinear task | 77.6% held, 76.1% frozen; fixed-final 80.6% | nearest raw memory 100%; required gates fail |
+| 3: stronger nonlinear task | 26.9% held vs frozen 45.3%; seen 60.8% | failed acquisition/transfer; answer-bearing future view and no conventional calibration then |
+| 3: structural hypotheses | noise births 33 → .4 per 4000 ticks | signed rule extinguishes brains; only 5/10 selected lifetimes have both births/deaths |
+| 3: shared tasks | linear 75%, grammar 65.8%, initial A 56%; 0/5 acquired | specialists 97%/100%/94.3%; retention undefined for candidate |
+| 3: longer time | 50.3% gap 16, trace-off 50.2% | unsolved; no sleep mechanism |
 
-The pass-1 substrate `brain/organism.py` and its records are unchanged. Its
-confirmed results, all on small finite tasks with controls (details in
-`NOTEBOOK.md` and `experiments/report/SUMMARY.md`):
-
-| Experiment | Result |
-|---|---|
-| Single-cue delayed recall | 100% through 64 blank steps |
-| Two-symbol temporal grammar, gap 8 | 100% with local afferent variance normalization; about 50% without it |
-| Lifetime A → reversed B → A, gap 2 | 100% new, 100% old return; 82.4% without pruning protection |
-| Same lifetime, gap 8 | 98.0% old return vs 78.2% without protection; seed 11 is an acquisition failure (see pass 2) |
-| Fresh grammar, gap 16 | about 50%: unsolved |
-| Sleep-labelled replay | no benefit over equal wake replay |
-
-There are now three substrates: `organism.py` (pass 1), `predictive.py`
-(pass 2), and `soma.py` (pass 3, the first attempt at one brain).
+Earlier detail remains in [SUMMARY.md](experiments/report/SUMMARY.md),
+[PASS2.md](experiments/report/PASS2.md), [PASS3.md](experiments/report/PASS3.md)
+and the unchanged historical raw records. VISION remains the north star.

@@ -5,6 +5,75 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: longer-time probe and final reproducibility checks
+
+**Question.** Once all A/B controls finish, does the unchanged shared brain
+acquire fresh gap-16 grammar? Are the measured results independently replayable?
+
+**Setup.** Longer time is the sole phase-C choice, started only after all
+fifteen raw-organism references and every A/B control completed. Five seeds,
+1200 episodes, final 400; paired candidate/trace-off streams. No sleep, replay
+buffer or new neural parameters. Verification includes eight shared scientific
+replays (two pinned exploratory sources), one complete raw-organism replay,
+twelve historical pass-3 cases with current legacy code, four unchanged
+calibration restart cases and a source/immutability audit.
+
+**Result.** All ten C rows complete. Candidate mean 53.15%, individual seeds
+48.5%, 46.75%, 73%, 48.75%, 48.75%. Trace-off mean 49.65%, individual seeds
+51.25%, 48.25%, 51.25%, 48.75%, 48.75%. All twenty-one scientific replays
+match full scientific records exactly; all four calibration restart checks
+match. Historical kernels, VISION and raw files remain byte-identical; the
+legacy Soma source prefix is untouched. Final report regeneration validates
+all executed-source snapshots, paired raw-control streams, frozen parameters
+across task interfaces and exact fixed-final initial capacity. Sixty behavioral
+tests pass. A misleading branch outcome-index comment was clarified AFTER
+all trials; the full parsed numerical brain AST is unchanged from selection.
+Two linked PNGs and tables are recomputed from complete immutable raw records.
+
+**Meaning.** Four seeds remain at chance; one partially learns. The average
+gap does not earn reliable long-time grammar. Reliable finite acquisition,
+finite noise rejection and preserved historical behavior are the successes;
+composition, shared temporal acquisition and retention remain unsolved. Next
+address weak early-trace matching and receiving readout conditioning in one
+configuration before pursuing deeper abstractions or real text. Scalar
+competition coordinates structural placement, so do not claim that placement
+is independent of other neurons' residual magnitudes; signed synaptic updates
+and hidden development remain local and label-free as documented/tested.
+
+---
+
+## 2026-10-11: all uncapped raw-organism controls finish
+
+**Question.** Does the selected pass-1 recruitment brain acquire the same
+leak-free nonlinear sensory mapping without predictive feature learning?
+
+**Setup.** Actual immutable organism.py with SELECTED_COMBINED recruitment
+settings, raw 13-coordinate interface, all 1200 training episodes and 200
+frozen probe episodes. Five exploratory streams and ten confirmation streams;
+no imposed population cap, skipped exposure or accelerated replacement kernel.
+Raw execution continued while faster shared-kernel studies completed.
+
+**Result.** All fifteen runs finish. Exploratory final-window mean 33.1%,
+frozen mean 53%. Confirmation final-window mean 32.75%, frozen mean 50.5%.
+Confirmation hidden count mean 789.8, weighted edges 7020.4, births 8878.9,
+deaths 8090.1. Those counters count neurons, unlike SharedSoma branch counters.
+A complete seed-10 replay matches all probabilities, trajectories and state
+exactly. All raw streams pair exactly with the corresponding shared controls.
+The candidate retains 11 branches on average (eight fixed predictive somas),
+versus 53.7 branches with prediction learning off and 270.9 with shuffled
+teachers. Every fixed-final control's initial edge/branch capacity matches
+its paired candidate's final capacity exactly.
+
+**Meaning.** Raw recruitment alone does not solve this nuisance-rich mapping
+with the unchanged selected settings. Useful predictive learning supports
+higher acquisition and fewer recruited fields in this comparison; this is not
+an isolated proof of targeted placement, an optimal hyperparameter comparison
+against all older brains, or a composition result. Block-balanced ordering
+can drive adaptive weak models below chance; frozen raw probes are at chance.
+All A/B cohorts are now complete, so the preregistered gap-16 phase C can run.
+
+---
+
 ## 2026-10-11: calibrated transfer fails after acquisition passes
 
 **Question.** Does reliable nonlinear acquisition yield transfer beyond nearest

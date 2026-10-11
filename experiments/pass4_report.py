@@ -119,7 +119,7 @@ def figures(confirmation, noise_old, noise_new, unified):
             scores = [r['phases'][0]['last_400']['accuracy'] if task == 'context' else r['metrics']['accuracy'] for r in rows]
             values.append(statistics.mean(scores))
         axes[0].bar([i + shift for i in range(3)], values, width=.34, color=color, label=label)
-    axes[0].set(xticks=range(3), xticklabels=labels, ylim=(0, 1.08), ylabel='Accuracy', title='One rule set still loses the older tasks')
+    axes[0].set(xticks=range(3), xticklabels=labels, ylim=(0, 1.22), ylabel='Accuracy', title='One rule set still loses the older tasks')
     axes[0].tick_params(axis='x', labelsize=8)
     axes[0].legend(fontsize=8)
     # Actual seed-0 branch collision, not a diagram invented from the score.
@@ -130,6 +130,7 @@ def figures(confirmation, noise_old, noise_new, unified):
         bottoms = [diagnosis['winner_class_counts'][k].get('0', 0) for k in keys] if target else None
         axes[1].bar(range(len(keys)), heights, bottom=bottoms, color=color, label=f'Outcome {target}')
     axes[1].set(xticks=range(len(keys)), xticklabels=['Branch ' + k for k in keys], ylabel='Last-400 query wins', title='Opposite answers share each query branch')
+    axes[1].set_ylim(0, 245)
     axes[1].text(.02, .98, 'Trace oracle: 100%\nBest winner-only assignment: 56.25%', transform=axes[1].transAxes, va='top', fontsize=9)
     axes[1].legend(fontsize=9, loc='upper right')
     fig.savefig(REPORT / 'pass4_shared_limits.png', dpi=170)
@@ -193,6 +194,10 @@ def main():
          pct(mean([r for r in generalization if r['variant'] == v], 'frozen_probe')) if v in ('candidate', 'prediction_off') else '—']
         for v in ('candidate', 'prediction_off', 'nearest', 'mlp')])
     c_table = table(['Gap 16, five seeds', 'Final 400'], [[v, pct(mean([r for r in longer if r['variant'] == v], 'metrics'))] for v in ('candidate', 'trace_off')])
+    c_seeds = table(['Seed', 'Gap 16 candidate', 'Trace off'], [
+        [seed, pct(next(r['metrics']['accuracy'] for r in longer if r['seed'] == seed and r['variant'] == 'candidate')),
+         pct(next(r['metrics']['accuracy'] for r in longer if r['seed'] == seed and r['variant'] == 'trace_off'))]
+        for seed in range(5)])
     noise_table = table(['Seed', 'Ungated noise births', 'Selected noise births', 'Selected noise deaths', 'Random-label births', 'Last-third random-label births', 'Random/ordinary hidden exact'], [
         [seed, next(r['brain']['births'] for r in noise_old if r['seed'] == seed and r['condition'] == 'independent'),
          next(r['brain']['births'] for r in noise_new if r['seed'] == seed and r['condition'] == 'independent'),
@@ -305,6 +310,11 @@ were used earlier, so they are not a new blinded selection experiment.
 
 {c_table}
 
+{c_seeds}
+
+Only seed 2 reaches 73%; the other four score 46.75–48.75%.
+The shared scores remain far below reliable acquisition; this small mean
+difference does not establish a useful longer-time mechanism.
 No sleep/replay mechanism or benefit is claimed.
 
 ## Exact replay and historical integrity
@@ -456,7 +466,9 @@ C chooses longer time only, after all A/B controls finish:
 
 {c_table}
 
-No endogenous replay or sleep benefit was tested.
+Only seed 2 reaches 73%; the other four remain 46.75–48.75%.
+The small mean gap does not earn reliable temporal acquisition. No endogenous
+replay or sleep benefit was tested.
 
 ## Verification and next research
 
