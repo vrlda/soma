@@ -5,6 +5,33 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: covariance regulates noise; freeze a blocked nonlinear hypothesis
+
+**Question.** Can observation/branch covariance expose structure without
+counting the predictor's own noise variance as surprise?
+
+**Setup.** Third and final hypothesis, source d3e0151, all eight controls,
+seeds0–4. Original growth threshold/cost; evidence and pruning threshold
+scaled together. Independent/repeated4000-tick probe.
+
+**Result.** All40 task runs complete. Candidate held75.125%,
+seen82.333%, frozen transfer79.500%.
+The unchanged task gates fail. Independent noise births0–1 (mean .4),
+repeated0–15 (mean5.8); neither condition has deaths. This is substantially
+better noise regulation than hypothesis1's33 births in both conditions.
+All per-seed task counters/controls retained. Freeze `SELECTED_SOMA.json`
+for diagnostic confirmation10–19 and ONE fixed cross-task configuration.
+No claim of learned nonlinear composition; do not tune after confirmation.
+
+**Meaning.** The original high score required broad recruitment that also
+expanded on noise. Suppressing that expansion exposes limited nonlinear
+predictive capacity. More random observation units do not directly repair
+an existing neuron's deficient dendrites; capacity allocation is still open.
+This pass will establish where one shared substrate loses to specialists,
+not hide a failed mechanism behind the earlier99% score.
+
+---
+
 ## 2026-10-11: signed underfit stops noise growth but can extinguish the brain
 
 **Question.** Does signed error/forecast covariance regulate recruitment

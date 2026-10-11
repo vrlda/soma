@@ -1,0 +1,67 @@
+{
+  "question": "Diagnostic nonlinear hypothesis; exploratory success gates FAILED",
+  "source_revision": "d3e0151",
+  "rationale": "Teacher/forecast covariance regulates noise better; confirm limits without tuning.",
+  "task": {
+    "episodes": 1200,
+    "noise": 0.3,
+    "condition": "interaction",
+    "brain": {
+      "initial_hidden": 4,
+      "branches": 4,
+      "hidden_rate": 0.05,
+      "outcome_rate": 0.3,
+      "trace_decay": 0.8,
+      "statistics_rate": 0.01,
+      "variance_floor": 0.01,
+      "hidden_learning": true,
+      "hidden_rule": "prediction",
+      "shuffled": false,
+      "plasticity": true,
+      "growth": true,
+      "growth_interval": 120,
+      "growth_threshold": 0.02,
+      "growth_cost": 0.01,
+      "pruning": true,
+      "prune_interval": 240,
+      "prune_age": 1200,
+      "prune_threshold": 0.0015,
+      "evidence_decay": 0.999,
+      "evidence_rate": 0.001,
+      "pressure_rule": "covariance",
+      "protection": true
+    }
+  },
+  "seeds": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "required_controls": [
+    "frozen",
+    "shuffled",
+    "temporal_shuffled",
+    "matched_capacity",
+    "fixed_final",
+    "pass2_linear",
+    "linear_memory"
+  ],
+  "gates": {
+    "held_mean": 0.9,
+    "seen_mean": 0.9,
+    "control_advantage": 0.1,
+    "individual_min": 0.85,
+    "individual_passing_count": 9,
+    "frozen_transfer": 0.85,
+    "frozen_advantage": 0.1,
+    "living_structure_passing_count": 9,
+    "linear_max_mean": 0.6
+  }
+}
