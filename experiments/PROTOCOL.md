@@ -732,3 +732,33 @@ over memorization with similarity, even if nonlinear hidden learning improves.
 Report that limitation prominently; do not relabel the experiment as proof
 of a compositional algorithm. Future task design must empirically defeat
 nearest-template baselines before studying stronger composition claims.
+
+
+### Additional frozen-config falsification: defeat nearest exemplars
+
+Registered after completing A/B/C, before executing this new benchmark.
+The first task's nearest-exemplar100% makes its exact-template exclusion too
+weak. Preserve all original task results/gates. Add a stronger environment
+condition WITHOUT changing the selected brain, its configuration or any gate.
+Each raw factor value v now has the nonlinear continuous property
+q(v)=v*(v*v-5)/6, whose signs alternate across (-3,-1,1,3). The future view
+is q(x)*q(y), after the query; the outcome is its sign. Thus each factor
+property occurs in other combinations, but nearest seen neighbors differ by
+one adjacent factor level and have the OPPOSITE answer. The original four
+held combinations, sensory axes, nuisance, counts and stream seeds are retained.
+Classes remain balanced with zero raw class means, so the population affine
+logistic optimum remains chance. Both properties and their interaction are
+environment-only; no rule enters `brain/`.
+
+Use SELECTED_SOMA unchanged, all original eight neural variants plus the
+explicit nearest-exemplar memory baseline. Explore0–4 only as measurement,
+then10–19 as a fixed-config falsification; no selection or tuning between
+these batches. These are not fresh brain/direction seeds relative to the first
+benchmark: label/teacher structure changes, and the selection is already
+frozen. Report this dependence; do not count them as independent new evidence
+for a newly tuned hypothesis. Same1200/160/120 counts and300-second budgets;
+all original success criteria unchanged, additionally require the nearest
+exemplar's mean <=.60 to validate the claimed anti-template construction.
+No rescue or relabelling of the original77.56% failed gate. This tests whether
+the fixed candidate transfers to a task with an actually adverse nearest
+memorization shortcut and supplies a stronger benchmark for later research.
