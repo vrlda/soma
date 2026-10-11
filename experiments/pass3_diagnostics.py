@@ -15,6 +15,11 @@ SOURCE_HASHES = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() fo
                  ('brain/soma.py', 'experiments/pass3_diagnostics.py', 'experiments/nonlinear.py', 'experiments/unified.py')}
 
 
+def matches_recorded(value, recorded):
+    """Compare exact serialized values, including tuples encoded as JSON lists."""
+    return json.loads(json.dumps(value, allow_nan=False)) == recorded
+
+
 def noise_probe(seed, config, condition):
     brain = Soma(SomaConfig(**dict(config, inputs=13, outputs=2, seed=seed)))
     rng = random.Random(seed + 440001)
@@ -58,7 +63,7 @@ def main():
                 row = next(json.loads(line) for line in (ROOT / 'experiments/results' / name).read_text().splitlines()
                            if json.loads(line)['seed'] == 0 and json.loads(line)['variant'] == 'candidate')
                 replay, _, _ = experiment(0, 'candidate', row['task'])
-                checks = {key: replay[key] == row[key] for key in
+                checks = {key: matches_recorded(replay[key], row[key]) for key in
                           ('metrics', 'seen_probe', 'frozen_probe', 'brain', 'trajectory', 'probes', 'schedule_hash')}
                 emit(dict(suite='pass3_reproducibility', source=name, variant='candidate', seed=0,
                           checks=checks, exact_match=all(checks.values()), source_hashes=SOURCE_HASHES))
@@ -69,7 +74,7 @@ def main():
             for variant in ('candidate', 'frozen', 'shuffled', 'temporal_shuffled'):
                 row = next(r for r in records if r['seed'] == 13 and r['variant'] == variant)
                 replay = candidate if variant == 'candidate' else experiment(13, variant, selection['task'], schedule)[0]
-                checks = {key: replay[key] == row[key] for key in
+                checks = {key: matches_recorded(replay[key], row[key]) for key in
                           ('metrics', 'seen_probe', 'frozen_probe', 'brain', 'trajectory', 'probes', 'schedule_hash')}
                 emit(dict(suite='pass3_reproducibility', source='pass3_nonlinear_confirmation.jsonl',
                           variant=variant, seed=13, checks=checks, exact_match=all(checks.values()),
@@ -88,9 +93,9 @@ def main():
             for condition in ('linear_composition', 'grammar8', 'context_lifetime'):
                 row = next(r for r in records if r['seed'] == 0 and r['variant'] == 'unified' and r['condition'] == condition)
                 replay = work((0, selection['task']['brain'], condition, 'unified'))
-                checks = {key: replay[key] == row[key] for key in ('metrics', 'brain', 'config', 'complete')}
+                checks = {key: matches_recorded(replay[key], row[key]) for key in ('metrics', 'brain', 'config', 'complete')}
                 if 'phases' in row:
-                    checks['phases'] = replay['phases'] == row['phases']
+                    checks['phases'] = matches_recorded(replay['phases'], row['phases'])
                 emit(dict(suite='pass3_reproducibility', source='pass3_unified_comparison.jsonl',
                           variant='unified', condition=condition, seed=0, checks=checks, exact_match=all(checks.values())))
                 if not all(checks.values()):

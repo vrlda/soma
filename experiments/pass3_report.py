@@ -121,7 +121,7 @@ def main():
         checks = gates(read('pass3_nonlinear_confirmation.jsonl'), json.loads(selection_path.read_text()))
         lines.extend(['## Registered confirmation checks', ''] + [f'- {key}: {value}' for key, value in checks.items()] + [''])
     lines.extend(['## Exact replay receipts', ''])
-    for name in ('pass3_legacy_reproducibility.jsonl', 'pass3_pass2_reproducibility.jsonl', 'pass3_reproducibility.jsonl'):
+    for name in ('pass3_legacy_reproducibility.jsonl', 'pass3_pass2_reproducibility.jsonl', 'pass3_reproducibility.jsonl', 'pass3_reproducibility_verified.jsonl'):
         rows = read(name)
         if rows:
             if name == 'pass3_pass2_reproducibility.jsonl':

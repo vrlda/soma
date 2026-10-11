@@ -515,5 +515,15 @@ class SomaTests(unittest.TestCase):
         self.assertAlmostEqual(a.pressure, .1)
 
 
+
+    def test_replay_compares_json_pairs_without_tolerating_numeric_drift(self):
+        from experiments.pass3_diagnostics import matches_recorded
+        emitted = {'pair': (0, 1), 'probabilities': [.2, .8]}
+        recorded = json.loads(json.dumps(emitted))
+        self.assertTrue(matches_recorded(emitted, recorded))
+        emitted['probabilities'][0] += 1e-12
+        self.assertFalse(matches_recorded(emitted, recorded))
+
+
 if __name__ == "__main__":
     unittest.main()
