@@ -529,3 +529,113 @@ Adding Oja also regrouped floating arithmetic in the new kernel; exact early
 replay requires its recorded source version. Five pinned-source case checks
 pass, including the source-frozen confirmation. The twelve legacy current-code
 replays remain exact. No model selection or gate was changed during confirmation.
+
+
+## Pass 3: nonlinear prediction and the start of unification (2026-10-11)
+
+Registered before implementation and execution. Start from reviewed 6f92673.
+The new substrate is `brain/soma.py`; both specialists remain unchanged.
+
+### A: environment and information boundaries
+
+Two independently chosen factors have values (-3,-1,1,3), emitted along two
+seeded orthogonal directions in twelve raw coordinates with orthogonal fresh
+nuisance (uniform amplitude .3). The query outcome is sign(x*y): a nonlinear
+interaction, exclusively computed by the evaluator. Hold out (0,1), (0,2),
+(3,1), (3,2), all unseen even without outcomes in training. Their factor values
+and both signs of the interaction occur in other training combinations.
+Every pair has its central inversion with the same label; both classes have
+zero mean and equal mass. Consequently the population logistic optimum for
+any affine raw-factor classifier is constant/chance. An affine threshold can
+fit at most three of the four noiseless withheld centers, not all four.
+Report an experiment-only deterministic affine-logistic symmetry check and
+actual supervised linear and pass-2 predictive controls; do not assume their
+finite online accuracy is exactly chance. An exact seen-template lookup has
+no entry for any withheld pair (chance); no lookup is installed in the brain.
+
+Each episode: eight blank steps, two factor views, a third factor view carrying
+a query marker (thirteenth coordinate), then a future sensory view along a
+third independent random direction with amplitude x*y/3. The future view is
+AFTER the query and its prediction; it is never available to a query's linear
+baseline or outcome neuron. Its magnitude varies continuously with the factor
+product; it is sensory predictive structure, not an outcome label channel.
+No future-view outcome labels are supplied. Prediction synapses learn from
+this future observation on the next tick, from their own stored eligibility.
+A paired predictable-nuisance condition replaces the future view with
+(x*x+y*y)/6: predictable nonlinear magnitude unrelated to the sign outcome.
+Query input and label distributions are identical between conditions.
+
+Train 1200 episodes on the other twelve pairs; test 160 episodes (40 each
+withheld pair), no outcome feedback. Seen probe: 120 from checkpoint clone.
+Also probe every withheld episode from a single checkpoint with all plasticity
+and structure frozen, sequentially with the usual blank steps. Intrinsic
+learning continues in the primary test. Test and training streams hashed.
+Seeds 0–4 exploration; only after a selected hypothesis is written, 10–19
+confirmation. Per-run 300 second budget; partial runs never pass. At most
+three preregistered exploratory hypotheses before freezing the best understood
+hypothesis, even if blocked, for a diagnostic confirmation without tuning.
+
+### A: candidate and controls
+
+Initially four neurons, each four generic saturating dendritic branches. A
+branch combines normalized local sensory event traces and a bias, tanh
+nonlinearity, and a fixed excitatory/inhibitory polarity at its own soma.
+The soma predicts its observation projection one step ahead. Each branch
+synapse updates from its own previous presynaptic trace, its receiving soma's
+own error, its fixed local polarity, and its own unsaturated activity gate
+(1-abs(branch activity)). No derivatives of another cell, trainable weight
+transport, outcome errors in hidden synapses, or gradient through populations.
+Hidden step .05; outcome step .3. Axon/source normalization .01, event peak
+decay .8, variance floor .01. Local prediction-error/branch-activity covariance
+(EMA .01) gives structured-surprise pressure, unlike raw squared error.
+Recruitment interval 120, pressure threshold .02 + .01 log(1+population).
+Pruning interval 240, age 1200, prediction usefulness below .015, and local
+evidence protection; evidence decays .999. All are rates/costs, no size cap.
+These initial settings are hypotheses, not earned claims.
+
+Required paired controls: pass-2 linear predictor selected settings (only
+interface dimensions changed); supervised linear memory readout; frozen
+nonlinear hidden weights with active homeostasis; shuffled hidden observations
+using separate RNG; matched-capacity Oja branch adaptation without prediction
+error; growth off with initial population equal to candidate final population
+and pruning off; chance. Frozen/shuffled/Oja use identical wiring and exact
+candidate birth/death schedules throughout train and primary test. No neuron
+counters are equated with specialist counters without explaining them.
+
+Unchanged gates: mean held-out >=.90, seen >=.90, >=.10 advantage over EACH
+required neural control including fixed-final-size, >=9/10 candidate seeds
+held-out >=.85. Frozen-hidden held-out >=.85 and >=.10 over frozen features.
+At least one birth AND one death in >=9/10 candidate confirmation lifetimes
+for the living-structure claim; report every lifetime. Mean linear-control
+accuracy must be <=.60; otherwise diagnose the task leak/imbalance before any
+nonlinear claim. A failed gate stays failed. Nonlinear learned-composition
+claim specifically requires beating random nonlinear and linear controls.
+Predictable-nuisance result is a specificity diagnostic, not a gate rescue.
+
+### B: one substrate, one configuration
+
+Use exactly the selected phase-A `SomaConfig` in independent lifetimes, changing
+only input/output counts and seed for each interface. No specialist delegation
+inside the unified brain. This substrate contains peak traces, source variance,
+nonlinear local prediction, recruitment, and evidence-protected pruning.
+Compare to specialists on phase-A task, original pass-2 task (600 episodes),
+original grammar gap8 (1200 episodes, final400), original contextual gap8
+lifetime (1200 A,1200 B,400 A return). Report every specialist/unified score,
+including initial-A final400 acquisition. Acquisition >=.90 is required before
+a retention conclusion; failures are reported with return scores but are not
+counted as forgetting/retention successes. Seeds 0–4 for the cross-task
+comparison, no task-specific retuning. Structural and temporal ablations on
+this same configuration are diagnostic, not new selections.
+
+### C: only after A and B complete
+
+Choose the longer-time direction, NOT sleep. Same unified configuration,
+fresh gap16 grammar, seeds0–4, 1200 episodes and final400. Compare gap8 and
+trace-off, report failure without retuning. No endogenous replay claim.
+
+### Provenance
+
+Source hashes captured at import and source frozen during each dispatched
+experiment batch. Freeze/commit each hypothesis before launching its runs.
+Keep every result and source-specific replay receipts. No historical raw files,
+original kernel behavior, selections, or vision edits. Readable stdlib brain.
