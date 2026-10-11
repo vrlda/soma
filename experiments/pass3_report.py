@@ -29,13 +29,13 @@ def aggregate(rows):
             for key, values in groups.items()}
 
 
-def gates(rows, selection):
+def gates(rows, selection, condition="interaction"):
     groups = aggregate(rows)
-    candidate = groups.get(('interaction', 'candidate'))
+    candidate = groups.get((condition, 'candidate'))
     variants = selection['required_controls']
     seeds = selection['seeds']
-    checks = dict(all_runs_complete=all((('interaction', variant) in groups
-                  and groups[('interaction', variant)]['complete'] == len(seeds))
+    checks = dict(all_runs_complete=all(((condition, variant) in groups
+                  and groups[(condition, variant)]['complete'] == len(seeds))
                  for variant in ['candidate'] + variants))
     if not checks['all_runs_complete']:
         return checks
@@ -45,10 +45,10 @@ def gates(rows, selection):
     checks['individual_seeds'] = sum(row['metrics']['accuracy'] >= limits['individual_min'] for row in rows if row['variant'] == 'candidate') >= limits['individual_passing_count']
     checks['frozen_transfer'] = candidate['frozen'] >= limits['frozen_transfer']
     for variant in variants:
-        checks['advantage_' + variant] = candidate['accuracy'] - groups[('interaction', variant)]['accuracy'] >= limits['control_advantage'] - 1e-12
-    checks['frozen_advantage'] = candidate['frozen'] - groups[('interaction', 'frozen')]['frozen'] >= limits['frozen_advantage'] - 1e-12
+        checks['advantage_' + variant] = candidate['accuracy'] - groups[(condition, variant)]['accuracy'] >= limits['control_advantage'] - 1e-12
+    checks['frozen_advantage'] = candidate['frozen'] - groups[(condition, 'frozen')]['frozen'] >= limits['frozen_advantage'] - 1e-12
     checks['living_structure'] = sum(row['brain']['births'] > 0 and row['brain']['deaths'] > 0 for row in rows if row['variant'] == 'candidate') >= limits['living_structure_passing_count']
-    checks['linear_controls_fail'] = all(groups[('interaction', variant)]['accuracy'] <= limits['linear_max_mean'] for variant in ('pass2_linear', 'linear_memory'))
+    checks['linear_controls_fail'] = all(groups[(condition, variant)]['accuracy'] <= limits['linear_max_mean'] for variant in ('pass2_linear', 'linear_memory'))
     checks['unique_seed_variants'] = len({(row['seed'], row['variant']) for row in rows}) == len(rows)
     checks['paired_streams'] = all(len({row['stream_hash'] for row in rows if row['seed'] == seed}) == 1 for seed in seeds)
     checks['paired_structure'] = all(len({row['schedule_hash'] for row in rows if row['seed'] == seed
@@ -100,12 +100,47 @@ def figure(records):
         hi = [max(values) - value for value, values in zip(mean, samples)]
         axes[1].bar([index + shift for index in range(3)], mean, width=.36, color=color, yerr=[lo, hi], capsize=3, label=condition)
     axes[1].set_xticks(range(3), ['Absolute\nbranch covariance', 'Signed\nunderfit', 'Teacher minus\nforecast covariance'], fontsize=9)
-    axes[1].set(ylabel='Births in 4000 unlabelled ticks', title='Noise regulation: 5 exploratory seeds')
+    axes[1].set(ylabel='Births in 4000 unlabelled ticks', title='Noise regulation: 5 seeds; means and ranges')
     axes[1].legend(fontsize=9)
+    axes[1].annotate('All four neurons died', xy=(.82, 0.), xytext=(.48, 2.7), fontsize=8,
+                     arrowprops=dict(arrowstyle='->', color='#555555'))
     for axis in axes:
         axis.spines[['top', 'right']].set_visible(False)
     fig.suptitle('SOMA pass 3: nonlinear task gates failed; noise recruitment improved')
     fig.savefig(ROOT / 'experiments/report/pass3_tradeoffs.png', dpi=150)
+    plt.close(fig)
+
+
+def hard_figure(records):
+    condition = 'alternating_factor_property'
+    groups = aggregate(records)
+    variants = ['candidate', 'frozen', 'shuffled', 'temporal_shuffled', 'matched_capacity',
+                'fixed_final', 'pass2_linear', 'linear_memory', 'nearest_exemplar']
+    if not all((condition, variant) in groups and groups[(condition, variant)]['complete'] == 10 for variant in variants):
+        return
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import PercentFormatter
+    means = [groups[(condition, variant)]['accuracy'] for variant in variants]
+    lower = [value - groups[(condition, variant)]['minimum'] for value, variant in zip(means, variants)]
+    upper = [groups[(condition, variant)]['maximum'] - value for value, variant in zip(means, variants)]
+    fig, axis = plt.subplots(figsize=(13, 5), layout='constrained')
+    axis.bar(range(9), means, color=['#187d76'] + ['#b18446'] * 5 + ['#787878'] * 2 + ['#9a3333'],
+             yerr=[lower, upper], capsize=3, label='Primary test; intrinsic learning continues')
+    cold = [(index, groups[(condition, variant)]['frozen']) for index, variant in enumerate(variants)
+            if groups[(condition, variant)]['frozen'] is not None]
+    axis.scatter([item[0] for item in cold], [item[1] for item in cold], marker='D', color='#1e3553', zorder=4,
+                 label='Weights/statistics/structure frozen')
+    axis.axhline(.5, color='#777777', linestyle=':', label='Chance')
+    axis.axhline(.9, color='#9a3333', linestyle='--', label='Unchanged 90% gate')
+    axis.set_xticks(range(9), ['Candidate', 'Frozen', 'Population\nshuffle', 'Episode\nshuffle', 'Oja',
+                             'Fixed\nfinal size', 'Pass2\nlinear', 'Supervised\nlinear', 'Nearest\nexemplar'], fontsize=9)
+    axis.set(ylabel='Held-out accuracy', ylim=(0, 1.08), title='Stronger nonlinear task: frozen configuration, 10 seeds; means and ranges')
+    axis.yaxis.set_major_formatter(PercentFormatter(1))
+    axis.legend(fontsize=8, loc='upper right')
+    axis.spines[['top', 'right']].set_visible(False)
+    fig.savefig(ROOT / 'experiments/report/pass3_falsification.png', dpi=150)
     plt.close(fig)
 
 
@@ -120,8 +155,32 @@ def main():
     if selection_path.exists():
         checks = gates(read('pass3_nonlinear_confirmation.jsonl'), json.loads(selection_path.read_text()))
         lines.extend(['## Registered confirmation checks', ''] + [f'- {key}: {value}' for key, value in checks.items()] + [''])
+        hard = read('pass3_hard_confirmation.jsonl')
+        if hard:
+            condition = 'alternating_factor_property'
+            hard_checks = gates(hard, json.loads(selection_path.read_text()), condition)
+            nn = aggregate(hard).get((condition, 'nearest_exemplar'))
+            hard_checks['nearest_exemplar_excluded'] = bool(nn and nn['accuracy'] <= .60)
+            lines.extend(['## Stronger-task frozen-config checks', ''] + [f'- {key}: {value}' for key, value in hard_checks.items()] + [''])
+
+    lifetimes = read('pass3_unified_comparison.jsonl') + read('pass3_protection_ablation.jsonl')
+    lifetimes = [row for row in lifetimes if row['condition'] == 'context_lifetime']
+    if lifetimes:
+        lines.extend(['## Acquisition-first contextual lifetimes', '',
+                      'Raw return accuracy above is not retention evidence for an unacquired mapping.', '',
+                      '| Variant | Initial A | Acquired | New B | Raw return | Eligible-only return |',
+                      '|---|---:|---:|---:|---:|---:|'])
+        for variant in sorted({row['variant'] for row in lifetimes}):
+            values = [row for row in lifetimes if row['variant'] == variant]
+            eligible = [row for row in values if row['acquired']]
+            a = statistics.mean(row['phases'][0]['last_400']['accuracy'] for row in values)
+            b = statistics.mean(row['phases'][1]['last_400']['accuracy'] for row in values)
+            raw = statistics.mean(row['metrics']['accuracy'] for row in values)
+            recall = f"{100 * statistics.mean(row['metrics']['accuracy'] for row in eligible):.2f}%" if eligible else 'undefined'
+            lines.append(f'| {variant} | {100*a:.2f}% | {len(eligible)}/{len(values)} | {100*b:.2f}% | {100*raw:.2f}% | {recall} |')
+        lines.append('')
     lines.extend(['## Exact replay receipts', ''])
-    for name in ('pass3_legacy_reproducibility.jsonl', 'pass3_pass2_reproducibility.jsonl', 'pass3_reproducibility.jsonl', 'pass3_reproducibility_verified.jsonl'):
+    for name in ('pass3_legacy_reproducibility.jsonl', 'pass3_pass2_reproducibility.jsonl', 'pass3_reproducibility.jsonl', 'pass3_reproducibility_verified.jsonl', 'pass3_hard_reproducibility.jsonl'):
         rows = read(name)
         if rows:
             if name == 'pass3_pass2_reproducibility.jsonl':
@@ -135,6 +194,7 @@ def main():
         lines.append(f'| {path.name} | {len(path.read_text().splitlines())} | {hashlib.sha256(path.read_bytes()).hexdigest()} |')
     (ROOT / 'experiments/report/PASS3.md').write_text('\n'.join(lines) + '\n')
     figure(read('pass3_nonlinear_confirmation.jsonl'))
+    hard_figure(read('pass3_hard_confirmation.jsonl'))
     print('\n'.join(lines[:20]))
 
 

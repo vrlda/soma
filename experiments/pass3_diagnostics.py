@@ -41,7 +41,7 @@ def main():
     parser.add_argument('--selection', required=True)
     parser.add_argument('--output', required=True)
     parser.add_argument('--checkpoint')
-    parser.add_argument('--mode', choices=('replay', 'noise', 'symmetry'), required=True)
+    parser.add_argument('--mode', choices=('replay', 'hard_replay', 'noise', 'symmetry'), required=True)
     args = parser.parse_args()
     selection = json.loads(Path(args.selection).read_text())
     with Path(args.output).open('x') as output:
@@ -58,6 +58,21 @@ def main():
                     output.write(json.dumps(row) + '\n')
                     output.flush()
                     print(json.dumps({k: row[k] for k in ('seed', 'condition', 'brain')}), flush=True)
+        elif args.mode == 'hard_replay':
+            from experiments import nonlinear_hard
+            records = [json.loads(line) for line in (ROOT / 'experiments/results/pass3_hard_confirmation.jsonl').read_text().splitlines()]
+            row = next(row for row in records if row['seed'] == 13 and row['variant'] == 'candidate')
+            candidate, schedule = nonlinear_hard.experiment(13, 'candidate', row['task'])
+            for variant in ('candidate', 'temporal_shuffled'):
+                row = next(row for row in records if row['seed'] == 13 and row['variant'] == variant)
+                replay = candidate if variant == 'candidate' else nonlinear_hard.experiment(13, variant, row['task'], schedule)[0]
+                checks = {key: matches_recorded(replay[key], row[key]) for key in
+                          ('metrics', 'seen_probe', 'frozen_probe', 'brain', 'trajectory', 'probes', 'schedule_hash')}
+                emit(dict(suite='pass3_reproducibility', source='pass3_hard_confirmation.jsonl', seed=13,
+                          variant=variant, checks=checks, exact_match=all(checks.values()),
+                          source_hashes=dict(SOURCE_HASHES, **nonlinear_hard.SOURCE_HASHES)))
+                if not all(checks.values()):
+                    raise SystemExit('Stronger-task replay changed')
         else:
             for name in ('pass3_nonlinear_initial.jsonl', 'pass3_nonlinear_underfit.jsonl', 'pass3_nonlinear_covariance.jsonl'):
                 row = next(json.loads(line) for line in (ROOT / 'experiments/results' / name).read_text().splitlines()
