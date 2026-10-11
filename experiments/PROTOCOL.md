@@ -885,3 +885,15 @@ prune whole unhelpful branches, not arbitrary coordinates of a matched field.
 Output connections may die and regrow from own receiving outcome error and
 source coactivity. Counters distinguish branch growth from neuron growth.
 All thresholds are hypotheses; noise recurrence and utility must be measured.
+
+### Pass 4 shared hypothesis 2: tolerate fresh nuisance, retain persistence
+
+After the complete 20-row first failure, before execution. Change ONLY
+vigilance .20 to .50 and persistence_matches 3 to 2. All synaptic learning,
+exposure, raw/predictive mixture, pruning, gate and stream remain fixed.
+This allows a recurrent raw-factor state to survive independent nuisance and
+query-marker variation. Matching tolerance for the provisional dendrite is
+still half vigilance. Run all five exploratory streams, candidate and
+recruitment-off/prediction-off/shuffled/fixed-final controls. Do not tune any
+confirmation seed. Run independent-noise and random-label probes before
+selection; wider tolerance may improve acquisition at a noise-growth cost.

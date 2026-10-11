@@ -5,6 +5,29 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: shared hypothesis 1 acquires unreliably
+
+**Question.** Can persistent conjunctive branches plus local forecasts acquire
+nonlinear raw-factor outcomes without a product-bearing sensory teacher?
+
+**Setup.** Preregistered SharedConfig defaults; five seeds, candidate and three
+mechanistic controls, 1200 episodes, 200 frozen probes. Complete 20-row batch
+pass4_shared_hypothesis1.jsonl. No gate changes.
+
+**Result.** Candidate final windows 86.25%, 81%, 98.25%, 91.25%, 51.75%; frozen
+88.5%, 89%, 97%, 91%, 83.5%. Recruitment-off final mean 27.95%, prediction-off
+36.8%, shuffled 28.35%. Only one seed passes the .95 acquisition threshold.
+
+**Meaning.** Useful conjunction acquisition begins, but reliability fails.
+Three consecutive matches at half-vigilance .10 are restrictive when the
+four raw views have fresh nuisance and a changing marker. Provisional
+replacements are frequent, and prefix branches do not guarantee a query
+match. The block-balanced stream can put adaptive weak baselines below chance;
+the independent frozen probes stay near chance. Do not call this generalization.
+Preregister wider matching/two confirmations without changing tasks or gates.
+
+---
+
 ## 2026-10-11: conventional calibration separates acquisition from inductive bias
 
 **Question.** Are the benchmarks learnable by an ordinary online MLP without
