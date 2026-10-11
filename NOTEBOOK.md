@@ -5,6 +5,33 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: calibrated transfer fails after acquisition passes
+
+**Question.** Does reliable nonlinear acquisition yield transfer beyond nearest
+memory and frozen predictors on a conventionally solvable held-out task?
+
+**Setup.** Both acquisition confirmation gates passed before launch. Forty
+fixed-selection runs, seeds 10–19, on the original conventionally calibrated
+pass-3 benchmark: candidate, prediction-off, nearest exemplars and the frozen
+reference-grid winner. Same settings, no subsequent tuning. This old task
+still presents the product-bearing view after query, unlike new acquisition.
+
+**Result.** Candidate held mean 47.6875%, seen 100%, fully frozen held 52.5%.
+Prediction-off held 55.4375%, seen 92.25%, frozen held 50.1875%. Nearest
+exemplars score 100% on held/seen. MLP held 99.75%, seen 99.9167%. All forty
+rows complete. The missing selected exploratory shuffled/pass-3 controls also
+complete (ten rows); conventional exploratory controls reuse the exact paired
+calibration streams rather than counting duplicate execution as new evidence.
+All twelve historical pass-3 replay cases match current Soma exactly.
+
+**Meaning.** Acquisition succeeds while held transfer does not. Learned
+conjunctive branches do not discover factor composition, and the leaky future
+view cannot justify that claim. The stronger uncalibrated held benchmark stays
+a later inductive-bias target. These reused seeds/directions are fixed-model
+measurements, not an independently blinded selection experiment.
+
+---
+
 ## 2026-10-11: acquisition confirmation passes; older-task aliasing remains
 
 **Question.** Does the frozen shared configuration acquire on unused streams,

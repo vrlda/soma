@@ -221,3 +221,19 @@ This tests structured persistence in the actual inputs rather than persistence
 manufactured by traces. Legacy Soma is unchanged. Earlier shared full-state
 replays use their recorded source revisions because this hypothesis adds source
 histories to the new shared checkpoint schema.
+
+
+The targeted-growth parent is chosen by lateral competition between residual-
+energy scalars. Changing a competitor's residual can change placement; this
+is a scheduling dependence, not transport of its signed error into another
+soma's synaptic update. Given a recipient, initialization uses only the
+provisional afferents available there. The broadcast raw-structure gate also
+coordinates birth amounts. These explicit scalar coordination assumptions are
+part of the current model and should not be described as fully independent
+structural decisions at every neuron.
+
+Shared branch outcome connections reuse the `Synapse` record: `source` stores
+the RECEIVING outcome-channel index in that particular collection, with the
+emitting compartment implicit in its containing branch. Basal and matching
+collections instead store presynaptic indices. This serialization convention
+does not make outcome labels available to hidden synapses.

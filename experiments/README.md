@@ -187,3 +187,56 @@ exact JSON representations, without numerical tolerance, and writes a new
 receipt file. The report distinguishes this harness failure from successful
 exact replay. It also separates acquisition-eligible from ineligible returns
 for both the new candidate and the old specialist, including specialist seed 3.
+
+
+## Pass 4: leak-free acquisition before transfer
+
+`SharedSoma` directly merges local future forecasts with competitive,
+persistent receptive branches. The original Soma remains the default for
+pass-3 selections. `SELECTED_SHARED.json` freezes every non-interface rule;
+only dimensions and seed change between the new task and older tasks.
+`SELECTED_REFERENCES.json` freezes the experiment-only online MLP grid winners.
+No backpropagation baseline enters the brain.
+
+```sh
+python -B -m experiments.pass4 --output /tmp/soma-pass4-reference-grid.jsonl
+python -B -m experiments.pass4_acquisition --selection experiments/SELECTED_SHARED.json \
+  --seeds 10,11,12,13,14,15,16,17,18,19 --output /tmp/soma-pass4-acquisition.jsonl
+python -B -m experiments.pass4_organism --seeds 10,11,12,13,14,15,16,17,18,19 \
+  --output /tmp/soma-pass4-raw-organism.jsonl
+python -B -m experiments.pass4_acquisition --selection experiments/SELECTED_SHARED.json \
+  --mode noise --output /tmp/soma-pass4-noise.jsonl
+python -B -m experiments.pass4_unified --selection experiments/SELECTED_SHARED.json \
+  --output /tmp/soma-pass4-older-tasks.jsonl
+python -B -m experiments.pass4_generalization --selection experiments/SELECTED_SHARED.json \
+  --confirmation experiments/results/pass4_acquisition_confirmation.jsonl \
+  --output /tmp/soma-pass4-transfer.jsonl
+python -B -m experiments.pass4_unified --selection experiments/SELECTED_SHARED.json \
+  --tasks grammar16 --variants candidate,trace_off --output /tmp/soma-pass4-time.jsonl
+python -B -m experiments.check_pass4_reproducibility --output /tmp/soma-pass4-replay.jsonl
+python -B -m experiments.check_pass4_reproducibility --raw-organism \
+  --output /tmp/soma-pass4-raw-replay.jsonl
+python -B -m experiments.pass4_report
+```
+
+Run CPython 3.12.14; runners refuse existing output paths. The default fast
+acquisition runner excludes the expensive raw-organism reference, which the
+separate runner measures on identical streams with selected pass-1 settings,
+without a population cap or skipped exposure. Allow substantial time for it.
+Other bounded fast trials mark any interrupted exposure `complete=false`;
+never count such rows as successful gates. Recorded pass-4 batches complete.
+
+The acquisition stream has four raw factor views and no product-bearing
+sensory target, including after feedback. All combinations are seen; report
+final-window prequential and frozen-probe accuracy separately. Transfer starts
+only after both registered confirmation gates pass, on the original calibrated
+pass-3 task. That old task still has a product-bearing future view and its
+frozen probe remains essential. The stronger benchmark stays an uncalibrated
+inductive-bias target. Gap-16 starts only after all acquisition/older-task
+controls finish. Failed initial-context acquisition is never retention data.
+
+The observer diagnosis uses an external normalized readout and a trace oracle
+solely in experiments; neither modifies or supplies feedback to SOMA. Exact
+replay checks full states, probabilities, structure and source snapshots;
+early exploratory schemas use their recorded source revisions. The report
+recomputes tables, raw-file hashes and two figures, requiring complete cohorts.
