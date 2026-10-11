@@ -1,0 +1,39 @@
+{
+  "selected_before_soma_confirmation": true,
+  "grid": [
+    [
+      16,
+      0.03
+    ],
+    [
+      16,
+      0.15
+    ],
+    [
+      64,
+      0.03
+    ],
+    [
+      64,
+      0.15
+    ]
+  ],
+  "tasks": {
+    "original": {
+      "size": 64,
+      "rate": 0.03,
+      "solvable_held": true
+    },
+    "stronger": {
+      "size": 64,
+      "rate": 0.15,
+      "solvable_held": false
+    },
+    "acquisition": {
+      "size": 16,
+      "rate": 0.15,
+      "solvable_acquisition": true
+    }
+  },
+  "criterion": "Best exploratory mean; sizes then rates break ties. No confirmation tuning."
+}

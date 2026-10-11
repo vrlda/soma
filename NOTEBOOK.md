@@ -5,6 +5,32 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: conventional calibration separates acquisition from inductive bias
+
+**Question.** Are the benchmarks learnable by an ordinary online MLP without
+factor identities, and is the new sensory stream free of answer-bearing views?
+
+**Setup.** Full four-cell size/rate grid, five seeds, three tasks; 90 complete
+rows in pass4_calibration_complete.jsonl. One update per query, same exposure
+as SOMA. Full grid retained; freeze SELECTED_REFERENCES.json now.
+
+**Result.** Original task best MLP held 95.25% (64, .03), seen 100%; nearest
+100%, linear 51.125%. Stronger task best held 49.75% (64, .15), seen 79.833%;
+nearest 0% held/100% seen, linear 50.625%. Acquisition MLP (16, .15) final
+and frozen 100%, nearest 100%, linear final 42.05%/probe 49.6%. Slower MLP
+settings sometimes fail acquisition; every grid cell remains visible.
+
+**Meaning.** The first task is conventionally solvable but rewards nearest
+memorization. The stronger task does not meet the .90 calibration criterion
+with this small online grid; this is not an impossibility proof. It tests a
+strong inductive bias and will not gate pass 4. Binary-factor acquisition is
+calibrated and nonlinear for the measured linear learner. It is deliberately
+seen-combination acquisition, not generalization or superiority to memorization.
+The four sensory views are affine raw-factor emissions only, before and after
+query; the product sign exists only in experiment labels.
+
+---
+
 ## 2026-10-11: pass 4 calibration adapter failed before completing the grid
 
 **Question.** Can conventional online learning solve the old nonlinear tasks

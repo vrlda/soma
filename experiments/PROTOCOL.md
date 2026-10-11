@@ -856,3 +856,32 @@ All old raw records, old selections, VISION and the two specialist kernels
 remain byte-identical. Tests before every commit; exact resumed recruited
 structure, locality to labels/distant errors, no-leak construction and complete
 structural-counter integrity are required.
+
+### Pass 4 shared hypothesis 1: persistent receptive fields on predictive sources
+
+Before brain implementation/measurement. Keep legacy Soma/SomaConfig code
+unchanged and append SharedSoma/SharedConfig in the same module. Eight sensory
+observation/predictor neurons learn their own linear future projection from
+previous raw sensory activity, normalized local delta step .02. Source peak
+traces .8, local variance .01/floor .0001. Conjunctive branches match raw event
+traces (weight .25) plus normalized predictive event traces (weight .75),
+mean squared distance, vigilance .20. One provisional dendrite retains its
+own afferent strengths and matching count; replacement changes its synapses,
+not an external list of stored examples. Require three coherent matches,
+current persistent novelty, birth interval 1 and cost .001 log(1+branches).
+A newborn copies those local afferents. Its parent is the predictor with the
+largest own running squared prediction residual (competition only). It gets
+one local predictive coefficient, updated ONLY by its parent's next-input
+error and its own prior activity. This adds capacity at the failing neuron.
+
+Lateral competition emits a single matched branch activity. Its source-local
+adaptation .05 is slowed by match evidence; each branch has outcome synapses
+that alone receive labels. Continuous predictive axons also reach outcomes,
+scaled .2/sqrt(predictors); outcome delta step .35, local-energy normalization.
+Prune branch/output edges after 2400 ticks, every 240; activity EMA .01,
+protection evidence decays .99999 and contributes .001*evidence/(1+evidence),
+threshold .00001. Zero-strength afferents remain useful absence constraints;
+prune whole unhelpful branches, not arbitrary coordinates of a matched field.
+Output connections may die and regrow from own receiving outcome error and
+source coactivity. Counters distinguish branch growth from neuron growth.
+All thresholds are hypotheses; noise recurrence and utility must be measured.
