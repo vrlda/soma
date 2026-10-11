@@ -5,6 +5,33 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: raw-source correlation blocks noise births; shared selection frozen
+
+**Question.** Does gating recruitment on actual raw temporal structure retain
+acquisition while rejecting persistence manufactured by peak traces?
+
+**Setup.** Third/final hypothesis, .12 raw lag-correlation threshold; five
+seeds, four mechanistic variants, and 15 noise/random/ordinary-label lifetimes.
+No fourth iteration. Freeze every non-interface parameter in SELECTED_SHARED.
+
+**Result.** All 20 acquisition and 15 noise rows complete. Candidate final
+mean 99.45%, range 98.75–100%, every frozen probe 100%. All five independent
+12000-tick probes have ZERO births; four retain the initial branch, one prunes
+it, while all eight predictive neurons remain. Random-label hidden hashes
+match ordinary-label hashes exactly for every seed. Structured-source gating
+retains hypothesis 2's exact candidate probabilities on these five streams.
+59 tests pass, including targeted parent choice, branch-current locality,
+protected pruning and exact continuation with learned source histories.
+
+**Meaning.** Finite noise regulation and reliable exploratory acquisition are
+promising, not confirmation. Freeze the selection BEFORE dispatching any
+10–19 acquisition run. Required shuffled/pass3/raw-organism/linear/MLP controls
+will finish separately on identical streams; no result can retune selection.
+The raw-source gate is an amount signal only. Branch growth is not new-neuron
+growth, and zero measured noise births is not an asymptotic boundedness proof.
+
+---
+
 ## 2026-10-11: newborn-copy test expectation corrected; commit guard failure
 
 **Question.** Does targeted birth copy the locally consolidated provisional
