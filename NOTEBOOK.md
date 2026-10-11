@@ -5,6 +5,27 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: newborn-copy test expectation corrected; commit guard failure
+
+**Question.** Does targeted birth copy the locally consolidated provisional
+field, as registered, into the selected failing soma?
+
+**Setup.** Added regression for three repeated experiences and parent 2's
+own high residual. The first assertion incorrectly expected instantaneous
+predictive source traces rather than provisional afferents averaged locally.
+
+**Result.** The new test failed; the shell still committed 3cb9b79 because it
+lacked an exit-on-error guard. Correct the assertion to compare newborn versus
+its actual local provisional afferents. All 58 tests then pass. Brain code,
+preregistration and scientific streams do not change; hypothesis 3 already
+started with that unchanged kernel. Subsequent commit commands stop on failure.
+
+**Meaning.** This is a verification/workflow mistake, not a numerical result
+or a changed growth rule. Preserve the failed-test commit and explicit correction.
+Every later commit must be gated by successful tests.
+
+---
+
 ## 2026-10-11: wider matching solves exploratory acquisition but grows on noise
 
 **Question.** Does tolerance for fresh nuisance stabilize acquisition without

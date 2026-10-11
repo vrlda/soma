@@ -663,7 +663,7 @@ class SharedSomaTests(unittest.TestCase):
         a.experience([.2, .4, .6])
         self.assertEqual(a.last_event['parent'], 2)
         branch = a.neurons[2].branches[0]
-        self.assertEqual([s.strength for s in branch.afferents], a.traces)
+        self.assertEqual([s.strength for s in branch.afferents], [s.strength for s in a.pending])
 
     def test_raw_source_gate_does_not_count_peak_trace_persistence(self):
         from brain.soma import SharedSoma, SharedConfig
