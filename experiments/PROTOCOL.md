@@ -919,3 +919,28 @@ Compatibility: legacy Soma methods remain byte-identical. The new shared
 state schema includes the added source histories; exploratory hypotheses 1/2
 need their recorded source revisions for full-state-hash replay, retained in
 Git. This does not change any historic raw record or pass-3 numerical replay.
+
+### Pass 4 diagnosis after unchanged cross-task losses
+
+Before diagnostic execution. Several complete shared older-task runs lose to
+the specialists. Keep all selected SOMA rules and parameters unchanged.
+Two observer-only diagnostics, never new candidates or gate rescues:
+
+1. Gap-8 initial context A, seed 0, exact uninterrupted 1200 episodes. Record
+query branch winner versus evaluator-known factor pairs/classes in the last
+400, plus a clearly labelled trace-information ORACLE (larger first/second
+alphabet traces, evaluator parity only). Oracle never teaches/answers for the
+brain. Compute best constant class assignment to each winner, with abstention
+its own category; collisions cannot be cured merely by reweighting that source.
+Save one small failed-acquisition boundary brain for later diagnosis. Exact
+initial-A probabilities and metrics must equal the phase-B record.
+2. Original linear task, seeds 0–4, same 600 episodes. A separate experiment-only
+normalized local linear readout observes the eight emitted predictive axons,
+updates its own source scale .01/floor .0001 and receiving error with step .2,
+only on the same query outcomes. It never feeds any state/error to SOMA. SOMA
+continues its exact primary lifetime and original readout. Test without labels;
+require candidate training state hashes and original probabilities to reproduce
+phase B exactly. A stronger observer establishes accessible features, not a
+working replacement shared brain; if it fails, preserve that too. Do not
+interpret changing output conditioning in an external baseline as per-task
+SOMA success or a tuned shared selection.
