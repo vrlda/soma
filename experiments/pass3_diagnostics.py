@@ -54,7 +54,7 @@ def main():
                     print(json.dumps({k: row[k] for k in ('seed', 'condition', 'brain')}), flush=True)
         else:
             records = [json.loads(line) for line in (ROOT / 'experiments/results/pass3_nonlinear_confirmation.jsonl').read_text().splitlines()]
-            for variant in ('candidate', 'frozen', 'shuffled'):
+            for variant in ('candidate', 'frozen', 'shuffled', 'temporal_shuffled'):
                 row = next(r for r in records if r['seed'] == 10 and r['variant'] == variant)
                 candidate, schedule, _ = experiment(10, 'candidate', selection['task'])
                 replay = candidate if variant == 'candidate' else experiment(10, variant, selection['task'], schedule)[0]

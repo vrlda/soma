@@ -38,6 +38,8 @@ class SomaConfig:
     prune_age: int = 1200
     prune_threshold: float = .015
     evidence_decay: float = .999
+    evidence_rate: float = .01
+    pressure_rule: str = 'branch'
     protection: bool = True
 
     def __post_init__(self):
@@ -47,6 +49,8 @@ class SomaConfig:
             raise ValueError('Intervals must be positive')
         if not 0 <= self.trace_decay < 1 or not 0 <= self.statistics_rate <= 1:
             raise ValueError('Invalid trace/statistics rate')
+        if self.pressure_rule not in ('branch', 'underfit'):
+            raise ValueError('Unknown structural pressure rule')
         if self.hidden_rule not in ('prediction', 'oja'):
             raise ValueError('Unknown local rule')
         if min(self.hidden_rate, self.outcome_rate, self.growth_cost) < 0:
@@ -86,6 +90,7 @@ class Neuron:
     age: int = 0
     usefulness: float = 0.
     evidence: float = 0.
+    underfit: float = 0.
 
 
 class Soma:
@@ -132,7 +137,8 @@ class Soma:
         # Covariance cancels independent noise, rather than counting raw error.
         skill = neuron.activity * observed
         neuron.usefulness += rate * (skill - neuron.usefulness)
-        neuron.evidence = cfg.evidence_decay * neuron.evidence + rate * max(0., skill)
+        neuron.evidence = cfg.evidence_decay * neuron.evidence + cfg.evidence_rate * max(0., skill)
+        neuron.underfit += rate * (neuron.error * neuron.activity - neuron.underfit)
         for branch in neuron.dendrites:
             branch.correlation += rate * (neuron.error * branch.activity - branch.correlation)
             if not cfg.hidden_learning:
@@ -150,10 +156,13 @@ class Soma:
                 edge.evidence = cfg.evidence_decay * edge.evidence + rate * abs(change)
                 edge.age += 1
 
-    def experience(self, signal, target=None, gate=1., structure_override=None):
+    def experience(self, signal, target=None, gate=1., structure_override=None, observation_signal=None):
         cfg = self.config
         if len(signal) != cfg.inputs or any(not math.isfinite(float(v)) for v in signal):
             raise ValueError('Invalid sensory signal')
+        if observation_signal is not None and (len(observation_signal) != cfg.inputs
+                or any(not math.isfinite(float(v)) for v in observation_signal)):
+            raise ValueError('Invalid control observation')
         if target is not None and (not isinstance(target, int) or not 0 <= target < cfg.outputs):
             raise ValueError('Invalid outcome')
         if not math.isfinite(gate) or gate < 0:
@@ -163,7 +172,8 @@ class Soma:
             if not set(structure_override['deaths']) <= ids or structure_override['births'] < 0:
                 raise ValueError('Invalid structural schedule')
         self.sensory = list(map(float, signal))
-        observations = [sum(edge.strength * self.sensory[edge.source]
+        observed_sensory = self.sensory if observation_signal is None else observation_signal
+        observations = [sum(edge.strength * observed_sensory[edge.source]
                             for edge in neuron.observation) for neuron in self.neurons]
         if cfg.shuffled:
             self.shuffle_rng.shuffle(observations)
@@ -215,7 +225,10 @@ class Soma:
                 neuron.mean += rate * (neuron.activity - old)
                 neuron.variance = max(0., (1 - rate) * neuron.variance + rate * (neuron.activity - old) * (neuron.activity - neuron.mean))
         correlations = [abs(branch.correlation) for neuron in self.neurons for branch in neuron.dendrites]
-        self.pressure = max(correlations, default=0.)
+        if cfg.pressure_rule == 'underfit':
+            self.pressure = max((max(0., neuron.underfit) for neuron in self.neurons), default=0.)
+        else:
+            self.pressure = max(correlations, default=0.)
         self.tick += 1
         self.last_event = {'births': 0, 'deaths': []}
         if structure_override is not None:

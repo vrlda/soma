@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VALUES = (-3., -1., 1., 3.)
 HELD = ((0, 1), (0, 2), (3, 1), (3, 2))
 SEEN = tuple((i, j) for i in range(4) for j in range(4) if (i, j) not in HELD)
-VARIANTS = ('candidate', 'frozen', 'shuffled', 'matched_capacity', 'fixed_final', 'pass2_linear', 'linear_memory')
+VARIANTS = ('candidate', 'frozen', 'shuffled', 'temporal_shuffled', 'matched_capacity', 'fixed_final', 'pass2_linear', 'linear_memory')
 SOURCE_HASHES = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in
                  ('brain/soma.py', 'brain/predictive.py', 'experiments/nonlinear.py', 'experiments/linear_memory.py')}
 SOURCE_REVISION = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
@@ -88,7 +88,7 @@ def symmetry_check():
     return results
 
 
-def episode(brain, frames, target=None, schedule=None, offset=0):
+def episode(brain, frames, target=None, schedule=None, offset=0, teacher_frames=None):
     events = []
     probabilities = None
     residuals = []
@@ -96,6 +96,8 @@ def episode(brain, frames, target=None, schedule=None, offset=0):
         kwargs = {}
         if isinstance(brain, Soma) and schedule is not None:
             kwargs['structure_override'] = schedule[offset + index]
+        if isinstance(brain, Soma) and teacher_frames is not None:
+            kwargs['observation_signal'] = teacher_frames[index]
         output = brain.experience(signal, target if index == 10 else None, **kwargs)
         if index == 10:
             probabilities = output
@@ -127,6 +129,14 @@ def make_brain(seed, variant, config, final_size=None):
 def experiment(seed, variant, task, schedule=None, final_size=None, budget=300):
     train, test, seen = stream(seed, task['episodes'], task['noise'], task['condition'])
     brain = make_brain(seed, variant, task['brain'], final_size)
+    shuffle_rng = random.Random(seed + 771001)
+    def teachers(records):
+        if variant != 'temporal_shuffled':
+            return [None] * len(records)
+        shuffled = [frames for _, frames in records]
+        shuffle_rng.shuffle(shuffled)
+        return shuffled
+    train_teachers, test_teachers = teachers(train), teachers(test)
     stream_hash = hashlib.sha256(json.dumps([train, test, seen]).encode()).hexdigest()
     start = time.monotonic()
     train_scores = []
@@ -136,7 +146,7 @@ def experiment(seed, variant, task, schedule=None, final_size=None, budget=300):
     for index, (pair, frames) in enumerate(train):
         if time.monotonic() - start > budget:
             break
-        p, ee, errors = episode(brain, frames, label(pair), schedule, index * 12)
+        p, ee, errors = episode(brain, frames, label(pair), schedule, index * 12, train_teachers[index])
         events.extend(ee)
         residuals.extend(errors)
         train_scores.append(score(p, label(pair)))
@@ -149,8 +159,9 @@ def experiment(seed, variant, task, schedule=None, final_size=None, budget=300):
         if frozen and isinstance(clone, Soma):
             clone.config = replace(clone.config, plasticity=False, growth=False, pruning=False)
         scores = []
-        for pair, frames in records:
-            p, _, _ = episode(clone, frames)
+        probe_teachers = teachers(records)
+        for index, (pair, frames) in enumerate(records):
+            p, _, _ = episode(clone, frames, teacher_frames=probe_teachers[index])
             scores.append(score(p, label(pair)))
         return metrics(scores)
     seen_metrics = probe(seen)
@@ -160,7 +171,7 @@ def experiment(seed, variant, task, schedule=None, final_size=None, budget=300):
     for index, (pair, frames) in enumerate(test):
         if time.monotonic() - start > budget:
             break
-        p, ee, _ = episode(brain, frames, schedule=schedule, offset=(trained + index) * 12)
+        p, ee, _ = episode(brain, frames, schedule=schedule, offset=(trained + index) * 12, teacher_frames=test_teachers[index])
         events.extend(ee)
         tests.append(score(p, label(pair)))
         probabilities.append(dict(pair=pair, target=label(pair), probabilities=p))
@@ -191,11 +202,12 @@ def seed_run(args):
     final_size = None
     for variant in variants:
         row, ee, _ = experiment(seed, variant, task,
-                 schedule if variant in ('frozen', 'shuffled', 'matched_capacity') else None, final_size, budget)
+                 schedule if variant in ('frozen', 'shuffled', 'temporal_shuffled', 'matched_capacity') else None, final_size, budget)
         if variant == 'candidate':
             schedule = ee
             final_size = row['brain']['hidden']
         rows.append(row)
+        print(json.dumps(dict(progress=True, seed=seed, variant=variant, accuracy=row['metrics']['accuracy'], complete=row['complete'])), flush=True)
     return rows
 
 

@@ -51,7 +51,7 @@ def gates(rows, selection):
     checks['unique_seed_variants'] = len({(row['seed'], row['variant']) for row in rows}) == len(rows)
     checks['paired_streams'] = all(len({row['stream_hash'] for row in rows if row['seed'] == seed}) == 1 for seed in seeds)
     checks['paired_structure'] = all(len({row['schedule_hash'] for row in rows if row['seed'] == seed
-                                           and row['variant'] in ('candidate', 'frozen', 'shuffled', 'matched_capacity')}) == 1 for seed in seeds)
+                                           and row['variant'] in ('candidate', 'frozen', 'shuffled', 'temporal_shuffled', 'matched_capacity')}) == 1 for seed in seeds)
     return checks
 
 

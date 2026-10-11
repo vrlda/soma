@@ -480,3 +480,25 @@ class SomaTests(unittest.TestCase):
         a.experience([0., 0.])
         self.assertEqual([neuron.id for neuron in a.neurons], [0])
         self.assertEqual(a.deaths, 1)
+
+    def test_signed_underfit_does_not_recruit_on_systematic_overprediction(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, initial_hidden=1, pressure_rule='underfit',
+                            growth_interval=1, growth_threshold=.0001, growth_cost=0, pruning=False))
+        neuron = a.neurons[0]
+        neuron.activity = 2.
+        a._learn_prediction(neuron, 0., 1.)
+        self.assertLess(neuron.underfit, 0.)
+        a.experience([0., 0.])
+        self.assertEqual(a.births, 0)
+
+    def test_temporally_replaced_teacher_only_changes_hidden_local_learning(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, growth=False, pruning=False))
+        a.experience([.5, .2])
+        b = Soma.from_state(a.state())
+        a.experience([.5, .2], observation_signal=[1., 1.])
+        b.experience([.5, .2], observation_signal=[-1., -1.])
+        self.assertEqual(a.traces, b.traces)
+        self.assertEqual(a.means, b.means)
+        self.assertNotEqual(a.neurons[0].dendrites, b.neurons[0].dendrites)
