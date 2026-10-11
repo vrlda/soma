@@ -5,6 +5,47 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: pass 4 merged, with a review
+
+**What happened.** Pass 4 (entries below) was merged unchanged. 60 tests pass.
+The confirmation means in `results/pass4_acquisition_confirmation.jsonl` were
+recomputed from the raw records and match the report (candidate 99.80% final
+window, 99.95% frozen probe, 10/10 seeds at least 95%). `VISION.md`,
+`organism.py`, `predictive.py` and the pass-3 part of `soma.py` are unchanged.
+
+**Review.** The acquisition gate is honestly passed, the calibration step was
+done, and the noise-safe growth gate (zero births on noise) is a real
+improvement. How to read it:
+
+- **The success is prototype memory over denoised features.** `SharedSoma`
+  branches are one-hot winner-take-all prototypes with vigilance, as in pass 1;
+  attaching them to a "parent" neuron is mostly nominal. With four seen
+  combinations and about eleven branches, acquisition means memorizing each
+  combination. That is why held-out transfer is 47.7%, below even the
+  nearest-exemplar memorizer (100%) and the MLP (99.8%). This is close to the
+  "count table posing as neurons" boundary; it is acceptable as one mechanism,
+  not as the answer.
+- **The shared brain regressed on older tasks** (grammar 49.1%, pass 3 65.8%,
+  specialist 100%; initial-context acquisition 0/5).
+- **The bigger pattern after four passes:** each pass invents one mechanism for
+  one narrow task, and generalization (VISION.md 6.1, credit assignment) has not
+  moved. Known local learning rules already learn MLP-level nonlinear features
+  without backpropagation: predictive coding networks (local error neurons and
+  Hebbian updates; Whittington and Bogacz 2017), equilibrium propagation,
+  Hebbian competition (Krotov and Hopfield 2019), and forward-forward (Hinton
+  2022). They satisfy section 3 (local rules, no global backward pass) and
+  should be tried before more bespoke mechanisms.
+- Raw results grew by 15 MB this pass (per-episode probabilities). Store less
+  per run from now on.
+
+**Next.** Implement a multi-layer predictive coding network on the shared
+substrate (neurons hold value and error, synapses update from local pre/post
+error). Gate: match the MLP (about 95%) on held-out combinations of the
+calibrated pass-3 nonlinear task, beating nearest-exemplar and frozen controls.
+Then fold growth, pruning and traces into it.
+
+---
+
 ## 2026-10-11: longer-time probe and final reproducibility checks
 
 **Question.** Once all A/B controls finish, does the unchanged shared brain
