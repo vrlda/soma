@@ -5,6 +5,46 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: pass 3 merged, with a review
+
+**What happened.** Pass 3 (entries below) was merged unchanged. 46 tests pass.
+The confirmation means in `results/pass3_nonlinear_confirmation.jsonl` and
+`results/pass3_hard_confirmation.jsonl` were recomputed from the raw records
+and match the report. `VISION.md`, `organism.py` and `predictive.py` are
+byte-identical to the base. Follow-up edits: missing spaces before numbers in
+the docs were fixed, and the duplicated pass-2 detail in `RESEARCH_REPORT.md`
+was condensed to a summary table.
+
+**Review.** An honest negative result, and a useful one. Cautions and
+reading of the evidence:
+
+- **Acquisition is the blocker, not generalization.** On the stronger task
+  the candidate gets only 60.8% on *seen* combinations, and 26.9% held out,
+  worse than frozen random features (45.3%). The dendritic prediction rule
+  does not yet reliably learn a nonlinear mapping at all.
+- **The prediction target nearly carries the answer.** The future view
+  contains the product whose sign is the outcome. Prediction learning still
+  failed, which supports the point above. It also means a future success on
+  this design must be checked against "the label arrived as sensory input".
+- **The stronger task is uncalibrated.** Answering withheld pairs requires a
+  factorized representation (x and y features, then their interaction).
+  Every model is at or below chance, and no labelled backpropagation network
+  baseline was run. Until one is, we do not know whether any learner without
+  a factorization prior solves it. Calibrate before spending more passes on it.
+- **`soma.py` is not yet a merge.** It has no competitive recruitment or
+  vigilance, the mechanisms behind most pass-1 successes. It loses to the
+  specialists on the grammar (65.8% vs 100%) and fails every acquisition gate
+  in the contextual lifetime.
+
+**Next.** (1) Seen nonlinear acquisition by local rules first. The natural
+candidate is to combine what each brain earned: pass-2 predictive features
+plus pass-1 recruitment of conjunctive neurons where local error persists,
+inside `soma.py`. (2) Calibrate the stronger task with a labelled
+backpropagation baseline (experiments only). (3) Pass 3's own step 1: grow
+branches at the neuron whose prediction fails.
+
+---
+
 ## 2026-10-11: stronger frozen-config task falsifies nonlinear composition
 
 **Question.** Does the already frozen shared candidate compose nonlinear
@@ -13,16 +53,16 @@ factor properties when nearest seen examples give the wrong answer?
 **Setup.** Additional preregistered falsification after A/B/C, no model or
 configuration changes. q(v)=v*(v*v-5)/6; future sensory q(x)*q(y) after
 query; same withheld pairs, axes, nuisance, counts and all original gates.
-All eight neural variants plus nearest exemplar. Seeds0–4 measurement,
+All eight neural variants plus nearest exemplar. Seeds 0–4 measurement,
 then 10–19 fixed-model falsification; these seed/direction identities were
 already used, so this is not independent evidence for a newly tuned model.
 
 **Result.** All45 exploratory and90 later runs complete. Exploratory
-candidate45.125%, frozen46.875%, supervised linear50.625%, nearest0%.
-Later candidate26.875% [5–47.5], seen60.833%, frozen transfer26.0625%;
-frozen random45.3125%, population-shuffled37.375%, episode-shuffled39.5625%,
-Oja47.6875%, fixed-final27.875%, pass2 linear48.6875%, supervised linear
-48.5%. Nearest0% held and100% seen in every seed. Mean4 births/1.6 deaths;
+candidate 45.125%, frozen 46.875%, supervised linear 50.625%, nearest 0%.
+Later candidate 26.875% [5–47.5], seen 60.833%, frozen transfer 26.0625%;
+frozen random 45.3125%, population-shuffled 37.375%, episode-shuffled 39.5625%,
+Oja 47.6875%, fixed-final 27.875%, pass2 linear 48.6875%, supervised linear
+48.5%. Nearest 0% held and 100% seen in every seed. Mean4 births/1.6 deaths;
 five of ten have both. Every accuracy/advantage/transfer success gate FAILS;
 pairing and the anti-nearest construction pass. Two new strict numerical
 replays (candidate and episode-shuffled13) match exactly.
@@ -57,7 +97,7 @@ the serialization comparison: JSON-normalize values, never round or tolerate
 floating differences. Regression test verifies 1e-12 drift still fails.
 Corrected verifier: all10 new cases EXACT, including individual probabilities,
 trajectories, full structural schedules, and contextual phases. All12 legacy
-current cases EXACT; pass2 pinned5/5, current2/5 as previously documented.
+current cases EXACT; pass2 pinned 5/5, current 2/5 as previously documented.
 One small selected seed 13 pre-test brain saved for later dendritic diagnosis.
 
 **Meaning.** This was a harness type mismatch, not evidence of a numerical
@@ -74,17 +114,17 @@ successes, with acquisition required before any retention interpretation?
 
 **Setup.** SELECTED_SOMA unchanged, only interfaces/seed differ. Thirty
 unified/specialist runs on0–4: original linear composition, gap 8 grammar,
-gap 8 contextual lifetime. Nonlinear selected0–4 already measured75.125%
+gap 8 contextual lifetime. Nonlinear selected 0–4 already measured 75.125%
 with this exact substrate/configuration. After A/B finish, C chooses ONLY
 fresh gap 16 grammar, same configuration, paired trace-off. Separate gap 8
 trace-off and contextual protection-off diagnostics, no retuning.
 
-**Result.** All30 comparisons complete. Linear75% vs specialist97%; grammar8
-65.8% vs100%. Initial-A acquisition56% mean; all five unified lifetimes
-fail .90 acquisition (range49–69%). Their return43.2% is NOT a valid
-retention score. Specialists acquire94.3% on average (four of five pass); overall return99.2%,
-eligible-only return100%. Preserve the fifth acquisition failure. Gap8 trace-off
-50.1%; gap 16 unified50.3% and trace-off50.2%. Protection-off return46.4%,
+**Result.** All30 comparisons complete. Linear 75% vs specialist 97%; grammar8
+65.8% vs 100%. Initial-A acquisition 56% mean; all five unified lifetimes
+fail .90 acquisition (range49–69%). Their return 43.2% is NOT a valid
+retention score. Specialists acquire 94.3% on average (four of five pass); overall return 99.2%,
+eligible-only return 100%. Preserve the fifth acquisition failure. Gap8 trace-off
+50.1%; gap 16 unified 50.3% and trace-off 50.2%. Protection-off return 46.4%,
 also all five acquisitions fail; no retention benefit claim. New substrate
 contains traces/prediction/homeostasis/growth/protection but has not inherited
 the specialist mechanisms' reliability. All raw runs complete.
@@ -104,23 +144,23 @@ falsification after discovering the original task's geometric shortcut.
 **Question.** Does the frozen diagnostic hypothesis generalize robustly and
 beat every required control on unused streams?
 
-**Setup.** `SELECTED_SOMA.json`, seeds10–19, all80 runs; source frozen from
+**Setup.** `SELECTED_SOMA.json`, seeds10–19, all 80 runs; source frozen from
 dispatch. Paired actual sensory streams and full structural schedules.
 Predictable-nuisance specificity variant on0–4, all40 controls. Additional
 preregistered nearest-exemplar baseline on10–19, no influence on SOMA.
 
-**Result.** All80 confirmation runs complete. Held77.5625% [41.25–95.625],
-seen84.5%, frozen transfer76.0625%. Frozen60.5%, population-shuffled66%,
-episode-shuffled63.4375%, Oja50.4375%, pass2 linear45.25%, supervised
-linear49.125%, fixed-final80.5625%. Mean births5/deaths1.7/final7.3; only
+**Result.** All80 confirmation runs complete. Held 77.5625% [41.25–95.625],
+seen 84.5%, frozen transfer 76.0625%. Frozen 60.5%, population-shuffled 66%,
+episode-shuffled 63.4375%, Oja 50.4375%, pass2 linear 45.25%, supervised
+linear 49.125%, fixed-final 80.5625%. Mean births5/deaths1.7/final7.3; only
 five of ten have both births AND deaths. Original mean/individual/frozen
 transfer/fixed-final/living-structure gates FAIL. Required remaining-control
 advantages, frozen-control transfer advantage and pairing checks pass.
 
-Predictable nuisance on0–4: candidate61.125%, frozen60.25%; compare the
-matched interaction condition75.125% vs56%. Prediction can learn a thing
+Predictable nuisance on0–4: candidate 61.125%, frozen 60.25%; compare the
+matched interaction condition 75.125% vs 56%. Prediction can learn a thing
 unrelated to the outcome and have no useful feature advantage.
-Nearest raw exemplar100% on every held/seen confirmation stream. Excluding
+Nearest raw exemplar 100% on every held/seen confirmation stream. Excluding
 exact lookup entries did NOT exclude similarity-based memorization.
 
 **Meaning.** Local adaptation supplies some useful nonlinear features, but
@@ -141,8 +181,8 @@ counting the predictor's own noise variance as surprise?
 seeds 0–4. Original growth threshold/cost; evidence and pruning threshold
 scaled together. Independent/repeated4000-tick probe.
 
-**Result.** All40 task runs complete. Candidate held75.125%,
-seen82.333%, frozen transfer79.500%.
+**Result.** All40 task runs complete. Candidate held 75.125%,
+seen 82.333%, frozen transfer 79.500%.
 The unchanged task gates fail. Independent noise births0–1 (mean .4),
 repeated0–15 (mean5.8); neither condition has deaths. This is substantially
 better noise regulation than hypothesis1's33 births in both conditions.
@@ -155,7 +195,7 @@ expanded on noise. Suppressing that expansion exposes limited nonlinear
 predictive capacity. More random observation units do not directly repair
 an existing neuron's deficient dendrites; capacity allocation is still open.
 This pass will establish where one shared substrate loses to specialists,
-not hide a failed mechanism behind the earlier99% score.
+not hide a failed mechanism behind the earlier 99% score.
 
 ---
 
@@ -164,12 +204,12 @@ not hide a failed mechanism behind the earlier99% score.
 **Question.** Does signed error/forecast covariance regulate recruitment
 without destroying nonlinear learning?
 
-**Setup.** Hypothesis2 source4a527b5; unchanged1200/160 task, seeds 0–4,
+**Setup.** Hypothesis2 source4a527b5; unchanged 1200/160 task, seeds 0–4,
 eight models including episode-shuffled observations. Signed positive underfit,
 threshold .001/cost .002; bounded predictive evidence increment .001.
 
-**Result.** All40 task runs complete. Candidate61.875%, seen65%, frozen
-transfer56%; fixed-final66.25%, frozen55.25%, temporal-shuffled58.375%.
+**Result.** All40 task runs complete. Candidate 61.875%, seen 65%, frozen
+transfer 56%; fixed-final 66.25%, frozen 55.25%, temporal-shuffled 58.375%.
 Two candidate lifetimes lose all neurons, with zero births. The fixed-size
 control needs a one-neuron fallback in those two runs, so its capacity is not
 exactly zero; that limitation is explicit, not a matched-size success.
@@ -197,9 +237,9 @@ source d8724e6. Four initial neurons/four branches. Future product view arrives
 after query; no held-out outcome feedback. Additional 4000-tick independent
 versus four-tick-repeated sensory noise, same configuration.
 
-**Result.** All35 task runs complete. Candidate held99.125%, seen99%, frozen
-transfer87.375%. Frozen random81.125%, shuffled91.125%, Oja51.125%, pass2
-linear55%, supervised linear51.125%, fixed-final predictive99.5%. All five
+**Result.** All35 task runs complete. Candidate held 99.125%, seen 99%, frozen
+transfer 87.375%. Frozen random 81.125%, shuffled 91.125%, Oja 51.125%, pass2
+linear 55%, supervised linear 51.125%, fixed-final predictive 99.5%. All five
 candidates have births AND deaths; means78.2 births/8.4 deaths, final73.8.
 However both noise conditions produce exactly33 births/zero deaths in every
 seed: every growth opportunity fires. The all-controls gate fails (fixed-size

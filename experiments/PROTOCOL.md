@@ -668,7 +668,7 @@ controls, their seed ranges, and the original <=.60 mean gate remain decisive.
 
 ### Pass 3 hypothesis 2: signed underfit, before execution
 
-The original35 runs fail the all-controls gate, despite99.125% primary task
+The original35 runs fail the all-controls gate, despite 99.125% primary task
 accuracy. Independent and repeated noise both trigger all33 possible births.
 Absolute residual/branch covariance counts the negative self-prediction term
 as novelty. Add an ablatable `pressure_rule=underfit`: each soma maintains
@@ -698,7 +698,7 @@ freeze and confirm a diagnostic hypothesis without relaxing any gate.
 ### Pass 3 hypothesis 3: teacher covariance minus forecast covariance
 
 Registered after the complete40-run hypothesis2 failure and before execution.
-Candidate61.875%, with two extinct lifetimes; independent noise zero births
+Candidate 61.875%, with two extinct lifetimes; independent noise zero births
 and four deaths, repeated inputs4–11 births. Signed forecast/error pressure
 misses structure when the forecast has not formed. For each branch separately,
 keep centered EMA(observation × previous branch activity) and EMA(previous
@@ -737,7 +737,7 @@ nearest-template baselines before studying stronger composition claims.
 ### Additional frozen-config falsification: defeat nearest exemplars
 
 Registered after completing A/B/C, before executing this new benchmark.
-The first task's nearest-exemplar100% makes its exact-template exclusion too
+The first task's nearest-exemplar 100% makes its exact-template exclusion too
 weak. Preserve all original task results/gates. Add a stronger environment
 condition WITHOUT changing the selected brain, its configuration or any gate.
 Each raw factor value v now has the nonlinear continuous property
@@ -756,9 +756,9 @@ then10–19 as a fixed-config falsification; no selection or tuning between
 these batches. These are not fresh brain/direction seeds relative to the first
 benchmark: label/teacher structure changes, and the selection is already
 frozen. Report this dependence; do not count them as independent new evidence
-for a newly tuned hypothesis. Same1200/160/120 counts and300-second budgets;
+for a newly tuned hypothesis. Same 1200/160/120 counts and300-second budgets;
 all original success criteria unchanged, additionally require the nearest
 exemplar's mean <=.60 to validate the claimed anti-template construction.
-No rescue or relabelling of the original77.56% failed gate. This tests whether
+No rescue or relabelling of the original 77.56% failed gate. This tests whether
 the fixed candidate transfers to a task with an actually adverse nearest
 memorization shortcut and supplies a stronger benchmark for later research.
