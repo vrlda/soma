@@ -5,6 +5,33 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: wider matching solves exploratory acquisition but grows on noise
+
+**Question.** Does tolerance for fresh nuisance stabilize acquisition without
+turning trace-created persistence into endless recruitment?
+
+**Setup.** Hypothesis 2, vigilance .50/two confirmations, five seeds, all five
+shared mechanistic controls; separate 15-row 12000-tick/2400-episode noise batch.
+Raw organism control is independently running its immutable kernel.
+
+**Result.** All 25 acquisition runs complete. Candidate final mean 99.45%,
+range 98.75–100%, frozen 100% in all five. Final/frozen: recruitment off
+27.85%/52.5%, prediction off 74.95%/79.7%, shuffled 61.1%/77.2%, fixed-final
+28.2%/52.2%. Independent-noise births 411, 359, 403, 431, 371; mean 395,
+with 80–120 deaths and continuing growth in every third. Random versus ordinary
+labels give EXACTLY identical hidden-development hashes in every seed.
+
+**Meaning.** Acquisition now works on exploration and both mechanisms help,
+but noise safety fails. Peak traces create temporally persistent states even
+from irreducible noise. A local matching-count gate alone mistakes those for
+structured input. Add a raw-source lag-correlation amount gate, not a label
+or a directional teaching signal. This is the third and final hypothesis.
+The fixed-size random fields cannot necessarily initialize into matchable
+regions under vigilance; their weakness alone does not prove a need for growth
+rather than activity-based initialization. Preserve this control limitation.
+
+---
+
 ## 2026-10-11: shared hypothesis 1 acquires unreliably
 
 **Question.** Can persistent conjunctive branches plus local forecasts acquire

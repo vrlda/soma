@@ -897,3 +897,25 @@ still half vigilance. Run all five exploratory streams, candidate and
 recruitment-off/prediction-off/shuffled/fixed-final controls. Do not tune any
 confirmation seed. Run independent-noise and random-label probes before
 selection; wider tolerance may improve acquisition at a noise-growth cost.
+
+### Pass 4 hypothesis 3: raw-source correlation gates recruitment
+
+After both full hypothesis-2 batches, before code/execution. Keep vigilance
+.50/two matches and all learning, costs and gates. Add structured_threshold
+.12: each presynaptic sensory source keeps its OWN raw activity mean,
+variance and lag-one covariance, EMA .01. Before peak traces, update from
+current raw activity and previous raw source activity, both centered by its
+own prior mean. Broadcast max(0, sum(covariance))/sum(variance), with the
+existing variance floor. This scalar permits growth only above .12; it does
+not choose a desired weight or parent. Parent selection and newborn afferents
+remain local mismatch/error rules. Raw activity avoids manufactured trace
+correlation. No labels reach this gate. Run five candidate/prediction-off/
+recruitment-off/fixed-final lifetimes first and all five noise/random-label
+probes. Freeze this last interpretable hypothesis even if its gate fails;
+no fourth tuning iteration. Selected shuffled/pass3/linear/MLP/raw-organism
+controls must complete on paired streams, including confirmation.
+
+Compatibility: legacy Soma methods remain byte-identical. The new shared
+state schema includes the added source histories; exploratory hypotheses 1/2
+need their recorded source revisions for full-state-hash replay, retained in
+Git. This does not change any historic raw record or pass-3 numerical replay.
