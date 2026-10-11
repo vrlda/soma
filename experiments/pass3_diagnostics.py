@@ -54,6 +54,16 @@ def main():
                     output.flush()
                     print(json.dumps({k: row[k] for k in ('seed', 'condition', 'brain')}), flush=True)
         else:
+            for name in ('pass3_nonlinear_initial.jsonl', 'pass3_nonlinear_underfit.jsonl', 'pass3_nonlinear_covariance.jsonl'):
+                row = next(json.loads(line) for line in (ROOT / 'experiments/results' / name).read_text().splitlines()
+                           if json.loads(line)['seed'] == 0 and json.loads(line)['variant'] == 'candidate')
+                replay, _, _ = experiment(0, 'candidate', row['task'])
+                checks = {key: replay[key] == row[key] for key in
+                          ('metrics', 'seen_probe', 'frozen_probe', 'brain', 'trajectory', 'probes', 'schedule_hash')}
+                emit(dict(suite='pass3_reproducibility', source=name, variant='candidate', seed=0,
+                          checks=checks, exact_match=all(checks.values()), source_hashes=SOURCE_HASHES))
+                if not all(checks.values()):
+                    raise SystemExit('Exploratory replay changed')
             records = [json.loads(line) for line in (ROOT / 'experiments/results/pass3_nonlinear_confirmation.jsonl').read_text().splitlines()]
             candidate, schedule, checkpoint = experiment(13, 'candidate', selection['task'])
             for variant in ('candidate', 'frozen', 'shuffled', 'temporal_shuffled'):
