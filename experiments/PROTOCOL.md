@@ -639,3 +639,57 @@ Source hashes captured at import and source frozen during each dispatched
 experiment batch. Freeze/commit each hypothesis before launching its runs.
 Keep every result and source-specific replay receipts. No historical raw files,
 original kernel behavior, selections, or vision edits. Readable stdlib brain.
+
+
+### Pass 3 structural and information diagnostics (before running)
+
+After the complete initial five-seed batch, retain the initial hypothesis if
+its mechanisms are interpretable even if the all-controls gate is blocked by
+a strong fixed-final-size model. Do not tune to make that control weaker.
+A task-specific nonlinear success is distinct from demonstrating a benefit of
+growth. Confirmation will keep the complete original gate and report its failure.
+
+Additional structural diagnostic with the same selected configuration, seeds
+0–4: 4000 unlabelled sensory ticks, uniform independent coordinates in [-1,1],
+versus the same coordinate generator refreshed only every four ticks. Record
+all births/deaths and trajectories. This probes whether correlation pressure
+actually suppresses irreducible sensory noise; do not infer it from the rule's
+name. It is an additional failure/success diagnostic, not a selection gate.
+
+Information caveat: an unlabelled future product view nonetheless reveals the
+interaction property after each query. Continued intrinsic test learning can
+therefore improve on earlier test pairs. The frozen-weights/statistics probe
+is essential evidence of already learned transfer; primary accuracy alone
+is not proof of zero-adaptation composition. Keep both scores prominent.
+An affine threshold can incidentally score 75% on four XOR centers despite
+the population affine-logistic optimum being chance; observed online linear
+controls, their seed ranges, and the original <=.60 mean gate remain decisive.
+
+
+### Pass 3 hypothesis 2: signed underfit, before execution
+
+The original35 runs fail the all-controls gate, despite99.125% primary task
+accuracy. Independent and repeated noise both trigger all33 possible births.
+Absolute residual/branch covariance counts the negative self-prediction term
+as novelty. Add an ablatable `pressure_rule=underfit`: each soma maintains
+EMA(error * own previous forecast), growth uses only its POSITIVE part. This
+asks whether an existing forecast systematically underestimates future input,
+rather than interpreting overprediction on noise as missing capacity. Keep
+branch/outcome learning unchanged. Set growth threshold .001 and size cost
+.002 (signed statistic has smaller scale); same120-tick birth interval.
+Local predictive evidence increment .001 rather than .01 (matching .999 decay
+in a bounded EMA); unchanged age/threshold/pruning240. No population cap.
+Run all original controls on0–4 at1200episodes, plus a stronger temporal shuffle
+that pairs each sensory episode's teacher with another randomly permuted
+episode's observation (no outcome labels). The original population shuffle
+and all gates remain required; do not replace their failed comparison.
+
+Observation replacement is an experimental control interface only. Candidate
+always learns its own actual observation. Temporal shuffle is generated in
+experiments, with independently permuted training/testing/probe teachers,
+identical actual sensory streams and candidate structural schedules. It
+destroys both individual and population-mean factor/teacher alignment.
+Repeat4000-tick independent/repeated noise under hypothesis2. Select the
+best-understood hypothesis after both complete batches, prioritizing noise
+regulation over an inflated score from continuous recruitment. If blocked,
+freeze and confirm a diagnostic hypothesis without relaxing any gate.

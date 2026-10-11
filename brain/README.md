@@ -109,3 +109,53 @@ For counting, a "unit" pairs one observation neuron with one learned predictor;
 both populations. `synapses` counts weighted afferents and output connections;
 the fixed observation-to-partner activity coupling is implicit. These counters
 must not be equated with the original organism's single-cell birth counts.
+
+## Pass 3: one candidate substrate, nonlinear dendrites
+
+`soma.py` is a new single substrate rather than a wrapper around either
+specialist. Both earlier kernels remain intact. Each hidden neuron contains
+an observation dendrite and several saturating predictive dendrites; every
+forecast and outcome uses this same neuron/synapse population. All interface
+sizes are sensory/outcome counts, never task identifiers.
+
+| Rule | Local information used |
+|---|---|
+| Peak event trace | Source sensory activity and its own previous trace/decay |
+| Source variance normalization | Source trace, its own mean and variance |
+| Saturating dendrite | Its own afferents, bias and tanh activity |
+| Predictive soma | Its own branches and fixed excitatory/inhibitory polarities |
+| Dendritic adaptation | Own previous presynaptic eligibility, own soma prediction error, own polarity, own unsaturated-activity gate, scalar learning amount |
+| Axon homeostasis | Own soma activity mean and variance |
+| Outcome adaptation | Own source axon and receiving outcome neuron's own error; no feedback to hidden weights |
+| Structured surprise | Own residual × own branch activity covariance; max magnitude is a broadcast structural-pressure scalar |
+| Recruitment | Persistent structural pressure, elapsed interval and smooth population cost |
+| Connected-neuron pruning | Own age, predictive coactivity/usefulness and decaying local predictive evidence |
+| Oja capacity control | Own branch pre/post activity and strength, no predictive error |
+
+The fixed branch polarities are part of the neuron's local wiring. No learned
+outcome weights are transported back; no error from another neuron is
+propagated or differentiated. The saturation gate is `1-abs(activity)`, a local
+plasticity rule, not a gradient through populations. Input observations teach
+the previous forecast before the current forecast/readout is formed. Only
+then may an outcome label change the outcome synapses.
+
+`SomaConfig` is shared across interfaces; task-specific selection is prohibited
+in the cross-task study. `plasticity=False`, frozen hidden learning, shuffled
+observations and structural yoking are explicit experimental controls, not
+separate candidate inference policies. Source histories continue during frozen
+probes as temporal state, while all strengths/statistics/structure are fixed.
+
+Counts: a Soma hidden count is one neuron with all its dendrites. Births/deaths
+exclude initialization and count complete connected neurons. Weighted sensory,
+branch and outcome edges are counted; fixed branch-to-soma polarities are
+implicit and their number is reported by `branches` in the configuration.
+Removing a neuron removes all its edges. No internal population cap exists.
+
+This starts unification of the principles; it does not claim numerical
+identity with the specialists or inheritance of their measured successes.
+Observation projections remain fixed in this hypothesis. Synaptic evidence
+is checkpointed for inspection; structural protection currently uses each
+neuron's predictive evidence, not the old organism's exact afferent safeguards.
+Growth must earn a benefit against a fixed-final-size predictive control.
+Check the report before interpreting task-specific hidden learning as a
+universal brain, hierarchy, biological sleep, or deep outcome credit assignment.

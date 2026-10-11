@@ -458,3 +458,25 @@ class SomaTests(unittest.TestCase):
         for (_, frames), (_, altered) in zip(train, other):
             self.assertEqual(frames[:11], altered[:11])
         self.assertEqual(symmetry_check()['held']['accuracy'], .5)
+
+    def test_event_trace_preserves_a_brief_source_and_homeostasis_is_local(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, growth=False, pruning=False))
+        a.experience([1., 0.])
+        a.experience([0., 0.])
+        self.assertAlmostEqual(a.traces[0], .8)
+        self.assertEqual(a.traces[1], 0.)
+        self.assertGreater(a.variances[0], 0.)
+        self.assertEqual(a.means[1], 0.)
+
+    def test_local_predictive_evidence_protects_a_connected_neuron(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, initial_hidden=2, growth=False, prune_interval=1,
+                            prune_age=1, prune_threshold=.2))
+        for neuron in a.neurons:
+            neuron.age = 2
+            neuron.usefulness = 0.
+        a.neurons[0].evidence = 1.
+        a.experience([0., 0.])
+        self.assertEqual([neuron.id for neuron in a.neurons], [0])
+        self.assertEqual(a.deaths, 1)

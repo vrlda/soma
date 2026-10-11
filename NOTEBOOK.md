@@ -5,6 +5,33 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: nonlinear dendrites work, first growth rule mistakes noise for structure
+
+**Question.** Can generic nonlinear predictive dendrites transfer interactions
+and can correlation pressure regulate living structure?
+
+**Setup.** Preregistered 1200/160 episodes, seeds0–4, seven paired models;
+source d8724e6. Four initial neurons/four branches. Future product view arrives
+after query; no held-out outcome feedback. Additional 4000-tick independent
+versus four-tick-repeated sensory noise, same configuration.
+
+**Result.** All35 task runs complete. Candidate held99.125%, seen99%, frozen
+transfer87.375%. Frozen random81.125%, shuffled91.125%, Oja51.125%, pass2
+linear55%, supervised linear51.125%, fixed-final predictive99.5%. All five
+candidates have births AND deaths; means78.2 births/8.4 deaths, final73.8.
+However both noise conditions produce exactly33 births/zero deaths in every
+seed: every growth opportunity fires. The all-controls gate fails (fixed-size
+and ten-point shuffled advantage); no growth-benefit claim.
+
+**Meaning.** Nonlinear local learning is promising, but absolute residual ×
+branch covariance includes negative covariance from the predictor's own
+overprediction: it need not indicate learnable input structure. Population
+shuffling also retains a mean product-bearing projection; teacher alignment
+was not fully destroyed. Freeze these failures unchanged. Test a signed
+underfit signal and a temporally shuffled observation control before confirmation.
+
+---
+
 ## 2026-10-11: pass 2 merged, with a review
 
 **What happened.** The overnight pass 2 (entries below) was merged unchanged.
