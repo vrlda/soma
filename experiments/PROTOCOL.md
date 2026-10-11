@@ -762,3 +762,97 @@ exemplar's mean <=.60 to validate the claimed anti-template construction.
 No rescue or relabelling of the original 77.56% failed gate. This tests whether
 the fixed candidate transfers to a task with an actually adverse nearest
 memorization shortcut and supplies a stronger benchmark for later research.
+
+## Pass 4: calibrate, acquire, then unify (2026-10-11)
+
+Registered before new code or measurements, based on reviewed a1b9d04.
+VISION and the pass-3 review govern this pass. The existing Soma/SomaConfig
+implementation remains the pass-3 reference, unchanged; new shared classes
+inside soma.py will contain the merged rules. No specialist is instantiated
+inside the new brain. Historical records are immutable.
+
+### Phase 0 and the leak-free phase-A task
+
+The new task has two binary factors (-1,+1) on seeded orthogonal sensory
+axes in twelve raw coordinates, amplitude .6. Independent uniform .3 nuisance
+is projected perpendicular to both axes. The experiment alone computes the
+product-sign label. All four combinations occur, balanced in each shuffled
+four-episode block. Each episode has eight blank ticks and four independent
+noisy factor views; the third carries a query marker and outcome feedback
+only after prediction. The fourth is another RAW FACTOR view, not a product,
+parity, property or label-bearing sensory channel. Query index 10 is the same
+as the earlier interface. Train 1200 episodes; primary score is prequential
+final 400, report the entire learning curve and every seed. Frozen probe:
+200 balanced fresh episodes from the final checkpoint, with weights,
+statistics and structure fixed but normal evolving temporal state. Gate:
+at least .95 final-window accuracy in at least nine of seeds 10–19. Separately
+require the same reliability on the frozen probe before claiming stable
+acquisition. Equal priors and class raw means exactly zero make the population
+affine-logistic optimum chance; measure the actual linear control too.
+No held-out combinations are implied by this acquisition task.
+
+Experiment-only MLP references: one tanh hidden layer, sizes 16 and 64,
+online logistic SGD rates .03 and .15, one update per labelled query, no
+replays, epochs, factor decoder or input interaction features. Same sensory
+streams, same 1200 episodes, same raw preceding factor view as the linear
+baseline. Full four-cell grid on exploratory seeds 0–4 for original pass-3
+nonlinear, stronger nonlinear, and new acquisition tasks; report all cells,
+not just a winning seed. Select the best MEAN score per task (held score for
+old tasks, final-window score for acquisition), with smaller-size then lower-
+rate ties. Freeze reference choices before SOMA confirmation. Also measure
+nearest raw exemplars and the existing supervised linear baseline. An MLP
+held mean >= .90 is the conventional-solvability criterion; if stronger task
+fails, its held score is an inductive-bias target, never a pass-4 SOMA gate.
+Nearest baseline uses online prior examples for acquisition, frozen training
+examples for probes; accuracy only, arbitrary .99 confidence not interpreted.
+
+### Phase A hypotheses and controls
+
+Merge local linear next-input prediction, event traces/source homeostasis,
+competitive conjunctive recruitment and protected pruning in one substrate.
+Predictions learn from their own observation and prior presynaptic eligibility,
+never outcomes. Conjunctive receptive fields learn from local source activity
+and their own winning/matching activity. A provisional dendrite is a neuron
+and its afferents, not a table of examples: persistence of matching sensory
+patterns confirms recruitment, initialized from local activity. Its own
+prediction residual can target added receptive-field branches at that same
+predictor. No task identifier, product feature, factor axis or solver exists
+in brain/. Labels teach outcome synapses only. Costs and cadence regulate
+structure; no population cap. At most three explicitly preregistered hypothesis
+iterations on seeds 0–4; preserve all failures, then freeze one fully specified
+SELECTED_SHARED.json before any acquisition confirmation on 10–19.
+
+Required identical-stream controls: organism.py selected combined recruitment
+on raw input; pass-3 SELECTED_SOMA; recruitment off; prediction off (random
+predictive features, recruitment active); initial matched-final-size with all
+growth/pruning off; shuffled prediction teachers (independent episode
+permutation); supervised linear; selected conventional MLP; chance .5.
+Report capacities; matched final size includes all branches and outcome paths,
+not just a neuron count. Controls are ablations, not specialist task routing.
+If acquisition passes, test only conventionally calibrated held-out tasks;
+claim beyond memorization only if candidate beats nearest and frozen-prediction
+recruitment controls. Any leaky old task stays explicitly labelled as such.
+
+Noise diagnostic: five seeds, 12000 independent uniform [-1,+1] raw sensory
+ticks, plus the exact acquisition sensory stream with independent random labels
+for 2400 episodes. Record structure every 1000 ticks/200 episodes, births
+in each third, and compare random versus ordinary labels on identical inputs.
+These finite probes cannot prove asymptotic boundedness. Do not mistake neural
+extinction or mass birth/death churn for noise regulation.
+
+### B and contingent C
+
+Unchanged phase-A selection except interfaces and seed, on original pass-2
+linear (600 episodes), gap-8 grammar (1200, final 400), context lifetime
+(1200 A/1200 B/400 A), and phase-A acquisition. Initial seeds 0–4, specialists
+on identical streams. Gate acquisition at .90 initial-A final 400 BEFORE any
+retention claim; report eligible and ineligible returns separately. No per-task
+tuning. After A and B complete, choose longer time only: fresh gap-16 grammar,
+same shared settings, five seeds and trace-off control. No sleep experiment.
+
+Provenance: CPython 3.12.14, source hashes at import, source frozen during
+batches, full probabilities/structural trajectories and reproducible seeds.
+All old raw records, old selections, VISION and the two specialist kernels
+remain byte-identical. Tests before every commit; exact resumed recruited
+structure, locality to labels/distant errors, no-leak construction and complete
+structural-counter integrity are required.
