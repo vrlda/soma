@@ -5,6 +5,39 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: confirmation fails the task gate; geometric memorization caveat
+
+**Question.** Does the frozen diagnostic hypothesis generalize robustly and
+beat every required control on unused streams?
+
+**Setup.** `SELECTED_SOMA.json`, seeds10–19, all80 runs; source frozen from
+dispatch. Paired actual sensory streams and full structural schedules.
+Predictable-nuisance specificity variant on0–4, all40 controls. Additional
+preregistered nearest-exemplar baseline on10–19, no influence on SOMA.
+
+**Result.** All80 confirmation runs complete. Held77.5625% [41.25–95.625],
+seen84.5%, frozen transfer76.0625%. Frozen60.5%, population-shuffled66%,
+episode-shuffled63.4375%, Oja50.4375%, pass2 linear45.25%, supervised
+linear49.125%, fixed-final80.5625%. Mean births5/deaths1.7/final7.3; only
+five of ten have both births AND deaths. Original mean/individual/frozen
+transfer/fixed-final/living-structure gates FAIL. Required remaining-control
+advantages, frozen-control transfer advantage and pairing checks pass.
+
+Predictable nuisance on0–4: candidate61.125%, frozen60.25%; compare the
+matched interaction condition75.125% vs56%. Prediction can learn a thing
+unrelated to the outcome and have no useful feature advantage.
+Nearest raw exemplar100% on every held/seen confirmation stream. Excluding
+exact lookup entries did NOT exclude similarity-based memorization.
+
+**Meaning.** Local adaptation supplies some useful nonlinear features, but
+this does not earn robust learned composition or a useful-growth claim. The
+task is nonlinear for affine prediction, yet is not a strong anti-template
+benchmark. Its geometric shortcut is an additional limitation, not a gate
+change. All three failures, selected confirmation and stronger diagnostic
+remain intact. Proceed to the required single-config comparisons without tuning.
+
+---
+
 ## 2026-10-11: covariance regulates noise; freeze a blocked nonlinear hypothesis
 
 **Question.** Can observation/branch covariance expose structure without

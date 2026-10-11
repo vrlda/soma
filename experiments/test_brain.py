@@ -358,8 +358,6 @@ class PredictiveBrainTests(unittest.TestCase):
         state['units'][0]['basal'][0]['strength']=10000.
         self.assertNotEqual(a.units[0].basal[0].strength,10000.)
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class SomaTests(unittest.TestCase):
@@ -515,3 +513,7 @@ class SomaTests(unittest.TestCase):
         branch.observed_covariance = -.4
         a.experience([0., 0.])
         self.assertAlmostEqual(a.pressure, .1)
+
+
+if __name__ == "__main__":
+    unittest.main()

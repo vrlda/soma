@@ -717,3 +717,18 @@ controls on0–4 and independent/repeated noise before freezing. No further
 candidate tuning. Prefer the interpretable noise-regulating candidate if
 its task transfer survives; otherwise explicitly confirm a blocked hypothesis.
 All original gates, including fixed-final and population shuffle, remain.
+
+
+### Post-selection geometric scope diagnostic (before execution)
+
+The task excludes exact entries for withheld pairs but this alone does NOT
+exclude a similarity-based memorizer: withheld magnitudes are inside the
+same sign quadrants as nearby seen vectors. Add an explicitly experiment-only
+nearest-exemplar baseline on confirmation streams10–19, storing all1200 raw
+query views and labels, Euclidean distance, no factor decoder. It never teaches
+or answers for SOMA. This diagnostic does not alter any registered gate or
+selected configuration. If it succeeds, the task cannot establish superiority
+over memorization with similarity, even if nonlinear hidden learning improves.
+Report that limitation prominently; do not relabel the experiment as proof
+of a compositional algorithm. Future task design must empirically defeat
+nearest-template baselines before studying stronger composition claims.

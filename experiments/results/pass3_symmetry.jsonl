@@ -1,0 +1,1 @@
+{"suite": "pass3_symmetry", "checks": {"seen": {"class_means": [[0.0, 0.0], [0.0, 0.0]], "positive_prior": 0.5, "affine_logistic_optimum_loss": 0.6931471805599453, "accuracy": 0.5}, "held": {"class_means": [[0.0, 0.0], [0.0, 0.0]], "positive_prior": 0.5, "affine_logistic_optimum_loss": 0.6931471805599453, "accuracy": 0.5}}, "complete": true}

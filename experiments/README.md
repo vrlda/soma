@@ -119,3 +119,45 @@ python -B -m experiments.check_pass2_reproducibility \
 
 It requires this repository's Git history and CPython 3.12.14. Current-code
 mismatches are recorded, while a pinned-source mismatch fails the verifier.
+
+## Pass 3: nonlinear prediction, living structure and one shared candidate
+
+`nonlinear.py` emits raw factors and nuisance, then a query, THEN a future
+product-bearing sensory view. The brain never gets factor identities. The
+final hypothesis `SELECTED_SOMA.json` is explicitly a **blocked diagnostic
+selection**, not a passing or universal configuration. It is unchanged across
+nonlinear/linear composition, gap-8 grammar, contextual lifetime and gap-16.
+Old kernels/defaults/selections and raw files remain intact.
+
+```sh
+python -B -m experiments.nonlinear --selection experiments/SELECTED_SOMA.json \
+  --seeds 10,11,12,13,14,15,16,17,18,19 --output /tmp/soma-pass3-confirmation.jsonl
+python -B -m experiments.nonlinear --selection experiments/SELECTED_SOMA.json \
+  --condition predictable_nuisance --output /tmp/soma-pass3-nuisance.jsonl
+python -B -m experiments.unified --selection experiments/SELECTED_SOMA.json \
+  --output /tmp/soma-pass3-unified.jsonl
+python -B -m experiments.unified --selection experiments/SELECTED_SOMA.json \
+  --tasks grammar16 --variants unified,trace_off --output /tmp/soma-pass3-time.jsonl
+python -B -m experiments.pass3_diagnostics --selection experiments/SELECTED_SOMA.json \
+  --mode replay --output /tmp/soma-pass3-replay.jsonl
+python -B -m experiments.pass3_report
+```
+
+Run in CPython 3.12.14. Runners refuse to overwrite raw records. The
+confirmation contains all original controls plus episode-shuffled observation
+teachers, and exact birth/death yoking through primary testing. Independent
+noise/repeated-input growth probes expose failure of the initial pressure rule.
+All three exploratory hypotheses and their failures remain versioned. Source
+hashes are captured at import; core source is frozen during each batch.
+
+Primary testing continues input-driven adaptation: each future sensory view
+reveals interaction structure after the preceding query. The frozen-weights,
+statistics and structure probe is essential evidence of pre-existing transfer.
+Its sensory trace still evolves normally. Do not present adaptive testing alone
+as zero-adaptation composition. The fixed-final-size control measures whether
+growth actually helps; a large-model score does not earn that claim.
+
+`unified.py` instantiates the single Soma substrate directly. It does not route
+tasks to specialist kernels. Specialist comparison rows are explicitly labelled
+controls. Each lifetime gates retention on original-context acquisition; all
+failed acquisitions remain in the report. Ablations are not per-task retuning.

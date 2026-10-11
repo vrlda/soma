@@ -159,3 +159,14 @@ neuron's predictive evidence, not the old organism's exact afferent safeguards.
 Growth must earn a benefit against a fixed-final-size predictive control.
 Check the report before interpreting task-specific hidden learning as a
 universal brain, hierarchy, biological sleep, or deep outcome credit assignment.
+
+The frozen diagnostic selection uses `pressure_rule="covariance"`: each branch
+keeps centered observation/activity covariance and forecast/activity covariance.
+Only observation covariance exceeding the explained forecast covariance
+contributes positive structural pressure. Both originate inside the same
+receiving neuron and branch. Earlier absolute-covariance and signed-underfit
+rules remain ablations with preserved failures. Predictive evidence increment
+and pruning threshold scale together. This greatly reduces independent-noise
+recruitment over the measured4000 ticks, not a proof of asymptotic regulation.
+An externally replaced observation signal is ONLY the episode-shuffled control;
+it never supplies an answer to the candidate. See the failed confirmation gates.

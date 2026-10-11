@@ -35,6 +35,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--selection', required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--checkpoint')
     parser.add_argument('--mode', choices=('replay', 'noise', 'symmetry'), required=True)
     args = parser.parse_args()
     selection = json.loads(Path(args.selection).read_text())
@@ -54,18 +55,24 @@ def main():
                     print(json.dumps({k: row[k] for k in ('seed', 'condition', 'brain')}), flush=True)
         else:
             records = [json.loads(line) for line in (ROOT / 'experiments/results/pass3_nonlinear_confirmation.jsonl').read_text().splitlines()]
+            candidate, schedule, checkpoint = experiment(13, 'candidate', selection['task'])
             for variant in ('candidate', 'frozen', 'shuffled', 'temporal_shuffled'):
-                row = next(r for r in records if r['seed'] == 10 and r['variant'] == variant)
-                candidate, schedule, _ = experiment(10, 'candidate', selection['task'])
-                replay = candidate if variant == 'candidate' else experiment(10, variant, selection['task'], schedule)[0]
+                row = next(r for r in records if r['seed'] == 13 and r['variant'] == variant)
+                replay = candidate if variant == 'candidate' else experiment(13, variant, selection['task'], schedule)[0]
                 checks = {key: replay[key] == row[key] for key in
                           ('metrics', 'seen_probe', 'frozen_probe', 'brain', 'trajectory', 'probes', 'schedule_hash')}
                 emit(dict(suite='pass3_reproducibility', source='pass3_nonlinear_confirmation.jsonl',
-                          variant=variant, seed=10, checks=checks, exact_match=all(checks.values()),
+                          variant=variant, seed=13, checks=checks, exact_match=all(checks.values()),
                           source_revision=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                           source_hashes=SOURCE_HASHES, runtime=dict(implementation=platform.python_implementation(), version=platform.python_version())))
                 if not all(checks.values()):
                     raise SystemExit('Unified nonlinear replay changed')
+            if args.checkpoint:
+                path = Path(args.checkpoint)
+                if path.exists():
+                    raise FileExistsError(path)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                Soma.from_state(checkpoint).save(path)
             from experiments.unified import work
             records = [json.loads(line) for line in (ROOT / 'experiments/results/pass3_unified_comparison.jsonl').read_text().splitlines()]
             for condition in ('linear_composition', 'grammar8', 'context_lifetime'):
