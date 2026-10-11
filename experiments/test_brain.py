@@ -360,3 +360,101 @@ class PredictiveBrainTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SomaTests(unittest.TestCase):
+    def test_hidden_lifetime_ignores_outcome_labels(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, growth_interval=3, growth_threshold=-1, pruning=True))
+        b = Soma.from_state(a.state())
+        for i in range(40):
+            a.experience([(-1.) ** i, .2], i % 2)
+            b.experience([(-1.) ** i, .2], (i + 1) % 2)
+        sa, sb = a.state(), b.state()
+        for state in (sa, sb):
+            state.pop('bias')
+            for neuron in state['neurons']:
+                neuron.pop('outcomes')
+        self.assertEqual(sa, sb)
+
+    def test_branch_update_ignores_distant_error_and_current_sources(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, initial_hidden=2))
+        a.experience([.4, -.2])
+        b = Soma.from_state(a.state())
+        b.neurons[1].error = 10000
+        b.neurons[1].activity = -10000
+        a._learn_prediction(a.neurons[0], .8, 1.)
+        b._learn_prediction(b.neurons[0], .8, 1.)
+        self.assertEqual(a.neurons[0], b.neurons[0])
+
+    def test_save_resume_exact_with_both_structural_events(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, initial_hidden=2, shuffled=True, growth_interval=2,
+                            growth_threshold=-1, prune_interval=4, prune_age=3, prune_threshold=1e6))
+        for i in range(7):
+            a.experience([i % 2, .5], i % 2)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'brain.json'
+            a.save(path)
+            b = Soma.load(path)
+        for i in range(20):
+            self.assertEqual(a.experience([i % 2, -.5], i % 2), b.experience([i % 2, -.5], i % 2))
+        self.assertEqual(a.state(), b.state())
+        self.assertGreater(a.births, 0)
+        self.assertGreater(a.deaths, 0)
+        for neuron in a.neurons:
+            self.assertTrue(all(edge.source == neuron.id for edge in neuron.outcomes))
+            self.assertTrue(all(0 <= edge.source <= a.config.inputs
+                                for branch in neuron.dendrites for edge in branch.synapses))
+        self.assertEqual(len(a.neurons), a.config.initial_hidden + a.births - a.deaths)
+
+    def test_invalid_input_and_snapshot_are_isolated(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2))
+        before = a.state()
+        for x, y in (([0], None), ([0, math.nan], None), ([0, 0], 3)):
+            with self.assertRaises(ValueError):
+                a.experience(x, y)
+        self.assertEqual(before, a.state())
+        b = Soma.from_state(before)
+        b.neurons[0].dendrites[0].synapses[0].strength = 1e6
+        self.assertEqual(before, a.state())
+
+    def test_frozen_hidden_and_fully_frozen_controls(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, hidden_learning=False, growth=False, pruning=False))
+        strengths = [[edge.strength for branch in neuron.dendrites for edge in branch.synapses] for neuron in a.neurons]
+        for i in range(20):
+            a.experience([i % 2, .5], i % 2)
+        self.assertEqual(strengths, [[edge.strength for branch in neuron.dendrites for edge in branch.synapses] for neuron in a.neurons])
+        b = Soma(SomaConfig(inputs=2, plasticity=False))
+        before = b.state()
+        for i in range(10):
+            b.experience([i % 2, .5])
+        self.assertEqual(before['means'], b.means)
+        self.assertEqual(before['variances'], b.variances)
+        self.assertEqual(b.births, 0)
+        self.assertEqual(b.deaths, 0)
+
+    def test_structural_yoking_is_exact_and_label_independent(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, growth_interval=2, growth_threshold=-1,
+                            prune_interval=4, prune_age=3, prune_threshold=1e6))
+        b = Soma(SomaConfig(inputs=2, hidden_learning=False))
+        for i in range(20):
+            a.experience([.5, -.4])
+            b.experience([.5, -.4], structure_override=a.last_event)
+            self.assertEqual(a.summary()['synapses'], b.summary()['synapses'])
+            self.assertEqual([n.id for n in a.neurons], [n.id for n in b.neurons])
+            self.assertEqual(a.last_event, b.last_event)
+
+    def test_nonlinear_task_has_no_future_view_before_query(self):
+        from experiments.nonlinear import stream, symmetry_check, label, HELD
+        train, test, _ = stream(0, episodes=120)
+        self.assertFalse({p for p, _ in train} & set(HELD))
+        self.assertEqual(sum(label(p) for p, _ in test), 80)
+        other, _, _ = stream(0, episodes=120, condition='predictable_nuisance')
+        for (_, frames), (_, altered) in zip(train, other):
+            self.assertEqual(frames[:11], altered[:11])
+        self.assertEqual(symmetry_check()['held']['accuracy'], .5)
