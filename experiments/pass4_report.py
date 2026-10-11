@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 import statistics
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / 'experiments/results'
@@ -39,6 +40,41 @@ def capacity(rows, variant):
     return branches + ' / ' + ' / '.join(
         f"{statistics.mean(r['brain'][key] for r in rows):.1f}"
         for key in ('hidden', 'synapses'))
+
+
+def audit(confirmation, raw_explore, unified, longer):
+    frozen = json.loads((ROOT / 'experiments/SELECTED_SHARED.json').read_text())['brain']
+    for seed in range(10, 20):
+        paired = [r for r in confirmation if r['seed'] == seed]
+        assert len(paired) == 9
+        assert len({r['stream_hash'] for r in paired}) == 1
+        candidate = next(r for r in paired if r['variant'] == 'candidate')
+        fixed = next(r for r in paired if r['variant'] == 'fixed_final')
+        config = fixed['config']
+        dimensions = config['inputs'] + config['predictors']
+        initial_edges = config['predictors'] * (2 * config['inputs'] + 1 + config['outputs']) + dimensions
+        initial_edges += sum(dimensions + 1 + len(channels) for _, channels in config['initial_layout'])
+        assert initial_edges == candidate['brain']['synapses']
+    exploratory = load('pass4_shared_hypothesis3.jsonl') + load('pass4_exploratory_controls.jsonl') + raw_explore
+    for seed in range(5):
+        assert len({r['stream_hash'] for r in exploratory if r['seed'] == seed}) == 1
+    for row in confirmation + unified + longer:
+        if row['variant'] == 'candidate':
+            config = {k: v for k, v in row['config'].items() if k not in ('inputs', 'outputs', 'seed')}
+            assert config == frozen, (row['suite'], row['seed'])
+    checked = set()
+    for path in sorted(RESULTS.glob('pass4_*.jsonl')):
+        for row in load(path.name):
+            if 'source_revision' not in row:
+                continue
+            for name, digest in row.get('source_hashes', {}).items():
+                key = (row['source_revision'], name, digest)
+                if key in checked:
+                    continue
+                checked.add(key)
+                blob = subprocess.check_output(['git', 'show', row['source_revision'] + ':' + name], cwd=ROOT)
+                assert hashlib.sha256(blob).hexdigest() == digest, (path.name, key)
+    return len(checked)
 
 
 def figures(confirmation, noise_old, noise_new, unified):
@@ -120,6 +156,7 @@ def main():
     raw_replay = load('pass4_raw_exact_replay.jsonl', 1)
     legacy = load('pass4_pass3_replay.jsonl', 10) + load('pass4_pass3_hard_replay.jsonl', 2)
     assert all(r['exact_match'] for r in replay + raw_replay + legacy)
+    source_count = audit(confirmation, raw_explore, unified, longer)
     candidate = [r for r in confirmation if r['variant'] == 'candidate']
     assert {r['seed'] for r in candidate} == set(range(10, 20))
     primary_count = sum(r['final_window']['accuracy'] >= .95 for r in candidate)
@@ -164,6 +201,10 @@ def main():
          next(r['trajectory'][-1]['births'] - r['trajectory'][7]['births'] for r in noise_new if r['seed'] == seed and r['condition'] == 'random_labels'),
          next(r['hidden_hash'] for r in noise_new if r['seed'] == seed and r['condition'] == 'random_labels') == next(r['hidden_hash'] for r in noise_new if r['seed'] == seed and r['condition'] == 'ordinary_labels')]
         for seed in range(5)])
+    raw_table = table(['Raw pass-1 seed / cohort', 'Final 400', 'Frozen probe', 'Hidden units', 'Births', 'Deaths'], [
+        [str(r['seed']) + (' / explore' if r['seed'] < 5 else ' / confirm'), pct(r['final_window']['accuracy']),
+         pct(r['frozen_probe']['accuracy']), r['brain']['hidden'], r['brain']['births'], r['brain']['deaths']]
+        for r in raw_explore + raw_confirm])
     figures(confirmation, noise_old, noise_new, unified)
     detailed = f'''# Pass 4 measured results — 2026-10-11
 
@@ -205,6 +246,14 @@ one provisional dendrite and its replacements are separately observable.
 No population cap applies to new branches. Output-edge counts include pruning
 and regrowth. This is finite conjunction acquisition with learned denoising,
 not a discovered factorized algorithm or emergent hierarchy.
+
+## Uncapped raw pass-1 reference, all fifteen streams
+
+{raw_table}
+
+This uses the actual immutable organism kernel and selected recruitment
+settings on raw coordinates, with full exposure and no imposed population cap.
+Births/deaths here count its recruited neurons, not SharedSoma branches.
 
 ## Noise regulation and random labels
 
@@ -264,7 +313,8 @@ Eight representative shared runs replay exactly (two exploratory versions
 pinned to their source revisions, three confirmation variants, three older
 interfaces); one complete raw-organism reference also replays exactly. Four
 unchanged calibration restart cases match; immutability, stream pairing,
-frozen selection and executed-source hashes pass. All twelve pass-3 cases
+frozen selection and all {source_count} distinct executed-source snapshots pass.
+The report also checks raw-control pairing and exact initial fixed-size capacity. All twelve pass-3 cases
 replay with CURRENT Soma code. No numerical tolerance is used. VISION,
 organism.py, predictive.py and all historical raw records match reviewed base;
 legacy Soma's original source prefix is byte-identical.
