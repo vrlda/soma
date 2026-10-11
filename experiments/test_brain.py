@@ -502,3 +502,16 @@ class SomaTests(unittest.TestCase):
         self.assertEqual(a.traces, b.traces)
         self.assertEqual(a.means, b.means)
         self.assertNotEqual(a.neurons[0].dendrites, b.neurons[0].dendrites)
+
+    def test_covariance_pressure_requires_unexplained_sensory_relation(self):
+        from brain.soma import Soma, SomaConfig
+        a = Soma(SomaConfig(inputs=2, initial_hidden=1, pressure_rule='covariance',
+                            plasticity=False, growth=False, pruning=False))
+        branch = a.neurons[0].dendrites[0]
+        branch.observed_covariance = .1
+        branch.forecast_covariance = .3
+        a.experience([0., 0.])
+        self.assertEqual(a.pressure, 0.)
+        branch.observed_covariance = -.4
+        a.experience([0., 0.])
+        self.assertAlmostEqual(a.pressure, .1)

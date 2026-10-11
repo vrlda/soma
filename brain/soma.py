@@ -49,7 +49,7 @@ class SomaConfig:
             raise ValueError('Intervals must be positive')
         if not 0 <= self.trace_decay < 1 or not 0 <= self.statistics_rate <= 1:
             raise ValueError('Invalid trace/statistics rate')
-        if self.pressure_rule not in ('branch', 'underfit'):
+        if self.pressure_rule not in ('branch', 'underfit', 'covariance'):
             raise ValueError('Unknown structural pressure rule')
         if self.hidden_rule not in ('prediction', 'oja'):
             raise ValueError('Unknown local rule')
@@ -74,6 +74,9 @@ class Dendrite:
     polarity: float
     activity: float = 0.
     correlation: float = 0.
+    mean: float = 0.
+    observed_covariance: float = 0.
+    forecast_covariance: float = 0.
 
 
 @dataclass
@@ -91,6 +94,7 @@ class Neuron:
     usefulness: float = 0.
     evidence: float = 0.
     underfit: float = 0.
+    observed_mean: float = 0.
 
 
 class Soma:
@@ -139,7 +143,14 @@ class Soma:
         neuron.usefulness += rate * (skill - neuron.usefulness)
         neuron.evidence = cfg.evidence_decay * neuron.evidence + cfg.evidence_rate * max(0., skill)
         neuron.underfit += rate * (neuron.error * neuron.activity - neuron.underfit)
+        observed_delta = observed - neuron.observed_mean
+        forecast_delta = neuron.activity - neuron.mean
+        neuron.observed_mean += rate * observed_delta
         for branch in neuron.dendrites:
+            branch_delta = branch.activity - branch.mean
+            branch.observed_covariance += rate * (observed_delta * branch_delta - branch.observed_covariance)
+            branch.forecast_covariance += rate * (forecast_delta * branch_delta - branch.forecast_covariance)
+            branch.mean += rate * branch_delta
             branch.correlation += rate * (neuron.error * branch.activity - branch.correlation)
             if not cfg.hidden_learning:
                 continue
@@ -227,6 +238,9 @@ class Soma:
         correlations = [abs(branch.correlation) for neuron in self.neurons for branch in neuron.dendrites]
         if cfg.pressure_rule == 'underfit':
             self.pressure = max((max(0., neuron.underfit) for neuron in self.neurons), default=0.)
+        elif cfg.pressure_rule == 'covariance':
+            self.pressure = max((max(0., abs(branch.observed_covariance) - abs(branch.forecast_covariance))
+                                 for neuron in self.neurons for branch in neuron.dendrites), default=0.)
         else:
             self.pressure = max(correlations, default=0.)
         self.tick += 1
@@ -282,7 +296,9 @@ class Soma:
             data['observation'] = [Synapse(**edge) for edge in data['observation']]
             data['outcomes'] = [Synapse(**edge) for edge in data['outcomes']]
             data['dendrites'] = [Dendrite([Synapse(**edge) for edge in branch['synapses']],
-                                        branch['polarity'], branch['activity'], branch['correlation'])
+                                        branch['polarity'], branch['activity'], branch['correlation'],
+                                        branch.get('mean', 0.), branch.get('observed_covariance', 0.),
+                                        branch.get('forecast_covariance', 0.))
                                  for branch in data['dendrites']]
             obj.neurons.append(Neuron(**data))
         for key, value in state.items():
