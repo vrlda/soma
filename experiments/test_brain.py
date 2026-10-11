@@ -583,7 +583,7 @@ class SharedSomaTests(unittest.TestCase):
     def test_hidden_rules_and_recruitment_ignore_labels(self):
         from brain.soma import SharedSoma, SharedConfig
         from experiments.pass4_acquisition import hidden_hash
-        a = SharedSoma(SharedConfig(inputs=3, seed=2))
+        a = SharedSoma(SharedConfig(inputs=3, seed=2, structured_threshold=.12))
         b = SharedSoma.from_state(a.state())
         for i in range(150):
             x = [float((i // 10) % 2), .2, float(i % 10 == 3)]
@@ -597,6 +597,7 @@ class SharedSomaTests(unittest.TestCase):
         from brain.soma import SharedSoma, SharedConfig
         a = SharedSoma(SharedConfig(inputs=3))
         a.experience([.2, .4, .6])
+        a.neurons[0].branches[0].activity = .7
         b = SharedSoma.from_state(a.state())
         b.neurons[1].error = 900.
         b.neurons[1].activity = -900.
@@ -692,6 +693,20 @@ class SharedSomaTests(unittest.TestCase):
         b.experience([0.] * 3)
         self.assertEqual(len(a._branches()), 1)
         self.assertEqual(len(b._branches()), 0)
+
+    def test_selected_raw_histories_and_growth_resume_exactly(self):
+        from brain.soma import SharedSoma, SharedConfig
+        from experiments.pass4 import acquisition_stream, acquisition_label, episode
+        a = SharedSoma(SharedConfig(vigilance=.5, persistence_matches=2, structured_threshold=.12))
+        records, _, _ = acquisition_stream(0, 240)
+        for pair, frames in records[:200]:
+            episode(a, frames, acquisition_label(pair))
+        self.assertGreater(a.births, 0)
+        self.assertGreater(a.structured_fraction, .12)
+        b = SharedSoma.from_state(a.state())
+        for pair, frames in records[200:]:
+            self.assertEqual(episode(a, frames, acquisition_label(pair)), episode(b, frames, acquisition_label(pair)))
+        self.assertEqual(a.state(), b.state())
 
     def test_invalid_experience_is_atomic(self):
         from brain.soma import SharedSoma, SharedConfig
