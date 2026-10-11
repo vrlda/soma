@@ -5,6 +5,44 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: acquisition confirmation passes; older-task aliasing remains
+
+**Question.** Does the frozen shared configuration acquire on unused streams,
+and inherit the older specialists' reliability without per-task adjustment?
+
+**Setup.** All 80 fast confirmation rows, seeds 10–19; 30 same-configuration
+older-task runs. Raw-organism reference cohorts are still running uncapped.
+Two preregistered observer diagnoses, all neural settings unchanged.
+
+**Result.** Candidate final-window mean 99.8%, range 99.5–100%; frozen mean
+99.95%, range 99.5–100%. ALL TEN pass both .95 gates. Prediction-off
+80.95%/86.6%, shuffled 61.625%/79.55%, recruitment-off 29%/53.35%, fixed-final
+28.975%/52.65%, pass3 46.875%/54.25%, linear 41.65%/48.3%, MLP 97.575%/100%.
+The report will add the raw-organism control when its complete cohort finishes.
+Shared older-task linear 80% versus specialist 97%; grammar 49.05% versus
+100%. Context initial-A 51.05%, 0/5 acquired; B 48.8%, raw return 50.4%,
+NOT retention evidence. Specialist A 94.3%, 4/5 acquired, eligible return 100%.
+
+Observer-only linear readout mean 93.625% versus native 80%; some native seeds
+remain better (0 and 4), so this is not a universal rescue. Exact native
+training state hashes and test probabilities match phase B. Seed-0 temporal
+oracle reads both traces at 100%, but branch 4 merges (0,0)/(1,0), and branch 3
+merges (0,1)/(1,1): opposite outcomes in each. Best constant winner assignment
+is only 56.25%; native acquisition 53.5%. All original A probabilities replay
+exactly. One small failing initial-A state saved for future diagnosis.
+
+**Meaning.** Local prediction plus recruited conjunctions earns finite
+nonlinear acquisition with nuisance, not generalization or a universal brain.
+The MLP equals or exceeds frozen accuracy; do not claim general superiority.
+The older temporal information survives but its weak first cue is aliased in
+branch matching. Accessible linear features also suffer readout conditioning;
+the observer is a labelled baseline, never a replacement for native results.
+C remains contingent on completing ALL A/B controls. Calibrated transfer may
+now run because both registered acquisition gates pass; the stronger task's
+uncalibrated held score remains outside pass-4 gates.
+
+---
+
 ## 2026-10-11: raw-source correlation blocks noise births; shared selection frozen
 
 **Question.** Does gating recruitment on actual raw temporal structure retain
