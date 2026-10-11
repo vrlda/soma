@@ -96,7 +96,7 @@ def work(args):
             name = 'SELECTED_COMBINED.json' if task == 'context_lifetime' else 'SELECTED_HOMEOSTASIS.json'
             settings = json.loads((ROOT / 'experiments' / name).read_text())['overrides']
             row = (run.lifetime(seed, 'candidate', settings, budget_seconds=600, gap=8)
-                   if task == 'context_lifetime' else run.grammar(seed, 'candidate', settings, gap=8, budget_seconds=300))
+                   if task == 'context_lifetime' else run.grammar(seed, 'candidate', settings, gap=16 if task == 'grammar16' else 8, budget_seconds=300))
             if task == 'context_lifetime':
                 row['acquired'] = row['phases'][0]['last_400']['accuracy'] >= .9
                 row['retention_eligible'] = row['acquired']
