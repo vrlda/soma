@@ -355,6 +355,7 @@ class SharedConfig:
     prediction_learning: bool = True
     plasticity: bool = True
     protection: bool = True
+    structured_threshold: float = 0.
     # An optional random-wiring capacity control, never candidate knowledge.
     initial_layout: tuple = ()
 
@@ -372,8 +373,8 @@ class SharedConfig:
                  self.predictive_readout, self.prune_threshold)
         if any(not math.isfinite(v) or v < 0 for v in rates):
             raise ValueError('Invalid shared rate/cost')
-        if not 0 <= self.evidence_decay <= 1:
-            raise ValueError('Invalid shared evidence decay')
+        if not 0 <= self.evidence_decay <= 1 or not 0 <= self.structured_threshold <= 1:
+            raise ValueError('Invalid shared evidence/structure threshold')
 
 
 @dataclass
@@ -428,6 +429,10 @@ class SharedSoma:
         self.replacements = 0
         self.pending_matches = 0
         self.pressure = 0.
+        self.raw_means = [0.] * config.inputs
+        self.raw_variances = [1.] * config.inputs
+        self.raw_covariances = [0.] * config.inputs
+        self.structured_fraction = 0.
         self.last_birth_tick = 0
         self.last_event = dict(births=0, deaths=[], parent=None)
         for i in range(config.predictors):
@@ -515,6 +520,21 @@ class SharedSoma:
             for neuron in self.neurons:
                 observed = sum(s.strength * teacher[s.source] for s in neuron.observation)
                 self._learn_forecast(neuron, observed, gate)
+        if cfg.plasticity and cfg.structured_threshold:
+            # Presynaptic sources maintain their own lag covariance from RAW
+            # activity, before event traces can manufacture apparent persistence.
+            rate = cfg.statistics_rate
+            for i, value in enumerate(signal):
+                old_mean = self.raw_means[i]
+                delta = value - old_mean
+                previous_delta = self.sensory[i] - old_mean
+                self.raw_covariances[i] += rate * (delta * previous_delta - self.raw_covariances[i])
+                self.raw_means[i] += rate * delta
+                self.raw_variances[i] = max(0., (1 - rate) * self.raw_variances[i]
+                                             + rate * delta * (value - self.raw_means[i]))
+            # A broadcast amount gate, never a desired weight direction.
+            self.structured_fraction = max(0., sum(self.raw_covariances)) / max(
+                cfg.variance_floor * cfg.inputs, sum(self.raw_variances))
         sources = list(map(float, signal)) + [n.activity for n in self.neurons]
         for i, value in enumerate(sources):
             residual = cfg.trace_decay * self.traces[i]
@@ -619,7 +639,8 @@ class SharedSoma:
                     self.replacements += 1
                 cost = cfg.growth_cost * math.log1p(len(self._branches()))
                 due = self.tick - self.last_birth_tick >= cfg.growth_interval
-                if due and self.pending_matches >= cfg.persistence_matches and novelty > cfg.vigilance + cost:
+                structured = not cfg.structured_threshold or self.structured_fraction > cfg.structured_threshold
+                if due and structured and self.pending_matches >= cfg.persistence_matches and novelty > cfg.vigilance + cost:
                     parent = max(self.neurons, key=lambda n: (n.residual_energy, -n.id))
                     self._birth(parent.id, [s.strength for s in self.pending])
                     self.last_event.update(births=1, parent=parent.id)
@@ -636,7 +657,8 @@ class SharedSoma:
                     synapses=self._connection_count(), births=self.births, deaths=self.deaths,
                     synapse_births=self.synapse_births, synapse_deaths=self.synapse_deaths,
                     structured_surprise=self.pressure, provisional_replacements=self.replacements,
-                    prediction_error=sum(n.error ** 2 for n in self.neurons) / cfg.predictors)
+                    prediction_error=sum(n.error ** 2 for n in self.neurons) / cfg.predictors,
+                    raw_structured_fraction=self.structured_fraction)
 
     def state(self):
         result = dict(format='shared-soma-1', config=asdict(self.config), rng=self.rng.getstate(),
@@ -644,7 +666,8 @@ class SharedSoma:
         for key in ('sensory', 'traces', 'means', 'variances', 'bias', 'tick', 'next_id',
                     'births', 'deaths', 'synapse_births', 'synapse_deaths', 'replacements',
                     'pending_matches', 'pressure', 'last_birth_tick', 'last_event',
-                    'initial_synapses', 'initial_branch_count'):
+                    'initial_synapses', 'initial_branch_count', 'raw_means',
+                    'raw_variances', 'raw_covariances', 'structured_fraction'):
             result[key] = getattr(self, key)
         return json.loads(json.dumps(result))
 

@@ -587,7 +587,10 @@ class SharedSomaTests(unittest.TestCase):
         b = SharedSoma.from_state(a.state())
         for i in range(150):
             x = [float((i // 10) % 2), .2, float(i % 10 == 3)]
-            self.assertEqual(a.experience(x, 0) if i == 0 else len(a.experience(x, 0)), b.experience(x, 1) if i == 0 else len(b.experience(x, 1)))
+            pa = a.experience(x, 0)
+            pb = b.experience(x, 1)
+            if i == 0:
+                self.assertEqual(pa, pb)
         self.assertEqual(hidden_hash(a), hidden_hash(b))
 
     def test_forecast_update_ignores_other_neuron_errors(self):
@@ -649,6 +652,46 @@ class SharedSomaTests(unittest.TestCase):
             for branch, old_branch in zip(n['branches'], old['branches']):
                 self.assertEqual(branch['forecast_strength'], old_branch['forecast_strength'])
                 self.assertEqual(branch['afferents'], old_branch['afferents'])
+
+    def test_persistent_branch_targets_the_neuron_with_own_residual(self):
+        from brain.soma import SharedSoma, SharedConfig
+        a = SharedSoma(SharedConfig(inputs=3, initial_fields=0, raw_weight=1., prediction_learning=False))
+        a.neurons[2].residual_energy = 1000.
+        a.experience([.2, .4, .6])
+        a.experience([.2, .4, .6])
+        self.assertEqual(a.births, 0)
+        a.experience([.2, .4, .6])
+        self.assertEqual(a.last_event['parent'], 2)
+        branch = a.neurons[2].branches[0]
+        self.assertEqual([s.strength for s in branch.afferents], a.traces)
+
+    def test_raw_source_gate_does_not_count_peak_trace_persistence(self):
+        from brain.soma import SharedSoma, SharedConfig
+        a = SharedSoma(SharedConfig(inputs=2, structured_threshold=.12, recruitment=False))
+        for i in range(600):
+            a.experience([1. if i % 2 else -1., -1. if i % 2 else 1.])
+        self.assertEqual(a.structured_fraction, 0.)
+        # Activity repeated in runs has positive raw lag covariance.
+        b = SharedSoma(SharedConfig(inputs=2, structured_threshold=.12, recruitment=False))
+        for i in range(600):
+            sign = 1. if (i // 10) % 2 else -1.
+            b.experience([sign, -sign])
+        self.assertGreater(b.structured_fraction, .12)
+
+    def test_consolidated_branch_survives_inactivity_then_unprotected_prunes(self):
+        from brain.soma import SharedSoma, SharedConfig
+        a = SharedSoma(SharedConfig(inputs=3, recruitment=False, prune_interval=1, prune_age=1))
+        _, branch = a._branches()[0]
+        branch.age = 100
+        branch.evidence = 1000.
+        for edge in branch.afferents:
+            edge.strength = 900.
+        b = SharedSoma.from_state(a.state())
+        b.config = __import__('dataclasses').replace(b.config, protection=False)
+        a.experience([0.] * 3)
+        b.experience([0.] * 3)
+        self.assertEqual(len(a._branches()), 1)
+        self.assertEqual(len(b._branches()), 0)
 
     def test_invalid_experience_is_atomic(self):
         from brain.soma import SharedSoma, SharedConfig

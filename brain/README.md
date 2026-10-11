@@ -211,3 +211,13 @@ The initial branch/layout setting is initialization; layout replay is ONLY an
 experiment's random-wiring matched-final-capacity control, never candidate
 knowledge. Candidate growth must earn a benefit, and learned prediction must
 beat its frozen-feature control before being called necessary.
+
+Hypothesis 3 adds a **raw-source correlation growth gate**: each sensory
+source's own raw mean, variance and lag-one covariance (rate .01), computed
+before event traces. The population sums those presynaptic scalars to broadcast
+an amount gate; it supplies neither a desired synaptic direction nor a label.
+Positive covariance/variance above .12 is required by the selected hypothesis.
+This tests structured persistence in the actual inputs rather than persistence
+manufactured by traces. Legacy Soma is unchanged. Earlier shared full-state
+replays use their recorded source revisions because this hypothesis adds source
+histories to the new shared checkpoint schema.
