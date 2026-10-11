@@ -542,5 +542,41 @@ class SomaTests(unittest.TestCase):
                                          if nonlinear_hard.label(pair) == outcome), 0.)
 
 
+
+class Pass4EnvironmentTests(unittest.TestCase):
+    def test_acquisition_has_only_raw_factor_views_and_balanced_labels(self):
+        from experiments.pass4 import acquisition_stream, acquisition_label
+        from experiments.nonlinear import axes
+        groups = acquisition_stream(2, episodes=12)
+        a, b, _ = axes(2 + 410000)
+        for records in groups:
+            for pair, frames in records:
+                self.assertEqual(frames[:8], [[0.] * 13 for _ in range(8)])
+                self.assertEqual([x[-1] for x in frames[8:]], [0., 0., 1., 0.])
+                for frame in frames[8:]:
+                    for axis, factor in zip((a, b), pair):
+                        self.assertAlmostEqual(sum(v * w for v, w in zip(frame, axis)), .6 * (2 * factor - 1), places=12)
+            self.assertEqual(sum(acquisition_label(p) for p, _ in records), len(records) / 2)
+        self.assertEqual(groups, acquisition_stream(2, episodes=12))
+
+    def test_calibration_generators_retain_historical_streams(self):
+        from experiments.pass4 import records_for
+        from experiments import nonlinear, nonlinear_hard
+        self.assertEqual(records_for('original', 0)[0], nonlinear.stream(0))
+        self.assertEqual(records_for('stronger', 0)[0], nonlinear_hard.stream(0, dict(episodes=1200, noise=.3)))
+
+    def test_mlp_reference_predictions_precede_feedback_and_resume(self):
+        from experiments.pass4 import MLPReference
+        a = MLPReference(seed=1)
+        b = MLPReference.from_state(a.state())
+        a.experience([.2] * 13)
+        b.experience([.2] * 13)
+        self.assertEqual(a.experience([.3] * 13, 0), b.experience([.3] * 13, 1))
+        self.assertNotEqual(a.hidden, b.hidden)
+        clone = MLPReference.from_state(a.state())
+        self.assertEqual(a.experience([.1] * 13, 1), clone.experience([.1] * 13, 1))
+        self.assertEqual(a.state(), clone.state())
+
+
 if __name__ == "__main__":
     unittest.main()

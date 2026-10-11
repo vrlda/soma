@@ -5,6 +5,24 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: pass 4 calibration adapter failed before completing the grid
+
+**Question.** Can conventional online learning solve the old nonlinear tasks
+and the new acquisition task on identical streams?
+
+**Setup.** Preregistered four-cell MLP grid and linear/nearest references.
+The first dispatch used the wrong adapter signature for nonlinear_hard.stream.
+
+**Result.** Four original-task MLP rows completed; the batch then failed with
+TypeError before the stronger task. Preserve pass4_calibration.jsonl as a
+partial batch. Add an explicit adapter and a regression covering both exact
+historical generators; restart the unchanged grid in a NEW result file.
+
+**Meaning.** This is a runner failure, not a scientific task result or a model
+selection. Do not tune from the partial grid. The full rerun is authoritative.
+
+---
+
 ## 2026-10-11: pass 3 merged, with a review
 
 **What happened.** Pass 3 (entries below) was merged unchanged. 46 tests pass.

@@ -99,7 +99,9 @@ def records_for(task, seed):
     if task == 'acquisition':
         return acquisition_stream(seed), acquisition_label
     generator = nonlinear if task == 'original' else nonlinear_hard
-    return generator.stream(seed), generator.label
+    task_settings = dict(episodes=1200, noise=.3)
+    records = generator.stream(seed) if task == 'original' else generator.stream(seed, task_settings)
+    return records, generator.label
 
 
 def episode(brain, frames, target=None, teacher=None):
