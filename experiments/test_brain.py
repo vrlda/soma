@@ -525,5 +525,22 @@ class SomaTests(unittest.TestCase):
         self.assertFalse(matches_recorded(emitted, recorded))
 
 
+
+    def test_stronger_task_defeats_nearest_exemplars_without_future_leakage(self):
+        from experiments import nonlinear, nonlinear_hard
+        task = dict(episodes=120, noise=.3)
+        train, test, _ = nonlinear_hard.stream(0, task)
+        original, _, _ = nonlinear.stream(0, episodes=120)
+        for (_, frames), (_, old) in zip(train, original):
+            self.assertEqual(frames[:11], old[:11])
+        self.assertEqual(nonlinear_hard.nearest_metrics(train, test)['accuracy'], 0.)
+        for pairs in (nonlinear.SEEN, nonlinear.HELD):
+            self.assertEqual(sum(nonlinear_hard.label(pair) for pair in pairs), len(pairs) / 2)
+            for outcome in (0, 1):
+                for axis in (0, 1):
+                    self.assertEqual(sum(nonlinear.VALUES[pair[axis]] for pair in pairs
+                                         if nonlinear_hard.label(pair) == outcome), 0.)
+
+
 if __name__ == "__main__":
     unittest.main()
