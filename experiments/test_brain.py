@@ -578,5 +578,87 @@ class Pass4EnvironmentTests(unittest.TestCase):
         self.assertEqual(a.state(), clone.state())
 
 
+
+class SharedSomaTests(unittest.TestCase):
+    def test_hidden_rules_and_recruitment_ignore_labels(self):
+        from brain.soma import SharedSoma, SharedConfig
+        from experiments.pass4_acquisition import hidden_hash
+        a = SharedSoma(SharedConfig(inputs=3, seed=2))
+        b = SharedSoma.from_state(a.state())
+        for i in range(150):
+            x = [float((i // 10) % 2), .2, float(i % 10 == 3)]
+            self.assertEqual(a.experience(x, 0) if i == 0 else len(a.experience(x, 0)), b.experience(x, 1) if i == 0 else len(b.experience(x, 1)))
+        self.assertEqual(hidden_hash(a), hidden_hash(b))
+
+    def test_forecast_update_ignores_other_neuron_errors(self):
+        from brain.soma import SharedSoma, SharedConfig
+        a = SharedSoma(SharedConfig(inputs=3))
+        a.experience([.2, .4, .6])
+        b = SharedSoma.from_state(a.state())
+        b.neurons[1].error = 900.
+        b.neurons[1].activity = -900.
+        a._learn_forecast(a.neurons[0], .8, 1.)
+        b._learn_forecast(b.neurons[0], .8, 1.)
+        self.assertEqual(a.neurons[0], b.neurons[0])
+
+    def test_resume_exact_with_recruited_structure_and_atomic_save(self):
+        from brain.soma import SharedSoma, SharedConfig
+        a = SharedSoma(SharedConfig(inputs=3, prediction_learning=False, raw_weight=1., vigilance=.1))
+        for i in range(100):
+            a.experience([float((i // 10) % 2), .2, .3], i % 2)
+        self.assertGreater(a.births, 0)
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / 'shared.json'
+            a.save(path)
+            b = SharedSoma.load(path)
+        for i in range(50):
+            x = [float((i // 5) % 2), .7, .3]
+            self.assertEqual(a.experience(x, i % 2), b.experience(x, i % 2))
+        self.assertEqual(a.state(), b.state())
+
+    def test_targeted_branch_and_pruning_counters_have_no_dangling_edges(self):
+        from brain.soma import SharedSoma, SharedConfig
+        a = SharedSoma(SharedConfig(inputs=3, pruning=False))
+        a._birth(2, [0.] * 11)
+        self.assertEqual(len(a.neurons[2].branches), 1)
+        a.config = __import__('dataclasses').replace(a.config, pruning=True, protection=False, prune_age=1, prune_interval=1, recruitment=False)
+        for _, b in a._branches():
+            b.age = 10
+            b.usefulness = 0.
+            for edge in b.afferents:
+                edge.strength = 900.
+        a.experience([0.] * 3)
+        self.assertEqual(len(a._branches()), 0)
+        self.assertEqual(a.summary()['branches'], a.initial_branch_count + a.births - a.deaths)
+        self.assertEqual(a.summary()['synapses'], a.initial_synapses + a.synapse_births - a.synapse_deaths)
+
+    def test_frozen_probe_preserves_all_weights_statistics_structure(self):
+        from brain.soma import SharedSoma, SharedConfig
+        from experiments.pass4_acquisition import freeze
+        a = SharedSoma(SharedConfig(inputs=3))
+        for _ in range(10):
+            a.experience([.2, .4, .6], 1)
+        freeze(a)
+        previous = a.state()
+        a.experience([.3, .1, .8])
+        for key in ('means', 'variances', 'births', 'deaths', 'synapse_births', 'synapse_deaths'):
+            self.assertEqual(a.state()[key], previous[key])
+        for n, old in zip(a.state()['neurons'], previous['neurons']):
+            for role in ('observation', 'basal', 'outcomes'):
+                self.assertEqual([s['strength'] for s in n[role]], [s['strength'] for s in old[role]])
+            for branch, old_branch in zip(n['branches'], old['branches']):
+                self.assertEqual(branch['forecast_strength'], old_branch['forecast_strength'])
+                self.assertEqual(branch['afferents'], old_branch['afferents'])
+
+    def test_invalid_experience_is_atomic(self):
+        from brain.soma import SharedSoma, SharedConfig
+        a = SharedSoma(SharedConfig(inputs=3))
+        previous = a.state()
+        for signal, target in (([1., float('nan'), 0.], None), ([1., 0., 1.], 3)):
+            with self.assertRaises(ValueError):
+                a.experience(signal, target)
+            self.assertEqual(a.state(), previous)
+
+
 if __name__ == "__main__":
     unittest.main()

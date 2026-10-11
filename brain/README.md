@@ -170,3 +170,44 @@ and pruning threshold scale together. This greatly reduces independent-noise
 recruitment over the measured4000 ticks, not a proof of asymptotic regulation.
 An externally replaced observation signal is ONLY the episode-shuffled control;
 it never supplies an answer to the candidate. See the failed confirmation gates.
+
+## Pass 4: shared forecasts and persistent conjunctive branches
+
+`SharedSoma(SharedConfig(...))` is the pass-4 hypothesis in `soma.py`.
+The original Soma/SomaConfig methods above remain unchanged for exact pass-3
+replay. SharedSoma instantiates one neural graph directly, without importing
+or selecting a specialist. Interface counts and seeds never select a rule.
+
+| New rule | Exactly which local information it uses |
+|---|---|
+| Linear future forecast | Own basal afferents' prior sensory activity and own branches' prior activity |
+| Predictive update | Own observation projection minus own emitted forecast, own presynaptic eligibility, scalar gate, own incoming energy |
+| Receptive-field matching | Each branch's own source trace, own afferent strength and source-local variance; raw/predictive distance mixture |
+| Lateral competition/vigilance | Competing branches' mismatch scalars; a winning branch emits activity only when matched |
+| Provisional persistence | One provisional dendrite's own afferents, current source traces and consecutive matching count; no example list |
+| Targeted branch growth | Persistent/current sensory mismatch and cost/cadence; competition selects the soma with greatest own residual-energy scalar |
+| Newborn branch | Locally available provisional afferents, initialized branch-to-own-soma and outcome strengths zero |
+| Branch predictive current | Own prior compartment activity × own parent's next-input error; no error from any other parent |
+| Matching adaptation/consolidation | Own source trace minus own afferent strength, own winning activity and local matching evidence |
+| Outcome learning/regrowth | Source compartment activity and receiving outcome neuron's own error; labels stop here |
+| Branch pruning/protection | Own activity usefulness, age and matching evidence; removes all incident branch edges |
+| Outcome-edge pruning/protection | Own strength/use, age and local coactivity evidence |
+
+Predictive neurons' observation projections are fixed; basal prediction and
+branch currents learn continuously. Nonlinear receptive branches expose their
+compartment activities to outcome synapses, as well as a current to their own
+soma. This is an explicit compartment-output simplification, not ordinary
+single-axon anatomy. It does not propagate a gradient or a label into hidden
+plasticity. A provisional branch is a single plastic neural state, not a raw
+experience buffer. Its replacement count is reported alongside births so
+unsuccessful attempts remain observable.
+
+Counts distinguish fixed initial predictive neurons from living branches:
+`hidden` counts predictive somas, `branches` counts represented compartments,
+`births/deaths` count branches, and `provisional_branches` is one scratch
+compartment. Weighted edges include observation, basal, outcome, matching,
+branch-to-soma and provisional afferents. No cap applies to branch population.
+The initial branch/layout setting is initialization; layout replay is ONLY an
+experiment's random-wiring matched-final-capacity control, never candidate
+knowledge. Candidate growth must earn a benefit, and learned prediction must
+beat its frozen-feature control before being called necessary.
