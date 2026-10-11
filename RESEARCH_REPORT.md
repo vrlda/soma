@@ -12,6 +12,25 @@ retention failure began as an acquisition failure, before the context switch.
 This pass builds on the reviewed fresh-start tip `7139c10`; `VISION.md`, the
 original organism, its defaults, and previous raw results remain unchanged.
 
+## Earlier results (pass 1, still valid)
+
+The pass-1 substrate `brain/organism.py` and its records are unchanged. Its
+confirmed results, all on small finite tasks with controls (details in
+`NOTEBOOK.md` and `experiments/report/SUMMARY.md`):
+
+| Experiment | Result |
+|---|---|
+| Single-cue delayed recall | 100% through 64 blank steps |
+| Two-symbol temporal grammar, gap 8 | 100% with local afferent variance normalization; about 50% without it |
+| Lifetime A → reversed B → A, gap 2 | 100% new, 100% old return; 82.4% without pruning protection |
+| Same lifetime, gap 8 | 98.0% old return vs 78.2% without protection; seed 11 is an acquisition failure (see A below) |
+| Fresh grammar, gap 16 | about 50%: unsolved |
+| Sleep-labelled replay | no benefit over equal wake replay |
+
+There are now two separate substrates, `organism.py` (temporal, competitive,
+growing) and `predictive.py` (local next-input prediction). Merging what each
+has earned into one brain is open work.
+
 ## A: diagnose the old return failure
 
 The exact original lifetimes for seeds 10/11/12 were replayed without retuning.

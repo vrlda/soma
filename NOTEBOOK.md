@@ -5,6 +5,36 @@ Failures are recorded as carefully as successes.
 
 ---
 
+## 2026-10-11: pass 2 merged, with a review
+
+**What happened.** The overnight pass 2 (entries below) was merged unchanged.
+32 tests pass, and the confirmation means in
+`results/pass2_composition_confirmation.jsonl` were recomputed from the raw
+records and match the report (candidate 95.5%, linear memory 91.3%, frozen
+66.8%, shuffled 67.9%, Oja 50.1%, competitive pool 50.0%).
+
+**Review against the vision.** This is the first hidden learning that earns
+its place: predictor neurons learn by their own local next-input prediction
+error, without labels, and that beats the frozen, shuffled, and matched
+controls. Cautions:
+
+- Every hidden unit is linear and the task is linearly separable, so the
+  result is denoising (finding the predictable signal subspace), not
+  composition. A supervised linear model nearly matches it.
+- Observation neurons are fixed random projections, and growth and pruning
+  never fired in these lifetimes: structure did not live and die here.
+- `predictive.py` is a second, separate brain. The goal remains one brain;
+  local prediction should become a rule inside a single substrate together
+  with traces, recruitment, and protected pruning.
+- The seed-11 diagnosis (aliasing during acquisition, not forgetting) is
+  valuable. Retention tests must now gate on acquisition first.
+
+**Next.** Pass 2's own step 1: a nonlinear task (for example XOR-like factor
+interactions) that a linear model cannot solve, with nonlinear (dendritic)
+predictive units.
+
+---
+
 ## 2026-10-11: final reproducibility audit and a capacity correction
 
 **Question.** Can every sampled record be replayed exactly, and were early
